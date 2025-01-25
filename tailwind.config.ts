@@ -11,7 +11,11 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        primary: "#000957",
       },
+      fontFamily: {
+        ruda: ["var(--font-ruda)", "sans-serif"],
+      }
     },
   },
   plugins: [],
