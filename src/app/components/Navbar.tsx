@@ -22,7 +22,7 @@ const Navbar = () => {
         const token = localStorage.getItem('token');
         if (token) {
             axios
-                .get('http://localhost:5000/api/profile', {
+                .get(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -113,7 +113,7 @@ const Navbar = () => {
                     <img src="../../icons/new.svg" alt="" className='mx-[15px]' /><h1 className='mt-[2px]'>New Post</h1>
                 </button>
                 <button className="w-[200px] h-[50px] bg-white rounded-[15px] mt-[5px] text-[20px] text-primary font-ruda flex items-center"
-                    onClick={() => router.push('/pages/user/post')}>
+                    onClick={() => router.push('/pages/user/DashboardUser')}>
                     <img src="../../icons/home.svg" alt="" className='mx-[15px]' /><h1 className='mt-[2px]'>Home</h1>
                 </button>
                 <button className="w-[200px] h-[50px] bg-white rounded-[15px] mt-[5px] text-[20px] text-primary font-ruda flex items-center"

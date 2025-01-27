@@ -2,16 +2,55 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/app/components/Navbar';
 import { ForumPost } from '@/app/types/types';
 
 const DashboardUser = () => {
+    const router = useRouter();
     const [posts, setPosts] = useState<ForumPost[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
     const [isScrolling, setIsScrolling] = useState<boolean>(false);
-    const [visibleComments, setVisibleComments] = useState<{ [key: number]: boolean }>({});
+    const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
+
+    useEffect(() => {
+        const fetchPosts = async () => {
+            try {
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/forum/`)
+                setPosts(response.data);
+            } catch (err) {
+                setError('Failed to fetch forum posts.');
+                console.error('Error:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchPosts();
+    }, []);
+
+    const handleCommentClick = (postid: number) => {
+        router.push(`/pages/user/forum/${postid}`);
+    };
+
+    useEffect(() => {
+        let timeoutId: NodeJS.Timeout;
+
+        const handleScroll = () => {
+            setIsScrolling(true);
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                setIsScrolling(false);
+            }, 200);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            clearTimeout(timeoutId);
+        };
+    }, []);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -22,23 +61,6 @@ const DashboardUser = () => {
         return () => {
             window.removeEventListener('scroll', handleScroll);
         };
-    }, []);
-
-    useEffect(() => {
-        const fetchPosts = async () => {
-            try {
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/forum/`);
-                const sortedPosts = response.data.sort((a: ForumPost, b: ForumPost) => b.id - a.id);
-                setPosts(sortedPosts);
-            } catch (err) {
-                setError('Failed to fetch forum posts.');
-                console.error('Error:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchPosts();
     }, []);
 
     const handleClickOutside = (event: MouseEvent) => {
@@ -64,64 +86,36 @@ const DashboardUser = () => {
         setActiveDropdown((prev) => (prev === postId ? null : postId));
     };
 
-    const toggleComments = (postId: number) => {
-        setVisibleComments((prev) => ({
-            ...prev,
-            [postId]: !prev[postId],
-        }));
-    };
-
-    useEffect(() => {
-        let timeoutId: NodeJS.Timeout;
-
-        const handleScroll = () => {
-            setIsScrolling(true);
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => {
-                setIsScrolling(false);
-            }, 200);
-        };
-
-        window.addEventListener('scroll', handleScroll);
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-            clearTimeout(timeoutId);
-        };
-    }, []);
-
     return (
         <div>
             <Navbar />
-            <div className="ps-[250px] pt-[80px]">
+            <div className="ps-[290px] pt-[80px]">
                 <div
                     className={`fixed top-0 left-[250px] w-full z-10 transition-transform duration-300 ${isScrolling ? '-translate-y-full' : 'translate-y-0'
                         }`}
                 >
-                    <div className="bg-white backdrop-blur-80 bg-opacity-70 w-[120px] ms-[66px] text-center rounded-ee-[15px] rounded-bl-[15px]">
+                    <div className="bg-black backdrop-blur-md bg-opacity-20 w-[120px] ms-[100px] text-center rounded-ee-[15px] rounded-bl-[15px]">
                         <h1 className="text-[30px] text-primary font-ruda font-black">For You</h1>
                     </div>
                 </div>
                 {loading ? (
-                    <div className="">
-                        <div className="w-[800px] h-[150px] p-[35px] bg-white border border-black rounded-[15px] mb-[20px] ms-[60px]"></div>
-                        <div className="w-[800px] h-[200px] p-[35px] bg-white border border-black rounded-[15px] mb-[20px] ms-[60px]"></div>
-                        <div className="w-[800px] h-[150px] p-[35px] bg-white border border-black rounded-[15px] mb-[20px] ms-[60px]"></div>
-                    </div>
+                    <p>Loading...</p>
                 ) : error ? (
                     <p>{error}</p>
                 ) : posts.length > 0 ? (
-                    posts.map((post) => (
-                        <div key={post.id} className="w-[800px] p-[35px] bg-white border border-black rounded-[15px] mb-[20px] ms-[60px]">
+                    posts.map((post: ForumPost) => (
+                        <div key={post.id} className="w-[700px] p-[30px] bg-white border border-black rounded-[15px] mb-[20px] ms-[85px]">
                             <div className="flex justify-between w-full items-center">
                                 <div className="flex">
                                     <img
                                         src={`${process.env.NEXT_PUBLIC_API_URL}${post.profile}`}
                                         alt=""
-                                        className="w-[50px] h-[50px] bg-cover rounded-full"
+                                        className="w-[40px] h-[40px] bg-cover rounded-full"
                                     />
-                                    <div className="ms-[20px] py-[7px]">
+                                    <div className="ms-[10px] py-[1px]">
                                         <p className="text-[16px] font-ruda font-bold">{post.username}</p>
                                         <p className="text-[10px] font-ruda font-bold">{post.relative_time}</p>
+                                        <p>{post.category_name}</p>
                                     </div>
                                 </div>
                                 <div className="relative dropdown-container">
@@ -149,51 +143,34 @@ const DashboardUser = () => {
                                     )}
                                 </div>
                             </div>
-                            <div className="mt-[30px] text-[16px] font-ruda font-black">
+                            <div className="mt-[30px] text-[14px] font-ruda font-black ps-[50px]">
                                 <h2>{post.title}</h2>
                                 {post.photo && (
-                                    <img
-                                        src={`${process.env.NEXT_PUBLIC_API_URL}${post.photo}`}
-                                        alt={post.title}
-                                        className="w-[300px] rounded-[15px] mt-[20px] shadow-md"
-                                    />
+                                    <div className="w-[400px] h-[400px] bg-white bg-opacity-50 backdrop-blur-70 rounded-[15px] mt-[20px] border border-gray-400 flex justify-center items-center overflow-hidden group">
+                                        <img
+                                            src={`${process.env.NEXT_PUBLIC_API_URL}${post.photo}`}
+                                            alt={post.title}
+                                            className="max-w-full max-h-full"
+                                        />
+                                    </div>
                                 )}
                             </div>
-                            <div className="mt-[20px]">
+                            <div className="mt-[20px] flex ms-[50px]">
+                                <div className="text-primary font-ruda mt-[10px] mb-[10px] flex items-center text-[15px]">
+                                    <button>
+                                        <img src="../../icons/like.svg" alt=""
+                                            className="w-[20px] h-[20px] mr-[20px]" />
+                                    </button>
+                                </div>
                                 <button
-                                    onClick={() => toggleComments(post.id)}
+                                    onClick={() => handleCommentClick(post.id)}
                                     className="text-primary font-ruda mt-[10px] mb-[10px] flex items-center text-[15px]"
                                 >
-                                    <img
-                                        src={visibleComments[post.id] ? "../../icons/comment.svg" : "../../icons/comment.svg"}
+                                    <img src="../../icons/comment.svg"
                                         className="w-[20px] h-[20px] mr-[5px]"
                                     />
-                                    {visibleComments[post.id] ? '' : ''} {post.comments ? post.comments.length : 0}
+                                    {post.comments ? post.comments.length + post.comments.reduce((acc, comment) => acc + (comment.replies ? comment.replies.length : 0), 0) : 0}
                                 </button>
-                                {visibleComments[post.id] && (
-                                    <>
-                                        {post.comments && post.comments.length > 0 ? (
-                                            post.comments.map((comment) => (
-                                                <div key={comment.id} className="mt-[10px] p-[10px] bg-gray-100 rounded-[10px]">
-                                                    <div className="flex items-center">
-                                                        <img
-                                                            src={`${process.env.NEXT_PUBLIC_API_URL}${comment.profile}`}
-                                                            alt=""
-                                                            className="w-[30px] h-[30px] bg-cover rounded-full"
-                                                        />
-                                                        <div className="ms-[10px] flex items-center">
-                                                            <p className="text-[16px] font-ruda font-bold">{comment.username} <span className="text-[8px] top-2">{comment.relative_time}</span></p>
-                                                        </div>
-                                                    </div>
-                                                    <p className="mt-[10px] text-[14px] font-ruda">{comment.content}</p>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <p>No comments available.</p>
-                                        )}
-
-                                    </>
-                                )}
                             </div>
                         </div>
                     ))
@@ -206,4 +183,3 @@ const DashboardUser = () => {
 };
 
 export default DashboardUser;
-
