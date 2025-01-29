@@ -4,11 +4,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Modal from './Modal';
 import { useRouter } from 'next/navigation';
-
-interface User {
-    username: string;
-    profile: string;
-}
+import { User } from '@/app/types/types';
 
 const Navbar = () => {
     const [user, setUser] = useState<User | null>(null);
@@ -17,6 +13,8 @@ const Navbar = () => {
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const router = useRouter();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
+    const [notifications, setNotifications] = useState<any[]>(() => []);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -35,10 +33,31 @@ const Navbar = () => {
                     console.error('Failed to fetch user profile:', error);
                     setLoading(false);
                 });
+
+            // Fetch notifikasi
+            axios
+                .get(`${process.env.NEXT_PUBLIC_API_URL}/api/notification/`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                .then((response) => {
+                    console.log('Notifications data:', response.data.notifications); // Pastikan mengambil data.notifications
+                    setNotifications(response.data.notifications); // Set data notifications ke state
+                })
+                .catch((error) => {
+                    console.error('Failed to fetch notifications:', error);
+                });
+
         } else {
             setLoading(false);
         }
     }, []);
+
+    const unreadCount = Array.isArray(notifications)
+        ? notifications.filter((notif) => !notif.isRead).length
+        : 0;
+
 
     const handleConfirmLogout = () => {
         setShowLogoutModal(true);
@@ -59,16 +78,40 @@ const Navbar = () => {
         setShowLogoutModal(false);
     };
 
+    const handleClickOutside = (event: MouseEvent) => {
+        const target = event.target as HTMLElement;
+        if (!target.closest('.dropdown-container') && !target.closest('.dropdown-trigger')) {
+            setActiveDropdown(null);
+        }
+    };
+
+    useEffect(() => {
+        if (activeDropdown !== null) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [activeDropdown]);
+
+    const isActive = (path: string) => {
+        if (typeof window !== 'undefined') {
+            return window.location.pathname === path;
+        }
+        return false;
+    };
+
+
     return (
         <div className="relative">
-            <div className="fixed h-[calc(100vh)] w-[250px] flex flex-col items-center bg-white">
+            <div className="fixed h-[calc(100vh)] w-[270px] flex flex-col items-center bg-white">
                 {loading ? (
                     <div className='text-center'>
-                        <div className="flex">
-                            <div className="w-[80px] h-[80px] rounded-full bg-gray-200 z-0 mt-[85px] me-[45px] flex items-center justify-center">
-                                <img src="../../images/FM.png" alt="" />
-                            </div>
-                            <div className="w-[100px] h-[100px] bg-gray-200 border border-[#2E3781] rounded-full overflow-hidden bg-cover flex items-center justify-center z-10 mt-[75px] ms-[50px] absolute">
+                        <div className="flex justify-center">
+                            <div className="w-[100px] h-[100px] bg-gray-200 border border-[#2E3781] rounded-full overflow-hidden bg-cover flex items-center justify-center z-10 mt-[75px]">
 
                             </div>
                         </div>
@@ -76,18 +119,15 @@ const Navbar = () => {
                     </div>
                 ) : user ? (
                     <div className='text-center'>
-                        <div className="flex">
-                            <div className="w-[80px] h-[80px] rounded-full bg-[#2E3781] z-0 mt-[85px] me-[45px] flex items-center justify-center">
-                                <img src="../../images/FM.png" alt="" />
-                            </div>
-                            <div className="w-[100px] h-[100px] bg-white border border-[#2E3781] rounded-full overflow-hidden bg-cover flex items-center justify-center z-10 mt-[75px] ms-[50px] absolute">
+                        <div className="flex justify-center">
+                            <div className="w-[100px] h-[100px] bg-white border border-[#2E3781] rounded-full overflow-hidden bg-cover flex items-center justify-center z-10 mt-[75px]">
                                 <img
-                                    src={user.profile ? `http://localhost:5000${user.profile}` : 'https://i.pinimg.com/736x/de/c6/f8/dec6f8725b7669004655f3bbe7178d41.jpg'}
+                                    src={user.profile ? `http://localhost:5000${user.profile}` : 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg'}
                                     alt="User profile"
                                     className="w-[100px]"
                                     onError={(e) => {
                                         console.log(`Image not found for user: ${user.profile}, setting to default.`);
-                                        (e.target as HTMLImageElement).src = 'https://i.pinimg.com/736x/de/c6/f8/dec6f8725b7669004655f3bbe7178d41.jpg';
+                                        (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
                                     }}
                                 />
                             </div>
@@ -96,11 +136,8 @@ const Navbar = () => {
                     </div>
                 ) : (
                     <div className='text-center'>
-                        <div className="flex">
-                            <div className="w-[80px] h-[80px] rounded-full bg-gray-400 z-0 mt-[85px] me-[45px] flex items-center justify-center">
-                                <img src="../../images/FM.png" alt="" />
-                            </div>
-                            <div className="w-[100px] h-[100px] bg-gray-400 border border-[#2E3781] rounded-full overflow-hidden bg-cover flex items-center justify-center z-10 mt-[75px] ms-[50px] absolute">
+                        <div className="flex justify-center">
+                            <div className="w-[100px] h-[100px] bg-gray-400 border border-[#2E3781] rounded-full overflow-hidden bg-cover flex items-center justify-center z-10 mt-[75px]">
 
                             </div>
                         </div>
@@ -108,28 +145,54 @@ const Navbar = () => {
                     </div>
                 )}
 
-                <button className="w-[200px] h-[50px] bg-primary rounded-[15px] mt-[67px] text-[20px] text-white font-ruda flex items-center"
-                    onClick={() => router.push('/pages/user/post')}>
-                    <img src="../../icons/new.svg" alt="" className='mx-[15px]' /><h1 className='mt-[2px]'>New Post</h1>
-                </button>
-                <button className="w-[200px] h-[50px] bg-white rounded-[15px] mt-[5px] text-[20px] text-primary font-ruda flex items-center"
-                    onClick={() => router.push('/pages/user/DashboardUser')}>
-                    <img src="../../icons/home.svg" alt="" className='mx-[15px]' /><h1 className='mt-[2px]'>Home</h1>
-                </button>
-                <button className="w-[200px] h-[50px] bg-white rounded-[15px] mt-[5px] text-[20px] text-primary font-ruda flex items-center"
-                    onClick={() => router.push('/pages/user/post')}>
-                    <img src="../../icons/message.svg" alt="" className='mx-[15px]' /><h1 className='mt-[2px]'>Message</h1>
-                </button>
-                <button className="w-[200px] h-[50px] bg-white rounded-[15px] mt-[5px] text-[20px] text-primary font-ruda flex items-center"
-                    onClick={() => router.push('/pages/user/post')}>
-                    <img src="../../icons/akun.svg" alt="" className='mx-[15px]' /><h1 className='mt-[2px]'>Account</h1>
-                </button>
-                <button
-                    onClick={handleConfirmLogout}
-                    className="mt-[130px]"
-                >
-                    Logout
-                </button>
+                <div>
+                    <button className={`w-[200px] h-[50px] rounded-full mt-[67px] text-[16px] font-ruda flex items-center ${isActive('/pages/user/post') ? 'bg-primary text-white' : 'bg-primary text-white'}`}
+                        onClick={() => router.push('/pages/user/post')}>
+                        <img src="../../../icons/new.svg" alt="" className='mx-[20px]' /><h1 className='mt-[2px]'>Posting</h1>
+                    </button>
+                    <button className="px-[20px] h-[50px] rounded-full mt-[5px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors text-primary"
+                        onClick={() => router.push('/pages/user/Home')}>
+                        <img src="../../../icons/home.svg" alt="" className='me-[20px]' /><h1 className='mt-[2px]'>Beranda</h1>
+                    </button>
+                    <button className="px-[20px] h-[50px] rounded-full mt-[5px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors text-primary"
+                        onClick={() => router.push('/pages/user/notif')}>
+                        <img src="../../../icons/message.svg" alt="" className='me-[20px]' />
+                        <h1 className='mt-[2px]'>Notifikasi
+                        </h1>
+                        {unreadCount > 0 && (
+                            <span className="ms-[20px] text-white bg-primary text-xs rounded-full px-2 py-1">
+                                {unreadCount}
+                            </span>
+                        )}
+                    </button>
+                    <button className="px-[20px] h-[50px] rounded-full mt-[5px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors text-primary"
+                        onClick={() => router.push('#')}>
+                        <img src="../../../icons/akun.svg" alt="" className='me-[20px]' /><h1 className='mt-[2px]'>Profil</h1>
+                    </button>
+                    <div className="">
+                        <div className="dropdown-container">
+                            <button
+                                onClick={() =>
+                                    setActiveDropdown(activeDropdown === 1 ? null : 1)
+                                }
+                                className="dropdown-trigger px-[20px] h-[50px] rounded-full mt-[5px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors text-primary"
+                            >
+                                <img src="../../../icons/more.svg" alt="" className='me-[20px]' /><h1 className='mt-[2px]'>Lainya</h1>
+                            </button>
+                            {activeDropdown === 1 && (
+                                <div className="absolute bg-white z-10 w-[150px] mt-3 ms-[25px] rounded-[10px] border shadow-lg overflow-hidden">
+                                    <button
+                                        onClick={handleConfirmLogout}
+                                        className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center"
+                                    >
+                                        Logout
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <Modal isOpen={showLogoutModal} onClose={cancelLogout}>

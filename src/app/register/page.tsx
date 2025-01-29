@@ -21,9 +21,9 @@ const Register = () => {
         e.preventDefault();
         setLoading(true);
 
-        if (!username || !password || !profile) {
+        if (!username || !password) {
             setAlertType('warning');
-            setAlertMessage('Semua bidang wajib diisi, termasuk foto profil');
+            setAlertMessage('Username dan password wajib diisi');
             setShowAlert(true);
             setLoading(false);
             return;
@@ -32,7 +32,9 @@ const Register = () => {
         const formData = new FormData();
         formData.append('username', username);
         formData.append('password', password);
-        formData.append('profile', profile);
+        if (profile) {
+            formData.append('profile', profile);
+        }
 
         try {
             const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/register`, formData, {
@@ -47,7 +49,7 @@ const Register = () => {
 
             setTimeout(() => {
                 router.push('/login');
-            }, 1500);
+            }, 1000);
         } catch (error: any) {
             let errorMessage = 'Terjadi kesalahan saat registrasi';
 

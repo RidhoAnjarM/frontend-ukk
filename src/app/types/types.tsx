@@ -20,6 +20,7 @@ export interface Reply {
 }
 
 export interface ForumPost {
+    category: string;
     photo_orientation: string;
     id: number;
     title: string;
@@ -31,4 +32,24 @@ export interface ForumPost {
     category_name: string;
     relative_time: string;
     comments: Comment[];
+}
+
+export interface User {
+    username: string;
+    profile: string;
+}
+
+export interface Notification {
+    id: string;
+    content: string;
+    isRead: boolean;
+    comment?: string;
+    user?: string;
+    profile?: string;
+    reply?: string;
+    reply_user?: string;
+    forum_id?: string;
+    forum_title?: string;
+    photo?: string;
+    reply_profile?: string;
 }

@@ -43,7 +43,7 @@ const Login = () => {
 
             setTimeout(() => {
                 if (role === 'user') {
-                    router.push('pages/user/DashboardUser');
+                    router.push('pages/user/Home');
                 } else if (role === 'admin') {
                     router.push('/admin/dashboard');
                 }
