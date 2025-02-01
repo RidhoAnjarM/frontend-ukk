@@ -37,6 +37,7 @@ export interface ForumPost {
 export interface User {
     username: string;
     profile: string;
+    name: string;
 }
 
 export interface Notification {

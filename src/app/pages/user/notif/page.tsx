@@ -22,22 +22,22 @@ const Notif = () => {
       if (!token) {
         throw new Error("Token not found. Please log in.");
       }
-  
+
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/notification/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setNotifications(response.data.notifications || []);  
+      setNotifications(response.data.notifications || []);
     } catch (err) {
       console.error("Failed to fetch notifications", err);
-      setNotifications([]);  
+      setNotifications([]);
       setError("Failed to fetch notifications");
     } finally {
       setLoading(false);
     }
   };
-  
+
 
   const markAsRead = async (id: string) => {
     try {
@@ -128,15 +128,19 @@ const Notif = () => {
             {notifications.map((notif) => (
               <li key={notif.id} className={`p-4 border -mt-[1px] border-gray-300 flex items-center ${notif.isRead ? "bg-white" : "bg-gray-100"}`}>
                 <img
-                  src={`${process.env.NEXT_PUBLIC_API_URL}${notif.reply_profile || notif.profile}`}
-                  alt=""
+                  src={
+                    notif.reply_profile || notif.profile
+                      ? `${process.env.NEXT_PUBLIC_API_URL}${notif.reply_profile || notif.profile}`
+                      : 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg'
+                  }
+                  alt="Profile"
                   className="w-[50px] h-[50px] bg-cover rounded-full mr-4 bg-white"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
                   }}
                 />
                 <div className="flex justify-between w-full relative">
-                  <div className="w-[550px] ">
+                  <div className="w-[550px]">
                     {notif.forum_id ? (
                       <Link href={`/pages/user/forum/${notif.forum_id}`}>
                         <p className="hover:underline">{notif.content}</p>
@@ -147,18 +151,22 @@ const Notif = () => {
                   </div>
                   <div className="relative">
                     <button onClick={() => setActiveDropdown(activeDropdown === notif.id ? null : notif.id)} className="focus:outline-none">
-                      <img src="../../icons/menu.svg" alt="menu" className="w-[20px]"/>
+                      <img src="../../icons/menu.svg" alt="menu" className="w-[20px]" />
                     </button>
                     {activeDropdown === notif.id && (
                       <div className="absolute bg-[#F2F2F2] z-10 w-[170px] rounded-[15px] overflow-hidden top-7 right-0 shadow-md dropdown-container border border-primary">
                         {!notif.isRead && (
-                          <button className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda text-[12px] border-b border-primary"
-                            onClick={() => markAsRead(notif.id)}>
+                          <button
+                            className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda text-[12px] border-b border-primary"
+                            onClick={() => markAsRead(notif.id)}
+                          >
                             Tandai telah dibaca
                           </button>
                         )}
-                        <button className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda text-[12px]"
-                          onClick={() => deleteNotification(notif.id)}>
+                        <button
+                          className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda text-[12px]"
+                          onClick={() => deleteNotification(notif.id)}
+                        >
                           Hapus
                         </button>
                       </div>
@@ -177,3 +185,4 @@ const Notif = () => {
 };
 
 export default Notif;
+

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Alert from '../components/Alert';
 
 const Register = () => {
+    const [name, setName] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [profile, setProfile] = useState<File | null>(null);
@@ -30,6 +31,7 @@ const Register = () => {
         }
 
         const formData = new FormData();
+        formData.append('name', name);
         formData.append('username', username);
         formData.append('password', password);
         if (profile) {
@@ -97,7 +99,7 @@ const Register = () => {
     };
 
     return (
-        <div className="w-full flex justify-center mt-[20px]">
+        <div className="w-full flex justify-center mt-[10px]">
             <div>
                 <img src="../images/ilustration.svg" alt="" className='' />
                 <form onSubmit={handleSubmit} className='w-[500px]'>
@@ -108,7 +110,22 @@ const Register = () => {
                             onClose={() => setShowAlert(false)}
                         />
                     )}
-                    <div className="">
+                    <div>
+                        <label
+                            className='text-[20px] font-bold font-ruda mb-[10px]'
+                        >
+                            Name
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Nama"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            required
+                            className='border w-full h-[50px] bg-white rounded-[10px] border-[0.5] outline-none px-[30px]'
+                        />
+                    </div>
+                    <div className="mt-[10px]">
                         <label
                             className='text-[20px] font-bold font-ruda mb-[10px]'
                         >
@@ -123,7 +140,7 @@ const Register = () => {
                             className='border w-full h-[50px] bg-white rounded-[10px] border-[0.5] outline-none px-[30px]'
                         />
                     </div>
-                    <div className="mt-[20px]">
+                    <div className="mt-[10px]">
                         <label
                             className='text-[20px] font-bold font-ruda mb-[10px]'
                         >
@@ -140,7 +157,7 @@ const Register = () => {
                     </div>
 
                     <div>
-                        <div className="relative mt-[20px]">
+                        <div className="relative mt-[10px]">
                             <label
                                 className='text-[20px] font-bold font-ruda mb-[10px]'
                             >

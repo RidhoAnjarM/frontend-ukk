@@ -34,7 +34,6 @@ const Navbar = () => {
                     setLoading(false);
                 });
 
-            // Fetch notifikasi
             axios
                 .get(`${process.env.NEXT_PUBLIC_API_URL}/api/notification/`, {
                     headers: {
@@ -42,8 +41,8 @@ const Navbar = () => {
                     },
                 })
                 .then((response) => {
-                    console.log('Notifications data:', response.data.notifications); // Pastikan mengambil data.notifications
-                    setNotifications(response.data.notifications); // Set data notifications ke state
+                    console.log('Notifications data:', response.data.notifications); 
+                    setNotifications(response.data.notifications); 
                 })
                 .catch((error) => {
                     console.error('Failed to fetch notifications:', error);
@@ -112,7 +111,6 @@ const Navbar = () => {
                     <div className='text-center'>
                         <div className="flex justify-center">
                             <div className="w-[100px] h-[100px] bg-gray-200 border border-[#2E3781] rounded-full overflow-hidden bg-cover flex items-center justify-center z-10 mt-[75px]">
-
                             </div>
                         </div>
                         <p className="text-black text-[16px] font-bold font-ruda mt-[37px]">@ ...</p>
@@ -132,7 +130,8 @@ const Navbar = () => {
                                 />
                             </div>
                         </div>
-                        <p className="text-black text-[16px] font-bold font-ruda mt-[37px]">@{user.username}</p>
+                        <p className="text-black text-[16px] font-bold font-ruda mt-[15px]">{user.name}</p>
+                        <p className="text-[#6F6F6F] text-[12px] font-bold font-ruda mt-[7px]">@{user.username}</p>
                     </div>
                 ) : (
                     <div className='text-center'>
@@ -166,7 +165,7 @@ const Navbar = () => {
                         )}
                     </button>
                     <button className="px-[20px] h-[50px] rounded-full mt-[5px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors text-primary"
-                        onClick={() => router.push('#')}>
+                        onClick={() => router.push('/pages/user/profile')}>
                         <img src="../../../icons/akun.svg" alt="" className='me-[20px]' /><h1 className='mt-[2px]'>Profil</h1>
                     </button>
                     <div className="">
