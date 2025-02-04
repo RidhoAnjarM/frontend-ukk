@@ -45,7 +45,7 @@ const Login = () => {
                 if (role === 'user') {
                     router.push('pages/user/Home');
                 } else if (role === 'admin') {
-                    router.push('/admin/dashboard');
+                    router.push('pages/admin/Home');
                 }
             }, 1000);
 
@@ -130,7 +130,7 @@ const Login = () => {
                             )}
                         </button>
                     </form>
-                    <p className='text-center mt-3'>Don't have an account? <a href="/register" className='text-blue-900'>Register Now</a></p>
+                    <p className='text-center mt-3'>Belum punya akun? <a href="/register" className='text-blue-900'>Register Sekarang</a></p>
                 </div>
             </div>
         </div>
