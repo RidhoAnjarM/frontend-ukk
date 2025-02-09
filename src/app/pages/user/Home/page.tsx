@@ -27,7 +27,7 @@ const Home = () => {
                 setPosts(postResponse.data);
                 setCategories(categoryResponse.data);
             } catch (err) {
-                setError('Failed to fetch data.');
+                setError('Gagal mengambil data, servernya mati.');
                 console.error('Error:', err);
             } finally {
                 setLoading(false);
@@ -107,9 +107,7 @@ const Home = () => {
         <div>
             <Navbar />
             <div className="ps-[270px] pt-[59px]">
-                <div
-                    className={`fixed top-0 w-full ms-[85px] z-10 transition-transform duration-300`}
-                >
+                <div className="fixed top-0 w-full ms-[85px] z-10 transition-transform duration-300">
                     <div className="bg-white backdrop-blur-md bg-opacity-20 w-[700px] h-[60px] border border-t-0 flex items-center px-[30px]">
                         <h1 className="text-[20px] text-primary font-ruda font-black">
                             {selectedCategory ? categories.find(category => category.id === selectedCategory)?.name : 'Semua'}
@@ -122,7 +120,9 @@ const Home = () => {
                         <p>loading</p>
                     </div>
                 ) : error ? (
-                    <p>{error}</p>
+                    <div className='w-[700px] h-[100px] flex items-center justify-center bg-white border border-gray-300 border-t-0 ms-[85px]'>
+                        <p>{error}</p>
+                    </div>
                 ) : filteredPosts.length > 0 ? (
                     filteredPosts.map((post: ForumPost) => (
                         <div key={post.id} className="w-[700px] p-[30px] bg-white border border-gray-300 border-t-0 ms-[85px]">
@@ -138,8 +138,11 @@ const Home = () => {
                                         }}
                                     />
                                     <div className="ms-[10px] py-[1px]">
-                                        <p className="text-[16px] font-ruda font-bold">{post.username}</p>
-                                        <p className="text-[10px] font-ruda font-bold">{post.relative_time}</p>
+                                        <div className="flex gap-1">
+                                            <p className="text-[14px] font-ruda font-bold">{post.name}</p>
+                                            <p className="text-[14px] font-sans text-gray-500 -mt-[2px]">@{post.username}</p>
+                                        </div>
+                                        <p className="text-[10px] font-sans">{post.relative_time}</p>
                                     </div>
                                 </div>
                                 <div className="relative dropdown-container">
@@ -147,7 +150,7 @@ const Home = () => {
                                         onClick={() => handleAccount(post.id)}
                                         className="focus:outline-none"
                                     >
-                                        <img src="../../icons/menu.svg" alt="menu" className='w-[25px]'/>
+                                        <img src="../../icons/menu.svg" alt="menu" className='w-[25px]' />
                                     </button>
                                     {activeDropdown === post.id && (
                                         <div
@@ -167,7 +170,7 @@ const Home = () => {
                                     )}
                                 </div>
                             </div>
-                            <div className="mt-[15px] text-[16px] font-sans ps-[50px]">
+                            <div className="mt-[5px] text-[16px] font-sans ps-[50px]">
                                 <h2>{post.title}</h2>
                                 {post.photo && (
                                     <div className="w-[400px] h-[400px] bg-white bg-opacity-50 backdrop-blur-70 rounded-[15px] mt-[10px] border border-gray-400 flex justify-center items-center overflow-hidden group">
@@ -209,7 +212,7 @@ const Home = () => {
                 )}
             </div>
 
-            
+
             <div className="fixed right-0 top-0 z-20">
                 <input
                     type="text"

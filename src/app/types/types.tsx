@@ -6,6 +6,7 @@ export interface Comment {
     relative_time: string;
     user_id: number;
     username: string;
+    name: string;
     replies?: Reply[];
 }
 
@@ -17,6 +18,7 @@ export interface Reply {
     relative_time: string;
     user_id: number;
     username: string;
+    name: string;
 }
 
 export interface ForumPost {
@@ -28,6 +30,7 @@ export interface ForumPost {
     profile: string;
     user_id: number;
     username: string;
+    name: string;
     category_id: number;
     category_name: string;
     relative_time: string;
@@ -35,9 +38,10 @@ export interface ForumPost {
 }
 
 export interface User {
+    id: number;
     username: string;
-    profile: string;
-    name: string;
+    name?: string;
+    profile?: string;
 }
 
 export interface Notification {
@@ -53,4 +57,10 @@ export interface Notification {
     forum_title?: string;
     photo?: string;
     reply_profile?: string;
+}
+
+export interface DecodedToken {
+    id: number;
+    username: string;
+    name: string;
 }

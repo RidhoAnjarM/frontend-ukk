@@ -57,7 +57,6 @@ const Navbar = () => {
         ? notifications.filter((notif) => !notif.isRead).length
         : 0;
 
-
     const handleConfirmLogout = () => {
         setShowLogoutModal(true);
         setShowDropdown(false);
@@ -103,6 +102,7 @@ const Navbar = () => {
         return false;
     };
 
+    const isProfilePage = isActive('/pages/user/profile');
 
     return (
         <div className="relative">
@@ -118,26 +118,41 @@ const Navbar = () => {
                 ) : user ? (
                     <div className='text-center'>
                         <div className="flex justify-center">
-                            <div className="w-[100px] h-[100px] bg-white border border-[#2E3781] rounded-full overflow-hidden bg-cover flex items-center justify-center z-10 mt-[75px]">
-                                <img
-                                    src={user.profile ? `http://localhost:5000${user.profile}` : 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg'}
-                                    alt="User profile"
-                                    className="w-[100px]"
-                                    onError={(e) => {
-                                        console.log(`Image not found for user: ${user.profile}, setting to default.`);
-                                        (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
-                                    }}
-                                />
-                            </div>
+                            {isProfilePage ? (
+                                <div className="w-[150px] h-[150px] bg-white overflow-hidden bg-cover flex items-center justify-center z-10 mt-[75px]">
+                                    <img
+                                        src="../../../images/logo.png" 
+                                        alt="Logo"
+                                        className="w-[150px]"
+                                    />
+                                </div>
+                            ) : (
+                                <div className="w-[100px] h-[100px] bg-white border border-[#2E3781] rounded-full overflow-hidden bg-cover flex items-center justify-center z-10 mt-[75px]">
+                                    <img
+                                        src={user.profile ? `http://localhost:5000${user.profile}` : 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg'}
+                                        alt="User profile"
+                                        className="w-[100px]"
+                                        onError={(e) => {
+                                            console.log(`Image not found for user: ${user.profile}, setting to default.`);
+                                            (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </div>
-                        <p className="text-black text-[16px] font-bold font-ruda mt-[15px]">{user.name}</p>
-                        <p className="text-[#6F6F6F] text-[12px] font-bold font-ruda mt-[7px]">@{user.username}</p>
+                        {isProfilePage ? (
+                            <div className="mt-[13px]"></div>
+                        ) : (
+                            <>
+                                <p className="text-black text-[16px] font-bold font-ruda mt-[15px]">{user.name}</p>
+                                <p className="text-[#6F6F6F] text-[12px] font-bold font-ruda mt-[7px]">@{user.username}</p>
+                            </>
+                        )}
                     </div>
                 ) : (
                     <div className='text-center'>
                         <div className="flex justify-center">
                             <div className="w-[100px] h-[100px] bg-gray-400 border border-[#2E3781] rounded-full overflow-hidden bg-cover flex items-center justify-center z-10 mt-[75px]">
-
                             </div>
                         </div>
                         <p className="text-black text-[16px] font-bold font-ruda mt-[37px]">@ ...</p>
