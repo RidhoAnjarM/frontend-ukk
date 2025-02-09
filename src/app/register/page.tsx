@@ -114,7 +114,7 @@ const Register = () => {
                         <label
                             className='text-[20px] font-bold font-ruda mb-[10px]'
                         >
-                            Name
+                            Nama
                         </label>
                         <input
                             type="text"
@@ -155,60 +155,7 @@ const Register = () => {
                             className='border w-full h-[50px] bg-white rounded-[10px] border-[0.5] outline-none px-[30px]'
                         />
                     </div>
-
-                    <div>
-                        <div className="relative mt-[10px]">
-                            <label
-                                className='text-[20px] font-bold font-ruda mb-[10px]'
-                            >
-                                Profile Photo
-                            </label>
-                            <input
-                                id="file-upload"
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => {
-                                    handleFileChange(e);
-                                    setProfile(e.target.files ? e.target.files[0] : null);
-                                }}
-                                className="absolute w-full h-full opacity-0 cursor-pointer rounded-[5px]"
-                            />
-                            <div className="flex items-center justify-between w-full h-[50px] px-4 border rounded-[10px] bg-white hover:bg-gray-100 transition duration-200 cursor-pointer">
-                                <span className="text-black text-sm">
-                                    {fileName || 'Pilih file gambar'}
-                                </span>
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="1.5"
-                                    stroke="currentColor"
-                                    className="w-5 h-5 text-gray-500"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M12 16.5V3m0 0L8.25 6.75M12 3l3.75 3.75M8.25 20.25h7.5"
-                                    />
-                                </svg>
-                            </div>
-                        </div>
-                        {fileName && (
-                            <div className="flex items-center gap-4">
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setFileName('');
-                                        clearFileInput();
-                                    }}
-                                    className="text-red-600 text-sm font-medium hover:underline"
-                                >
-                                    Batalkan
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                    <button type="submit" className='w-full h-[50px] bg-primary text-white rounded-[10px] mt-[40px] font-ruda text-[30px] hover:bg-black transition-colors flex justify-center items-center'>
+                    <button type="submit" className='w-full h-[50px] bg-primary text-white rounded-[10px] mt-[30px] font-ruda text-[30px] hover:bg-black transition-colors flex justify-center items-center'>
                         {loading ? (
                             <div className="flex flex-row gap-2">
                                 <div className="w-2 h-2 rounded-full bg-gray-500 animate-bounce [animation-delay:.7s]"></div>
@@ -220,6 +167,7 @@ const Register = () => {
                         )}
                     </button>
                 </form>
+                <p className='text-center mt-3'>Sudah punya akun? <a href="/login" className='text-blue-900'>Login Sekarang</a></p>
             </div>
         </div>
     );

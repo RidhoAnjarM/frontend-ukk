@@ -95,24 +95,24 @@ const ForumDetail = () => {
     //reply
     const handleReplySubmit = async (commentId: number, postId: number) => {
         if (!replies[commentId]) return;
-    
+
         const token = localStorage.getItem('token');
         if (!token) {
             console.error('No token found');
             return;
         }
-    
+
         const formData = new FormData();
         formData.append('parent_id', commentId.toString());
         formData.append('content', replies[commentId]);
-    
+
         try {
             const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/comment/reply`, formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-    
+
             const newReplyData = {
                 id: response.data.reply.id,
                 profile: response.data.reply.profile,
@@ -122,23 +122,23 @@ const ForumDetail = () => {
                 created_at: response.data.reply.created_at,
                 user_id: response.data.reply.user_id,
             };
-    
+
             setPost((prevPost) => {
                 if (!prevPost) return prevPost;
-    
+
                 return {
                     ...prevPost,
                     comments: prevPost.comments.map((comment) =>
                         comment.id === commentId
                             ? {
                                 ...comment,
-                                replies: [...(comment.replies || []), newReplyData], 
+                                replies: [...(comment.replies || []), newReplyData],
                             }
                             : comment
                     ),
                 };
             });
-    
+
             // Kosongkan input balasan
             setReplies((prev) => ({ ...prev, [commentId]: '' }));
         } catch (error) {
@@ -291,7 +291,7 @@ const ForumDetail = () => {
     return (
         <div>
             <Navbar />
-            <div className="ps-[270px] pt-[50px] mb-[50px]">
+            <div className="ps-[270px] pt-[50px]">
                 <div
                     className={`fixed top-0 left-[180px] w-full z-10 transition-transform duration-300 ${isScrolling ? '-translate-y-full' : 'translate-y-0'
                         }`}
@@ -307,23 +307,27 @@ const ForumDetail = () => {
                 ) : error ? (
                     <p>{error}</p>
                 ) : post ? (
-                    <div className="w-[700px] p-[30px] bg-white border border-black rounded-[10px] mb-[20px] ms-[85px]">
-                        <div className="flex justify-between w-full items-center">
+                    <div className="w-[700px] bg-white border border-black rounded-[10px] mt-[20px] ms-[85px]">
+                        {/* profil */}
+                        <div className="flex justify-between w-full items-center px-[30px] pt-[20px]">
                             <div className="flex">
-                                <img
-                                    src={`${process.env.NEXT_PUBLIC_API_URL}${post.profile}`}
-                                    alt=""
-                                    className="w-[40px] h-[40px] flex items-center justify-center rounded-full overflow-hidden"
-                                    onError={(e) => {
-                                        console.log(`Image not found for user: ${post.profile}, setting to default.`);
-                                        (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
-                                    }}
-                                />
+                                <div className="w-[40px] h-[40px] rounded-full bg-white overflow-hidden border border-gray-300 bg-cover flex items-center justify-center">
+                                    <img
+                                        src={`${process.env.NEXT_PUBLIC_API_URL}${post.profile}`}
+                                        alt=""
+                                        className="w-[40px] h-[40px]"
+                                        onError={(e) => {
+                                            console.log(`Image not found for user: ${post.profile}, setting to default.`);
+                                            (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
+                                        }}
+                                    />
+                                </div>
                                 <div className="ms-[10px] py-[1px]">
                                     <p className="text-[16px] font-ruda font-bold">{post.username}</p>
                                     <p className="text-[10px] font-ruda font-bold">{post.relative_time}</p>
                                 </div>
                             </div>
+                            {/* report */}
                             <div className="relative">
                                 <button
                                     onClick={() => handleAccount(post.id)}
@@ -350,26 +354,26 @@ const ForumDetail = () => {
                             </div>
                         </div>
 
-                        <div className="mt-[30px] text-[16px] font-sans">
-                            <div className="ms-[50px]">
+                        {/* content */}
+                        <div className="px-[30px] mt-[15px]">
+                            <div className="font-sans text-[16px]">
                                 <h2>{post.title}</h2>
                                 {post.photo && (
                                     <img
                                         src={`${process.env.NEXT_PUBLIC_API_URL}${post.photo}`}
                                         alt={post.title}
-                                        className="w-[300px] rounded-[15px] mt-[20px] shadow-md"
+                                        className="w-[400px] rounded-[15px] mt-[10px] shadow-md"
                                     />
                                 )}
                             </div>
-                            <div className="mt-[15px] flex ms-[50px]">
-                                <div className="text-primary font-ruda mt-[10px] mb-[10px] flex items-center text-[15px]">
-                                    <button>
-                                        <img src="../../../icons/like.svg" alt=""
-                                            className="w-[15px] h-[15px] mr-[20px]" />
-                                    </button>
-                                </div>
+                            {/* like&komen */}
+                            <div className="mt-[15px] flex">
+                                <button>
+                                    <img src="../../../icons/like.svg" alt=""
+                                        className="w-[15px] h-[15px] mr-[20px] text-primary font-ruda mb-[10px] flex items-center text-[15px]" />
+                                </button>
                                 <button
-                                    className="font-ruda mt-[10px] mb-[10px] flex items-center text-[15px]"
+                                    className="font-ruda mb-[10px] flex items-center text-[15px]"
                                 >
                                     <img src="../../../icons/comment.svg"
                                         className="w-[15px] h-[15px] mr-[5px]"
@@ -377,25 +381,61 @@ const ForumDetail = () => {
                                     <p className='mt-[1px]'>{post.comments ? post.comments.length + post.comments.reduce((acc, comment) => acc + (comment.replies ? comment.replies.length : 0), 0) : 0}</p>
                                 </button>
                             </div>
-                            <div className="flex items-center justify-between mt-[20px] mb-[20px] gap-2">
-                                <hr className='border-black w-full' />
-                                <p>Komentar</p>
-                                <hr className='border-black w-full' />
+                        </div>
+
+                        {/* input komen */}
+                        <div className="w-full relative mt-[10px]">
+                            <div className="w-full h-[80px] flex bg-white overflow-hidden justify-between items-center border-b border-t border-primary px-[30px]">
+                                <div className="w-[40px] h-[40px] rounded-full bg-white overflow-hidden border border-gray-300 bg-cover flex items-center justify-center">
+                                    {user && (
+                                        <img
+                                            src={user.profile ? `http://localhost:5000${user.profile}` : 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg'}
+                                            alt="User profile"
+                                            className="w-[40px] h-[40px]"
+                                            onError={(e) => {
+                                                console.log(`Image not found for user: ${user.profile}, setting to default.`);
+                                                (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
+                                            }}
+                                        />
+                                    )}
+                                </div>
+                                <input
+                                    type='text'
+                                    autoComplete='off'
+                                    value={newComment[post.id] || ''}
+                                    onChange={(e) => handleNewCommentChange(post.id, e.target.value)}
+                                    placeholder="posting komentar..."
+                                    className='w-[520px] outline-none px-[5px] font-sans'
+                                />
+                                <button
+                                    onClick={() => handleNewCommentSubmit(post.id)}
+                                    className={`text-[14px] font-ruda w-[70px] h-[30px] rounded-full ${newComment[post.id] ? 'bg-primary text-white' : 'bg-gray-300 text-gray-700 cursor-not-allowed'}`}
+                                    disabled={!newComment[post.id]}
+                                >
+                                    Posting
+                                </button>
                             </div>
+                        </div>
+
+                        <div className="mt-[10px] text-[16px] font-sans">
+                            {/* komen */}
                             {post.comments && post.comments.length > 0 ? (
                                 post.comments.map((comment, index: number) => (
-                                    <div key={comment.id || index} className="mt-[10px] ">
-                                        <div className="flex items-center justify-between">
+                                    <div key={comment.id || index} className="mt-[5px] border-b border-black">
+                                        {/* profil */}
+                                        <div className="flex items-center justify-between px-[30px]">
                                             <div className='flex items-center'>
-                                                <img
-                                                    src={`${process.env.NEXT_PUBLIC_API_URL}${comment.profile}`}
-                                                    alt=""
-                                                    className="w-[30px] h-[30px] bg-cover rounded-full"
-                                                    onError={(e) => {
-                                                        console.log(`Image not found for user: ${comment.profile}, setting to default.`);
-                                                        (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
-                                                    }}
-                                                />
+                                                <div className="w-[40px] h-[40px] rounded-full bg-white overflow-hidden border border-gray-300 bg-cover flex items-center justify-center">
+                                                    <img
+                                                        src={`${process.env.NEXT_PUBLIC_API_URL}${comment.profile}`}
+                                                        alt=""
+                                                        className="w-[40px] h-[40px]"
+                                                        onError={(e) => {
+                                                            console.log(`Image not found for user: ${comment.profile}, setting to default.`);
+                                                            (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
+                                                        }}
+                                                    />
+                                                </div>
                                                 <div className="ms-[10px] flex items-center">
                                                     <p className="text-[14px] font-ruda font-bold">
                                                         {comment.username}
@@ -413,49 +453,54 @@ const ForumDetail = () => {
                                                 Delete
                                             </button>
                                         </div>
-                                        <p className="mt-[5px] text-[16px] font-sans ms-[40px]">{comment.content}</p>
-                                        <button
-                                            onClick={() => setVisibleComments((prev) => ({ ...prev, [comment.id]: !prev[comment.id] }))}
-                                            className="text-primary font-ruda mt-[10px] mb-[10px] ms-[40px] text-[12px] flex items-center"
-                                        >
-                                            {visibleComments[comment.id] ? 'Sembunyikan balasan' : 'Balas'}
-                                            {comment.replies && comment.replies.length > 0 && (
-                                                <span className="ml-[5px]">({comment.replies.length})</span>
-                                            )}
-                                        </button>
+                                        {/* content&balasan */}
+                                        <div className="w-full ps-[80px]">
+                                            <p className="text-[16px] font-sans">{comment.content}</p>
+                                            <button
+                                                onClick={() => setVisibleComments((prev) => ({ ...prev, [comment.id]: !prev[comment.id] }))}
+                                                className="text-primary font-ruda mt-[10px] text-[12px] flex items-center hover:bg-cyan-400 rounded-full px-1 transition-colors"
+                                            >
+                                                {comment.replies && comment.replies.length > 0 && (
+                                                    <span className="me-[5px]">{comment.replies.length}</span>
+                                                )}
+                                                {visibleComments[comment.id] ? 'Balasan' : 'Balasan'}
+                                            </button>
+                                        </div>
 
                                         {visibleComments[comment.id] && (
-                                            <div className="mt-[10px] ms-[40px]">
-                                                <div className="relative flex">
+                                            <div className="mt-[10px] ms-[45px]">
+                                                <div className="w-full h-[50px] flex bg-white overflow-hidden justify-between items-center border-b border-primary">
                                                     <input
                                                         type='text'
                                                         value={replies[comment.id] || ''}
                                                         onChange={(e) => handleReplyChange(comment.id, e.target.value)}
                                                         placeholder="Balas komentar ..."
-                                                        className="w-[400px] bg-white border border-gray-300 px-[15px] text-sm outline-none rounded-full h-[40px] rounded-e-none"
+                                                        className="w-full px-[15px] text-sm outline-none "
                                                     />
                                                     <button
                                                         onClick={() => handleReplySubmit(comment.id, post.id)}
-                                                        className="rounded-s-none text-white font-ruda bg-primary w-[100px] h-[40px] rounded-full"
+                                                        className="rounded-full text-white font-ruda text-[14px] bg-primary w-[80px] h-[30px]"
                                                     >
-                                                        kirim
+                                                        Balas
                                                     </button>
                                                 </div>
 
                                                 {comment.replies && comment.replies.length > 0 && (
                                                     <div className="mt-[10px]">
                                                         {comment.replies.map((reply, replyIndex) => (
-                                                            <div key={`${reply.id}-${replyIndex}`} className="mb-[10px] ms-[5px]">
+                                                            <div key={`${reply.id}-${replyIndex}`} className="mb-[10px]">
                                                                 <div className="flex items-center">
-                                                                    <img
-                                                                        src={`${process.env.NEXT_PUBLIC_API_URL}${reply.profile}`}
-                                                                        alt=""
-                                                                        className="w-[30px] h-[30px] bg-cover rounded-full"
-                                                                        onError={(e) => {
-                                                                            console.log(`Image not found for user: ${reply.profile}, setting to default.`);
-                                                                            (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
-                                                                        }}
-                                                                    />
+                                                                    <div className="w-[30px] h-[30px] rounded-full bg-white overflow-hidden border border-gray-300 bg-cover flex items-center justify-center">
+                                                                        <img
+                                                                            src={`${process.env.NEXT_PUBLIC_API_URL}${reply.profile}`}
+                                                                            alt=""
+                                                                            className="w-[30px] h-[30px]"
+                                                                            onError={(e) => {
+                                                                                console.log(`Image not found for user: ${reply.profile}, setting to default.`);
+                                                                                (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
+                                                                            }}
+                                                                        />
+                                                                    </div>
                                                                     <div className="ms-[10px] flex items-center">
                                                                         <p className="text-[14px] font-ruda font-bold">
                                                                             {reply.username}
@@ -475,53 +520,21 @@ const ForumDetail = () => {
                                                                         Delete Reply
                                                                     </button>
                                                                 )}
-                                                                <hr className='mt-[20px] mb-[20px] border-gray-300' />
+                                                                {/* <hr className='mt-[20px] mb-[20px] border-gray-300' /> */}
                                                             </div>
                                                         ))}
                                                     </div>
                                                 )}
                                             </div>
                                         )}
-                                        <hr className='mt-[20px] mb-[20px] border-black' />
+                                        {/* <hr className='mt-[20px] mb-[20px] border-black' /> */}
                                     </div>
                                 ))
                             ) : (
                                 <p className='text-center'>No comments found.</p>
                             )}
 
-                            <div className={`fixed bottom-3 left-[271px] ms-[85px] w-full z-10 transition-transform duration-300 ${isScrolling ? 'translate-y-full' : '-translate-y-0'}`}>
-                                <div className="w-[698px] relative h-[80px] bg-[#EEEEEE] py-[15px] px-[25px] rounded-[15px]">
-                                    <div className="w-[650px] h-[50px] flex bg-white rounded-full overflow-hidden p-[5px] justify-between">
-                                        <div className="w-[40px] h-[40px] rounded-full bg-primary overflow-hidden">
-                                            {user && (
-                                                <img
-                                                    src={user.profile ? `http://localhost:5000${user.profile}` : 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg'}
-                                                    alt="User profile"
-                                                    className="w-[100px]"
-                                                    onError={(e) => {
-                                                        console.log(`Image not found for user: ${user.profile}, setting to default.`);
-                                                        (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
-                                                    }}
-                                                />
-                                            )}
-                                        </div>
-                                        <input
-                                            type='text'
-                                            autoComplete='off'
-                                            value={newComment[post.id] || ''}
-                                            onChange={(e) => handleNewCommentChange(post.id, e.target.value)}
-                                            placeholder="Berikan komentar..."
-                                            className='w-[500px] outline-none px-[15px]'
-                                        />
-                                        <button
-                                            onClick={() => handleNewCommentSubmit(post.id)}
-                                            className="text-white text-[16px] font-ruda bg-primary w-[100px] h-[40px] rounded-full"
-                                        >
-                                            Kirim
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+
                         </div>
                     </div>
                 ) : (
