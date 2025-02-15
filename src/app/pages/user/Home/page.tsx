@@ -41,6 +41,10 @@ const Home = () => {
         router.push(`/pages/user/forum/${postid}`);
     };
 
+    const handleAkun = (akunid: number) => {
+        router.push(`/pages/user/akun/${akunid}`);
+    };
+
     useEffect(() => {
         let timeoutId: NodeJS.Timeout;
 
@@ -108,7 +112,7 @@ const Home = () => {
             <Navbar />
             <div className="ps-[270px] pt-[59px]">
                 <div className="fixed top-0 w-full ms-[85px] z-10 transition-transform duration-300">
-                    <div className="bg-white backdrop-blur-md bg-opacity-20 w-[700px] h-[60px] border border-t-0 flex items-center px-[30px]">
+                    <div className="bg-white backdrop-blur-md bg-opacity-20 w-[700px] h-[60px] border border-t-0 flex items-center justify-center px-[30px]">
                         <h1 className="text-[20px] text-primary font-ruda font-black">
                             {selectedCategory ? categories.find(category => category.id === selectedCategory)?.name : 'Semua'}
                         </h1>
@@ -157,6 +161,7 @@ const Home = () => {
                                             className="absolute bg-[#F2F2F2] z-10 w-[150px] h-[80px] rounded-[15px] overflow-hidden -right-[60px]"
                                         >
                                             <button
+                                                onClick={() => handleAkun(post.user_id)}
                                                 className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda"
                                             >
                                                 View Account

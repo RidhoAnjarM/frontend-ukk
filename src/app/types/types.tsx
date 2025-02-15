@@ -37,6 +37,30 @@ export interface ForumPost {
     comments: Comment[];
 }
 
+export interface Forum {
+    id: number;
+    category_id: number;
+    category_name: string;
+    title: string;
+    user_id: number;
+    username: string;
+    photo: string;
+    profile: string;
+    name: string;
+    relative_time: string;
+    comments: Comment[];
+}
+
+export interface UserProfile {
+    id: number;
+    name: string;
+    username: string;
+    profile: string;
+    role: string;
+    status: string;
+    forums: Forum[];
+}
+
 export interface User {
     id: number;
     username: string;
