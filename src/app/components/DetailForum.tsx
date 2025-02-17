@@ -21,6 +21,8 @@ const DetailForum = () => {
     const [user, setUser] = useState<User | null>(null);
     const [username, setUsername] = useState<string | null>(null);
     const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+    const [visibleSubReplyInput, setVisibleSubReplyInput] = useState<{ [key: number]: boolean }>({});
+    const [subReplies, setSubReplies] = useState<{ [key: number]: string }>({});
 
     //get profile
     useEffect(() => {
@@ -144,8 +146,9 @@ const DetailForum = () => {
     };
 
     //reply
-    const handleReplySubmit = async (commentId: number, postId: number) => {
-        if (!replies[commentId]) return;
+    const handleReplySubmit = async (commentId: number, postId: number, parentReplyId: number | null = null) => {
+        const replyContent = parentReplyId ? subReplies[parentReplyId] : replies[commentId];
+        if (!replyContent) return;
 
         const token = localStorage.getItem('token');
         if (!token) {
@@ -155,7 +158,11 @@ const DetailForum = () => {
 
         const formData = new FormData();
         formData.append('parent_id', commentId.toString());
-        formData.append('content', replies[commentId]);
+        formData.append('content', replyContent);
+
+        if (parentReplyId !== null) {
+            formData.append('parent_reply_id', parentReplyId.toString());
+        }
 
         try {
             const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/comment/reply`, formData, {
@@ -168,11 +175,12 @@ const DetailForum = () => {
                 id: response.data.reply.id,
                 profile: response.data.reply.profile,
                 username: response.data.reply.username,
-                content: response.data.reply.content,
                 name: response.data.reply.name,
+                content: response.data.reply.content,
                 relative_time: response.data.reply.relative_time,
                 created_at: response.data.reply.created_at,
                 user_id: response.data.reply.user_id,
+                parent_reply_id: parentReplyId,
             };
 
             setPost((prevPost) => {
@@ -190,7 +198,12 @@ const DetailForum = () => {
                     ),
                 };
             });
-            setReplies((prev) => ({ ...prev, [commentId]: '' }));
+
+            if (parentReplyId) {
+                setSubReplies((prev) => ({ ...prev, [parentReplyId]: '' }));
+            } else {
+                setReplies((prev) => ({ ...prev, [commentId]: '' }));
+            }
         } catch (error) {
             console.error('Error submitting reply:', error);
         }
@@ -287,12 +300,23 @@ const DetailForum = () => {
         }
     }, []);
 
+    const toggleSubReplyInput = (replyId: number) => {
+        setVisibleSubReplyInput((prev) => ({
+            ...prev,
+            [replyId]: !prev[replyId],
+        }));
+    };
+
     return (
         <div>
             {loading ? (
-                <p>Loading...</p>
+                <div className='w-[700px] h-[100px] flex items-center justify-center bg-white border border-gray-300 border-t-0 '>
+                    <p>loading</p>
+                </div>
             ) : error ? (
-                <p>{error}</p>
+                <div className='w-[700px] h-[100px] flex items-center justify-center bg-white border border-gray-300 border-t-0 '>
+                    <p>{error}</p>
+                </div>
             ) : post ? (
                 <div className="w-[700px] bg-white border border-gray-400">
                     {/* profil */}
@@ -326,18 +350,15 @@ const DetailForum = () => {
                                 <img src="../../../icons/menu.svg" alt="menu" />
                             </button>
                             {activeDropdown === post.id && (
-                                <div
-                                    className="absolute bg-[#F2F2F2] z-10 w-[150px] h-[80px] rounded-[15px] overflow-hidden -right-[60px]"
-                                >
-                                    <button
-                                        className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda"
-                                    >
+                                <div className="absolute bg-[#F2F2F2] w-[150px] rounded-[15px] overflow-hidden -right-[60px]">
+                                    <button className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda text-[12px]">
                                         Lihat akun
                                     </button>
-                                    <button
-                                        className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda"
-                                    >
-                                        Laporkan
+                                    <button className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda text-[12px]">
+                                        Laporkan postingan
+                                    </button>
+                                    <button className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda text-[12px]">
+                                        Laporkan akun
                                     </button>
                                 </div>
                             )}
@@ -453,7 +474,7 @@ const DetailForum = () => {
                                                 onClick={() => handleDeleteComment(comment.id)}
                                                 className="text-red-500 font-ruda text-[12px] flex items-center"
                                             >
-                                                Delete
+                                                <img src="../../../icons/delete.svg" alt="" />
                                             </button>
                                         )}
                                     </div>
@@ -478,7 +499,7 @@ const DetailForum = () => {
                                             <div className="w-[500px] h-[40px] flex bg-white justify-between items-center border-b ms-[40px]">
                                                 <input
                                                     type='text'
-                                                    value={replies[comment.id] || ''}
+                                                    value={replies[comment.id] !== undefined ? replies[comment.id] : `@${comment.username} `}
                                                     onChange={(e) => handleReplyChange(comment.id, e.target.value)}
                                                     placeholder="Balas komentar ..."
                                                     className="w-full px-[15px] text-sm outline-none"
@@ -496,31 +517,34 @@ const DetailForum = () => {
                                             {/* List balasan */}
                                             {visibleComments[comment.id] && comment.replies && comment.replies.length > 0 && (
                                                 <div className="mt-[10px]">
-                                                    {comment.replies.map((reply, replyIndex) => (
+                                                    {comment.replies.map((reply) => (
                                                         <div key={reply.id} className="relative mt-3">
                                                             {/* Garis horizontal untuk reply */}
                                                             <div className="absolute -left-[28px] top-[15px] w-[29px] h-[1.5px] bg-gray-300"></div>
 
-                                                            <div className="flex items-center">
-                                                                <div className="w-[30px] h-[30px] rounded-full bg-white overflow-hidden border border-gray-300 flex items-center justify-center">
-                                                                    <img
-                                                                        src={`${process.env.NEXT_PUBLIC_API_URL}${reply.profile}`}
-                                                                        alt=""
-                                                                        className="w-full h-full object-cover"
-                                                                        onError={(e) => {
-                                                                            console.log(`Image not found for user: ${reply.profile}, setting to default.`);
-                                                                            (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                                <div className="ms-[10px] flex items-center">
-                                                                    <div className="flex gap-1">
-                                                                        <p className="text-[14px] font-ruda font-black">{reply.name}</p>
-                                                                        <p className="text-[14px] font-sans text-gray-500 -mt-[2px]">@{reply.username}</p>
+                                                            <div className="flex items-center justify-between pe-10">
+                                                                <div className="flex items-center">
+                                                                    <div className="w-[30px] h-[30px] rounded-full bg-white overflow-hidden border border-gray-300 flex items-center justify-center">
+                                                                        <img
+                                                                            src={`${process.env.NEXT_PUBLIC_API_URL}${reply.profile}`}
+                                                                            alt=""
+                                                                            className="w-full h-full object-cover"
+                                                                            onError={(e) => {
+                                                                                console.log(`Image not found for user: ${reply.profile}, setting to default.`);
+                                                                                (e.target as HTMLImageElement).src =
+                                                                                    'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
+                                                                            }}
+                                                                        />
                                                                     </div>
-                                                                    <div className="flex items-center ">
-                                                                        <div className='w-[2px] h-[2px] bg-black rounded-full mx-[5px]'></div>
-                                                                        <p className='text-[9px]'>{reply.relative_time}</p>
+                                                                    <div className="ms-[10px] flex items-center">
+                                                                        <div className="flex gap-1">
+                                                                            <p className="text-[14px] font-ruda font-black">{reply.name}</p> {/* Display the name */}
+                                                                            <p className="text-[14px] font-sans text-gray-500 -mt-[2px]">@{reply.username}</p>
+                                                                        </div>
+                                                                        <div className="flex items-center">
+                                                                            <div className="w-[2px] h-[2px] bg-black rounded-full mx-[5px]"></div>
+                                                                            <p className="text-[9px]">{reply.relative_time}</p>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                                 {reply && comment && reply.user_id === currentUserId && (
@@ -528,12 +552,49 @@ const DetailForum = () => {
                                                                         onClick={() => handleDeleteReply(comment.id, reply.id)}
                                                                         className="text-red-500 font-ruda mt-[10px] mb-[10px] text-[12px] flex items-center"
                                                                     >
-                                                                        Delete Reply
+                                                                        <img src="../../../icons/delete.svg" alt="" />
                                                                     </button>
                                                                 )}
                                                             </div>
 
                                                             <p className="text-[14px] font-sans ms-[40px] -mt-[7px]">{reply.content}</p>
+
+                                                            {/* Button untuk balasan balasan */}
+                                                            <div className="ml-[40px] mt-2">
+                                                                <button
+                                                                    onClick={() => toggleSubReplyInput(reply.id)}
+                                                                    className="text-primary font-ruda text-[12px]"
+                                                                >
+                                                                    Balas
+                                                                </button>
+                                                            </div>
+                                                            {visibleSubReplyInput[reply.id] && (
+                                                                <div className="mt-2 ml-[50px] flex items-center">
+                                                                    <input
+                                                                        type="text"
+                                                                        value={subReplies[reply.id] !== undefined ? subReplies[reply.id] : `@${reply.username} `}
+                                                                        onChange={(e) => setSubReplies((prev) => ({ ...prev, [reply.id]: e.target.value }))}
+                                                                        placeholder="Balas balasan..."
+                                                                        className="w-[350px] px-[15px] text-sm outline-none border-b"
+                                                                    />
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            handleReplySubmit(comment.id, post.id, reply.id);
+                                                                            setSubReplies((prev) => ({ ...prev, [reply.id]: '' }));
+                                                                        }}
+                                                                        className={`rounded-full font-ruda text-[14px] w-[80px] h-[30px] ml-2 ${subReplies[reply.id] && subReplies[reply.id].trim() !== `@${reply.username}`
+                                                                            ? 'bg-primary text-white'
+                                                                            : 'bg-gray-300 text-gray-700 cursor-not-allowed'
+                                                                            }`}
+                                                                        disabled={
+                                                                            !subReplies[reply.id] ||
+                                                                            subReplies[reply.id].trim() === `@${reply.username}`
+                                                                        }
+                                                                    >
+                                                                        Balas
+                                                                    </button>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     ))}
                                                 </div>
@@ -543,7 +604,7 @@ const DetailForum = () => {
                                 </div>
                             ))
                         ) : (
-                            <p className='text-center'>No comments found.</p>
+                            <p className='text-center mb-5'>Tidak ada komentar.</p>
                         )}
 
                     </div>

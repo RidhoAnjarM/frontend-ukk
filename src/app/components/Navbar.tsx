@@ -41,8 +41,8 @@ const Navbar = () => {
                     },
                 })
                 .then((response) => {
-                    console.log('Notifications data:', response.data.notifications); 
-                    setNotifications(response.data.notifications); 
+                    console.log('Notifications data:', response.data.notifications);
+                    setNotifications(response.data.notifications);
                 })
                 .catch((error) => {
                     console.error('Failed to fetch notifications:', error);
@@ -106,7 +106,7 @@ const Navbar = () => {
 
     return (
         <div className="relative">
-            <div className="fixed h-[calc(100vh)] w-[270px] flex flex-col items-center bg-white">
+            <div className="fixed h-[calc(100vh)] w-[270px] flex flex-col bg-white border-e">
                 {loading ? (
                     <div className='text-center'>
                         <div className="flex justify-center">
@@ -121,7 +121,7 @@ const Navbar = () => {
                             {isProfilePage ? (
                                 <div className="w-[150px] h-[150px] bg-white overflow-hidden bg-cover flex items-center justify-center z-10 mt-[75px]">
                                     <img
-                                        src="../../../images/logo.png" 
+                                        src="../../../images/logo.png"
                                         alt="Logo"
                                         className="w-[150px]"
                                     />
@@ -159,16 +159,12 @@ const Navbar = () => {
                     </div>
                 )}
 
-                <div>
-                    <button className={`w-[200px] h-[50px] rounded-full mt-[67px] text-[16px] font-ruda flex items-center ${isActive('/pages/user/post') ? 'bg-primary text-white' : 'bg-primary text-white'}`}
-                        onClick={() => router.push('/pages/user/post')}>
-                        <img src="../../../icons/new.svg" alt="" className='mx-[20px]' /><h1 className='mt-[2px]'>Posting</h1>
-                    </button>
-                    <button className="px-[20px] h-[50px] rounded-full mt-[5px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors text-primary"
+                <div className='ms-[30px]'>
+                    <button className="px-[20px] h-[50px] rounded-[20px] mt-[67px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors text-primary"
                         onClick={() => router.push('/pages/user/Home')}>
                         <img src="../../../icons/home.svg" alt="" className='me-[20px]' /><h1 className='mt-[2px]'>Beranda</h1>
                     </button>
-                    <button className="px-[20px] h-[50px] rounded-full mt-[5px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors text-primary"
+                    <button className="px-[20px] h-[50px] rounded-[20px] mt-[5px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors text-primary"
                         onClick={() => router.push('/pages/user/notif')}>
                         <img src="../../../icons/message.svg" alt="" className='me-[20px]' />
                         <h1 className='mt-[2px]'>Notifikasi
@@ -179,7 +175,11 @@ const Navbar = () => {
                             </span>
                         )}
                     </button>
-                    <button className="px-[20px] h-[50px] rounded-full mt-[5px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors text-primary"
+                    <button className={`px-[20px] h-[50px] rounded-[20px] mt-[5px] text-[16px] font-ruda flex items-center ${isActive('/pages/user/post') ? 'bg-primary text-white' : 'bg-primary text-white'}`}
+                        onClick={() => router.push('/pages/user/post')}>
+                        <img src="../../../icons/new.svg" alt="" className='me-[20px]' /><h1 className='mt-[2px]'>Posting</h1>
+                    </button>
+                    <button className="px-[20px] h-[50px] rounded-[20px] mt-[5px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors text-primary"
                         onClick={() => router.push('/pages/user/profile')}>
                         <img src="../../../icons/akun.svg" alt="" className='me-[20px]' /><h1 className='mt-[2px]'>Profil</h1>
                     </button>
@@ -189,7 +189,7 @@ const Navbar = () => {
                                 onClick={() =>
                                     setActiveDropdown(activeDropdown === 1 ? null : 1)
                                 }
-                                className="dropdown-trigger px-[20px] h-[50px] rounded-full mt-[5px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors text-primary"
+                                className="dropdown-trigger px-[20px] h-[50px] rounded-[20px] mt-[5px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors text-primary"
                             >
                                 <img src="../../../icons/more.svg" alt="" className='me-[20px]' /><h1 className='mt-[2px]'>Lainya</h1>
                             </button>

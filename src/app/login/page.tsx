@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Alert from '../components/Alert';
 
-
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -18,7 +17,7 @@ const Login = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-
+    
         if (!username || !password) {
             setAlertType('warning');
             setAlertMessage('Username dan password harus diisi');
@@ -26,46 +25,67 @@ const Login = () => {
             setLoading(false);
             return;
         }
-
+    
         try {
             const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/login`, {
                 username,
                 password,
             });
-            const { token, role, username: loggedUsername } = response.data;
-
+    
+            const { token, role, username: loggedUsername, status, suspensionEnd } = response.data;
+    
+            if (status === 'suspended') {
+                const suspensionDate = suspensionEnd ? new Date(suspensionEnd).toLocaleString('id-ID') : 'Waktu tidak diketahui';
+                setAlertType('error');
+                setAlertMessage(`Akun Anda disuspend hingga ${suspensionDate}`);
+                setShowAlert(true);
+                setLoading(false);
+                return;
+            }
+    
+            // Jika statusnya 'active', lanjutkan login
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify({ username: loggedUsername }));
-
+    
             setAlertType('success');
             setAlertMessage('Login berhasil!');
             setShowAlert(true);
-
+    
             setTimeout(() => {
                 if (role === 'user') {
-                    router.push('pages/user/Home');
+                    router.push('/pages/user/Home');
                 } else if (role === 'admin') {
-                    router.push('pages/admin/Home');
+                    router.push('/pages/admin/Home');
                 }
             }, 1000);
-
+    
         } catch (error: any) {
             let errorMessage = 'Terjadi kesalahan saat login';
-
+        
             if (error.response) {
-                switch (error.response.status) {
-                    case 401:
-                        errorMessage = 'Username atau password salah';
-                        break;
-                    case 404:
-                        errorMessage = 'Username tidak ditemukan';
-                        break;
-                    case 500:
-                        errorMessage = 'Terjadi kesalahan pada server';
-                        break;
+                if (error.response.status === 403) { 
+                    const suspendUntil = error.response.data?.suspend_until || "waktu tidak diketahui";
+                    errorMessage = `Akun anda disuspend hingga ${suspendUntil}`;
+                } else {
+                    switch (error.response.status) {
+                        case 401:
+                            errorMessage = 'Username atau password salah';
+                            break;
+                        case 404:
+                            errorMessage = 'Username tidak ditemukan';
+                            break;
+                        case 500:
+                            errorMessage = 'Terjadi kesalahan pada server';
+                            break;
+                        default:
+                            errorMessage = error.response.data?.error || errorMessage;
+                    }
                 }
+            } else if (error.message) {
+                errorMessage = error.message;
             }
-
+        
+            // Tampilkan alert tanpa nge-spam console
             setAlertType('error');
             setAlertMessage(errorMessage);
             setShowAlert(true);
@@ -73,6 +93,7 @@ const Login = () => {
             setLoading(false);
         }
     };
+    
 
     return (
         <div>
@@ -87,11 +108,8 @@ const Login = () => {
                 <div>
                     <img src="../images/ilustration.svg" alt="" className='relative mt-[60px]' />
                     <form onSubmit={handleSubmit} className='w-[500px]'>
-                        <div className="">
-                            <label
-                                htmlFor="username"
-                                className='text-[20px] font-ruda font-bold mb-[10px]'
-                            >
+                        <div>
+                            <label htmlFor="username" className='text-[20px] font-ruda font-bold mb-[10px]'>
                                 Username
                             </label>
                             <input
@@ -104,10 +122,7 @@ const Login = () => {
                             />
                         </div>
                         <div className="mt-[20px]">
-                            <label
-                                htmlFor="password"
-                                className='text-[20px] font-ruda font-bold mb-[10px]'
-                            >
+                            <label htmlFor="password" className='text-[20px] font-ruda font-bold mb-[10px]'>
                                 Password
                             </label>
                             <input
@@ -130,11 +145,13 @@ const Login = () => {
                             )}
                         </button>
                     </form>
-                    <p className='text-center mt-3'>Belum punya akun? <a href="/register" className='text-blue-900'>Register Sekarang</a></p>
+                    <p className='text-center mt-3'>
+                        Belum punya akun? <a href="/register" className='text-blue-900'>Register Sekarang</a>
+                    </p>
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default Login;

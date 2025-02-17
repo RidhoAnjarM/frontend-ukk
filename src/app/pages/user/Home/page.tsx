@@ -118,7 +118,6 @@ const Home = () => {
                         </h1>
                     </div>
                 </div>
-
                 {loading ? (
                     <div className='w-[700px] h-[100px] flex items-center justify-center bg-white border border-gray-300 border-t-0 ms-[85px]'>
                         <p>loading</p>
@@ -157,19 +156,15 @@ const Home = () => {
                                         <img src="../../icons/menu.svg" alt="menu" className='w-[25px]' />
                                     </button>
                                     {activeDropdown === post.id && (
-                                        <div
-                                            className="absolute bg-[#F2F2F2] z-10 w-[150px] h-[80px] rounded-[15px] overflow-hidden -right-[60px]"
-                                        >
-                                            <button
-                                                onClick={() => handleAkun(post.user_id)}
-                                                className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda"
-                                            >
-                                                View Account
+                                        <div className="absolute bg-[#F2F2F2] w-[150px] rounded-[15px] overflow-hidden -right-[60px] text-[12px]">
+                                            <button onClick={() => handleAkun(post.user_id)} className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda">
+                                                Lihat Akun
                                             </button>
-                                            <button
-                                                className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda"
-                                            >
-                                                Report Account
+                                            <button className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda">
+                                                Laporkan Postingan
+                                            </button>
+                                            <button className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda">
+                                                Laporkan Akun
                                             </button>
                                         </div>
                                     )}

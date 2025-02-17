@@ -142,9 +142,9 @@ const Notif = () => {
                 <div className="flex justify-between w-full relative">
                   <div className="w-[550px]">
                     {notif.forum_id ? (
-                      <Link href={`/pages/user/forum/${notif.forum_id}`}>
-                        <p className="hover:underline">{notif.content}</p>
-                      </Link>
+                      <Link href={`/pages/user/forum/${notif.forum_id}`} onClick={() => markAsRead(notif.id)}>
+                      <p className="hover:underline">{notif.content}</p>
+                    </Link>
                     ) : (
                       <p>{notif.content}</p>
                     )}

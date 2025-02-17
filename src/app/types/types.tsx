@@ -23,7 +23,6 @@ export interface Reply {
 
 export interface ForumPost {
     category: string;
-    photo_orientation: string;
     id: number;
     title: string;
     photo: string;
@@ -64,7 +63,8 @@ export interface UserProfile {
 export interface User {
     id: number;
     username: string;
-    name?: string;
+    name: string;
+    status: string;
     profile?: string;
 }
 

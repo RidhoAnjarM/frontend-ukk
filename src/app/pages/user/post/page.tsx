@@ -6,6 +6,11 @@ import axios from 'axios';
 import Alert from '@/app/components/Alert';
 import Navbar from '@/app/components/Navbar';
 
+type Tag = {
+    id: number;
+    name: string;
+};
+
 const Posting = () => {
     const [title, setTitle] = useState('');
     const [photo, setPhoto] = useState<File | null>(null);
@@ -18,6 +23,9 @@ const Posting = () => {
     const [alertMessage, setAlertMessage] = useState('');
     const [fileName, setFileName] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [query, setQuery] = useState("");
+    const [suggestions, setSuggestions] = useState<Tag[]>([]);
+    const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -49,6 +57,7 @@ const Posting = () => {
         formData.append('title', title);
         if (selectedCategory) formData.append('category_id', selectedCategory);
         if (photo) formData.append('photo', photo);
+        selectedTags.forEach(tag => formData.append('tags', tag.id.toString()));
 
         try {
             await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/forum/`, formData, {
@@ -115,6 +124,62 @@ const Posting = () => {
             fileInput.value = '';
         }
         handleFileChange();
+    };
+
+    const fetchSuggestions = async (q: string) => {
+        if (q.trim() === "") {
+            setSuggestions([]);
+            return;
+        }
+        try {
+            const response = await axios.get("http://localhost:5000/api/tags/", {
+                params: { q },
+            });
+            setSuggestions(response.data ?? []);
+        } catch (error) {
+            console.error("Fetch error:", error);
+            setSuggestions([]);
+        }
+    };
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            fetchSuggestions(query);
+        }, 300);
+        return () => clearTimeout(delayDebounceFn);
+    }, [query]);
+
+    const handleConfirmTag = async () => {
+        const existingTag = suggestions.find(tag => tag.name === query);
+        const alreadySelected = selectedTags.some(tag => tag.name === query);
+        if (alreadySelected) {
+            alert("Tag sudah dipilih");
+            return;
+        }
+        if (existingTag) {
+            setSelectedTags(prevTags => [...prevTags, existingTag]);
+            setQuery("");
+            setSuggestions([]);
+        } else {
+            try {
+                const response = await axios.post("http://localhost:5000/api/tags/", { name: query });
+                if (response.status === 201) {
+                    const newTag = response.data.tag;
+                    setSelectedTags(prevTags => [...prevTags, newTag]);
+                    setSuggestions(prev => [...prev, newTag]);
+                    setQuery("");
+                } else {
+                    alert("Gagal membuat tag");
+                }
+            } catch (error) {
+                console.error("Create tag error:", error);
+                alert("Terjadi kesalahan saat membuat tag");
+            }
+        }
+    };
+
+    const handleRemoveTag = (id: number) => {
+        setSelectedTags(prevTags => prevTags.filter(tag => tag.id !== id));
     };
 
     return (
@@ -206,6 +271,29 @@ const Posting = () => {
                             </button>
                         </div>
                     )}
+
+                    <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cari atau buat tag baru..." />
+                    <button type="button" onClick={handleConfirmTag}>Tambah Tag</button>
+                    {suggestions.length > 0 && (
+                        <ul>
+                            {suggestions.map(tag => (
+                                <li key={tag.id} onClick={() => {
+                                    if (!selectedTags.some(selected => selected.id === tag.id)) {
+                                        setSelectedTags([...selectedTags, tag]);
+                                        setQuery("");
+                                        setSuggestions([]);
+                                    }
+                                }}>{tag.name}</li>
+                            ))}
+                        </ul>
+                    )}
+                    <div>
+                        {selectedTags.map(tag => (
+                            <span key={tag.id} onClick={() => handleRemoveTag(tag.id)}>
+                                #{tag.name}
+                            </span>
+                        ))}
+                    </div>
 
                     {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
 
