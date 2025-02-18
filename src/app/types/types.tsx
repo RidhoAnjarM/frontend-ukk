@@ -10,6 +10,11 @@ export interface Comment {
     replies?: Reply[];
 }
 
+export interface Tags{
+    id: number;
+    name: string;
+}
+
 export interface Reply {
     id: number;
     content: string;
@@ -34,6 +39,7 @@ export interface ForumPost {
     category_name: string;
     relative_time: string;
     comments: Comment[];
+    tags: Tags[];
 }
 
 export interface Forum {
@@ -88,3 +94,8 @@ export interface DecodedToken {
     username: string;
     name: string;
 }
+
+export type Tag = {
+    id: number;
+    name: string;
+};

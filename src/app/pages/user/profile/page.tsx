@@ -296,7 +296,7 @@ const Profile = () => {
                                 </div>
                             ))
                     ) : (
-                        <p className="text-gray-500">No forums created yet.</p>
+                        <p className="text-gray-500">Tidak ada Postingan.</p>
                     )}
                 </div>
 

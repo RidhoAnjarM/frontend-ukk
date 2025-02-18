@@ -186,7 +186,18 @@ const Home = () => {
                                     </div>
                                 )}
                             </div>
-                            <div className="mt-[15px] flex ms-[50px]">
+                            <div className="ms-[50px] mt-2">
+                                {post.tags && post.tags.length > 0 ? (
+                                    post.tags.map((tag) => (
+                                        <span key={tag.id} className="bg-gray-300 text-[12px] py-1 px-2 me-1 rounded-md">
+                                            #{tag.name}
+                                        </span>
+                                    ))
+                                ) : (
+                                    <span className=""></span>
+                                )}
+                            </div>
+                            <div className="mt-[10px] flex ms-[50px]">
                                 <div className="text-primary font-ruda mt-[10px] mb-[10px] flex items-center text-[15px]">
                                     <button>
                                         <img src="../../icons/like.svg" alt=""
