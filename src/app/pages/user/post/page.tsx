@@ -4,11 +4,12 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Alert from '@/app/components/Alert';
-import Navbar from '@/app/components/Navbar';
-import { Tag }  from '@/app/types/types';
+import Sidebar from '@/app/components/Sidebar';
+import { Tag } from '@/app/types/types';
 
 const Posting = () => {
     const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
     const [photo, setPhoto] = useState<File | null>(null);
     const [categories, setCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('');
@@ -51,6 +52,7 @@ const Posting = () => {
 
         const formData = new FormData();
         formData.append('title', title);
+        formData.append('description', description);
         if (selectedCategory) formData.append('category_id', selectedCategory);
         if (photo) formData.append('photo', photo);
         selectedTags.forEach(tag => formData.append('tags', tag.name));
@@ -180,7 +182,7 @@ const Posting = () => {
 
     return (
         <div>
-            <Navbar />
+            <Sidebar />
             <div className="ps-[270px] pt-[60px]">
                 <div className="fixed top-0 w-full ms-[85px] z-10 transition-transform duration-300">
                     <div className="bg-white backdrop-blur-md bg-opacity-20 w-[700px] h-[60px] border border-t-0 flex items-center px-[30px]">
@@ -190,25 +192,6 @@ const Posting = () => {
                     </div>
                 </div>
                 <div className="w-[700px] h-[calc(100vh)] border border-gray-300 border-t-0 ms-[85px] p-5">
-                    <div className="w-full h-[200px] border rounded-md border-gray-300 ">
-                        <div className="mb-6">
-                            <select
-                                id="category"
-                                value={selectedCategory}
-                                onChange={(e) => setSelectedCategory(e.target.value)}
-                                className="w-[150px] h-[40px] "
-                            >
-                                <option value="">kategori</option>
-                                {categories.map((category: any) => (
-                                    <option key={category.id} value={category.id}>
-                                        {category.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div className="w-[700px] ms-[85px] p-5 bg-white rounded-lg shadow-lg">
                     <form onSubmit={handleSubmit}>
                         {showAlert && (
                             <Alert
@@ -217,127 +200,146 @@ const Posting = () => {
                                 onClose={() => setShowAlert(false)}
                             />
                         )}
-
-                        <div className="mb-6">
-                            <input
-                                type="text"
-                                id="title"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                placeholder="Apa yang akan dibahas?"
-                                className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                            />
-                        </div>
-
-                        <div className="mb-6">
-                            <select
-                                id="category"
-                                value={selectedCategory}
-                                onChange={(e) => setSelectedCategory(e.target.value)}
-                                className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                            >
-                                <option value="">kategori</option>
-                                {categories.map((category: any) => (
-                                    <option key={category.id} value={category.id}>
-                                        {category.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div className="relative mb-6">
-                            <input
-                                id="file-upload"
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                                className="absolute w-full h-full opacity-0 cursor-pointer rounded-[5px]"
-                            />
-                            <div className="flex items-center justify-between w-full h-[50px] px-4 border rounded-[10px] bg-white hover:bg-gray-100 transition duration-200 cursor-pointer">
-                                <span className="text-black text-sm">
-                                    {fileName || 'tambah gambar'}
-                                </span>
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-6 w-6 text-gray-400"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
+                        <div className="w-full h-[200px] border rounded-md border-gray-300 p-[10px]">
+                            <div className="flex">
+                                <select
+                                    id="category"
+                                    value={selectedCategory}
+                                    onChange={(e) => setSelectedCategory(e.target.value)}
+                                    className="w-[180px] h-[40px] border border-gray-300 rounded-[10px] text-[14px] font-ruda ps-[10px] me-[10px] outline-none"
                                 >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M7 16l-4-4m0 0l4-4m-4 4h18"
+                                    <option value="">pilih kategori</option>
+                                    {categories.map((category: any) => (
+                                        <option key={category.id} value={category.id}>
+                                            {category.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <div className="relative ">
+                                    <input
+                                        id="file-upload"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                        className="absolute w-[150px] h-[40px] opacity-0 cursor-pointer rounded-[10px]"
                                     />
-                                </svg>
+                                    <div className="h-[40px] border border-gray-300 rounded-[10px] text-[14px] font-ruda px-[8px] flex items-center justify-between">
+                                        <img src="../../icons/image.svg" alt="" />
+                                        <span className="text-black text-[14px] ms-2">
+                                            {fileName || 'tambah gambar'}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-
-                        {photo && (
-                            <div className="relative mb-6">
-                                <img
-                                    src={URL.createObjectURL(photo)}
-                                    alt="Preview"
-                                    className="w-full h-[200px] object-cover rounded-[10px]"
+                            <div className="mt-[10px] px-[10px]">
+                                <textarea
+                                    id="title"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    placeholder="Apa yang akan dibahas?"
+                                    className="w-full h-[90px] mb-2 font-ruda text-[14px] outline-none overflow-hidden resize-none"
                                 />
+                            </div>
+                            <div className="mt-[10px] px-[10px]">
+                                <textarea
+                                    id="description"
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    placeholder="Apa yang akan dibahas?"
+                                    className="w-full h-[90px] mb-2 font-ruda text-[14px] outline-none overflow-hidden resize-none"
+                                />
+                            </div>
+                            <div className="-mt-5 ms-[10px] ">
+                                <input
+                                    type="text"
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                    placeholder="Tambah hastag"
+                                    className="w-[450px] relative z-0 outline-none h-[40px] font-ruda text-[14px] "
+                                />
+
+                                {query.trim() && (
+                                    <button
+                                        type="button"
+                                        onClick={handleConfirmTag}
+                                        className="w-[70px] h-[35px] bg-primary rounded-md text-white font-ruda text-[14px]"
+                                    >
+                                        tambah
+                                    </button>
+                                )}
+                            </div>
+                            <div className="absolute">
+                                {suggestions.length > 0 && (
+                                    <ul className='bg-gray-200 p-2 rounded-md'>
+                                        {suggestions.map(tag => (
+                                            <li key={tag.id} onClick={() => {
+                                                if (!selectedTags.some(selected => selected.id === tag.id)) {
+                                                    setSelectedTags([...selectedTags, tag]);
+                                                    setQuery("");
+                                                    setSuggestions([]);
+                                                }
+                                            }}
+                                            className="hover:underline cursor-pointer">
+                                            {tag.name}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
+
+                            <div className="w-full flex justify-end -mt-[37px] z-10">
                                 <button
-                                    type="button"
-                                    onClick={() => {
-                                        setPhoto(null);
-                                        setFileName('');
-                                        setError(null);
-                                    }}
-                                    className="absolute top-2 right-2 text-white bg-red-500 rounded-full p-1"
+                                    type="submit"
+                                    className="w-[100px] h-[35px] rounded-full bg-primary flex items-center justify-center right-0"
+                                    disabled={loading}
                                 >
-                                    x
+                                    {loading ? (
+                                        <div>
+                                            <p className='text-white'>wait</p>
+                                        </div>
+                                    ) : (
+                                        <div className='flex items-center justify-center text-white gap-2'>
+                                            <p>Posting</p>
+                                            <img src="../../icons/paperplane.svg" alt="" />
+                                        </div>
+                                    )}
                                 </button>
                             </div>
-                        )}
+                        </div>
 
-                        <input
-                            type="text"
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Cari atau buat tag baru..."
-                            className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                        />
-                        <button
-                            type="button"
-                            onClick={handleConfirmTag}
-                            className="w-full py-3 mt-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none transition"
-                        >Tambah Tag
-                        </button>
-                        {suggestions.length > 0 && (
-                            <ul>
-                                {suggestions.map(tag => (
-                                    <li key={tag.id} onClick={() => {
-                                        if (!selectedTags.some(selected => selected.id === tag.id)) {
-                                            setSelectedTags([...selectedTags, tag]);
-                                            setQuery("");
-                                            setSuggestions([]);
-                                        }
-                                    }}>{tag.name}</li>
-                                ))}
-                            </ul>
-                        )}
-                        <div>
+                        <div className='mt-3 w-full flex flex-wrap'>
                             {selectedTags.map(tag => (
-                                <span key={tag.id} onClick={() => handleRemoveTag(tag.id)}>
+                                <span key={tag.id} onClick={() => handleRemoveTag(tag.id)} className='cursor-pointer bg-gray-300 rounded-md px-2 py-1 me-1 mb-1'>
                                     #{tag.name}
                                 </span>
                             ))}
                         </div>
 
+                        <div>
+                            {photo && (
+                                <div className="mt-[10px] relative">
+                                    <img
+                                        src={URL.createObjectURL(photo)}
+                                        alt="Preview"
+                                        className="w-full object-cover rounded-[10px]"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setPhoto(null);
+                                            setFileName('');
+                                            setError(null);
+                                        }}
+                                        className="top-2 right-2 absolute text-white bg-red-500 rounded-full w-[25px] h-[25px]"
+                                    >
+                                        x
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
                         {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
 
-                        <button
-                            type="submit"
-                            className="w-full py-3 mt-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none transition"
-                            disabled={loading}
-                        >
-                            {loading ? 'tunggu sebentar...' : 'kirim'}
-                        </button>
                     </form>
                 </div>
             </div>

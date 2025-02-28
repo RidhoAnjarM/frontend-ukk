@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
-import Navbar from "@/app/components/Navbar";
+import Sidebar from "@/app/components/Sidebar";
 import { Notification } from "@/app/types/types";
 
 const Notif = () => {
@@ -114,7 +114,7 @@ const Notif = () => {
 
   return (
     <div>
-      <Navbar />
+      <Sidebar />
       <div className="ps-[270px]">
         <div className="fixed z-10 w-[700px] h-[80px] bg-white backdrop-blur-lg bg-opacity-20 ms-[85px] flex justify-between items-center border border-t-0 px-4 border-gray-300">
           <h1 className="text-[24px] font-ruda">Notifikasi</h1>

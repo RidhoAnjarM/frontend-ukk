@@ -2,7 +2,7 @@
 
 import Alert from '@/app/components/Alert';
 import Modal from '@/app/components/Modal';
-import Navbar from '@/app/components/Navbar';
+import Sidebar from '@/app/components/Sidebar';
 import { ForumPost } from '@/app/types/types';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -179,7 +179,7 @@ const Profile = () => {
 
     return (
         <div>
-            <Navbar />
+            <Sidebar />
             <div className='ps-[270px] pt-[59px]'>
                 {alertMessage && <Alert type="success" message={alertMessage} onClose={() => setAlertMessage(null)} />}
                 <div className="w-[350px] h-[400px] rounded-[10px] fixed top-0 right-0 me-[60px] mt-[30px] p-[15px] bg-white border border-gray-300 ">
@@ -291,12 +291,14 @@ const Profile = () => {
                                                 className="w-[15px] h-[15px] mr-[5px]"
                                             />
                                             <p className='mt-[1px]'>{forum.comments ? forum.comments.length + forum.comments.reduce((acc, comment) => acc + (comment.replies ? comment.replies.length : 0), 0) : 0}</p>
-                                        </button>
+                                         </button>
                                     </div>
                                 </div>
                             ))
                     ) : (
-                        <p className="text-gray-500">Tidak ada Postingan.</p>
+                        <div className="w-[700px] p-[30px] bg-white border border-gray-300 border-t-0 ms-[85px] text-center">
+                            <p className="text-gray-500">Tidak ada Postingan.</p>
+                        </div>
                     )}
                 </div>
 

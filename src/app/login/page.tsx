@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Alert from '../components/Alert';
+import ThemeToggle from '../components/ThemeTogle';
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -53,7 +54,7 @@ const Login = () => {
     
             setTimeout(() => {
                 if (role === 'user') {
-                    router.push('/pages/user/Home');
+                    router.push('/pages/user/Beranda');
                 } else if (role === 'admin') {
                     router.push('/pages/admin/Home');
                 }
@@ -96,7 +97,7 @@ const Login = () => {
     
 
     return (
-        <div>
+        <div className='h-screen bg-white dark:bg-gray-900 dark:text-gray-200 transition-colors '>
             {showAlert && (
                 <Alert
                     type={alertType}
@@ -148,6 +149,7 @@ const Login = () => {
                     <p className='text-center mt-3'>
                         Belum punya akun? <a href="/register" className='text-blue-900'>Register Sekarang</a>
                     </p>
+
                 </div>
             </div>
         </div>

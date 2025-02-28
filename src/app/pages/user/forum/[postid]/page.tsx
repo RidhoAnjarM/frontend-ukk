@@ -1,7 +1,7 @@
 'use client';
 
 import DetailForum from '@/app/components/DetailForum'
-import Navbar from '@/app/components/Navbar'
+import Sidebar from '@/app/components/Sidebar'
 import React from 'react'
 import { useRouter } from 'next/navigation';
 
@@ -10,7 +10,7 @@ const ForumDetail = () => {
 
   return (
     <div>
-      <Navbar />
+      <Sidebar />
       <div className="ps-[270px] pt-[50px]">
         <nav className="fixed top-0 w-full ms-[85px] z-10 transition-transform duration-300">
           <div className="bg-white backdrop-blur-md bg-opacity-20 w-[700px] h-[60px] border border-t-0 flex items-center px-[30px] border-gray-400">
@@ -24,7 +24,7 @@ const ForumDetail = () => {
             </h1>
           </div>
         </nav> 
-        <main className='ms-[85px]'>
+        <main className='ms-[85px] pb-9 border border-gray-400 w-[700px]'>
           <DetailForum />
         </main>
       </div>

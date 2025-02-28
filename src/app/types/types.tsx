@@ -10,9 +10,16 @@ export interface Comment {
     replies?: Reply[];
 }
 
-export interface Tags{
+export interface Tags {
     id: number;
     name: string;
+}
+
+export interface Category {
+    id: number;
+    name: string;
+    photo: string;
+    usage_count: number;
 }
 
 export interface Reply {
@@ -40,6 +47,12 @@ export interface ForumPost {
     relative_time: string;
     comments: Comment[];
     tags: Tags[];
+    like: number;
+    liked: number;
+}
+
+export interface Like {
+    id: number;
 }
 
 export interface Forum {

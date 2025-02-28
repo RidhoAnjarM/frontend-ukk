@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'next/navigation';
 import { ForumPost, User, DecodedToken } from '@/app/types/types';
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
+import Alert from './Alert';
+import Modal from './Modal';
 
 const DetailForum = () => {
     const [post, setPost] = useState<ForumPost | null>(null);
@@ -16,13 +18,21 @@ const DetailForum = () => {
     const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
     const [visibleComments, setVisibleComments] = useState<{ [key: number]: boolean }>({});
     const [replies, setReplies] = useState<{ [key: number]: string }>({});
-    const [isScrolling, setIsScrolling] = useState<boolean>(false);
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [username, setUsername] = useState<string | null>(null);
     const [currentUserId, setCurrentUserId] = useState<number | null>(null);
     const [visibleSubReplyInput, setVisibleSubReplyInput] = useState<{ [key: number]: boolean }>({});
     const [subReplies, setSubReplies] = useState<{ [key: number]: string }>({});
+    const [isLiked, setIsLiked] = useState<boolean>(false);
+    const [showReportModal, setShowReportModal] = useState<boolean>(false);
+    const [showReportModalForum, setShowReportModalForum] = useState<boolean>(false);
+    const [reportedUserId, setReportedUserId] = useState<number | null>(null);
+    const [reportedForumId, setReportedForumId] = useState<number | null>(null);
+    const [reason, setReason] = useState<string>('');
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertType, setAlertType] = useState<'success' | 'error' | 'warning' | 'info'>('error');
+    const [alertMessage, setAlertMessage] = useState('');
 
     //get profile
     useEffect(() => {
@@ -53,7 +63,11 @@ const DetailForum = () => {
 
         const fetchPostDetail = async () => {
             try {
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/forum/${postid}`);
+                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/forum/${postid}`, {
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
+                    }
+                });
                 setPost(response.data);
             } catch (err) {
                 setError('Failed to fetch post details.');
@@ -269,8 +283,14 @@ const DetailForum = () => {
         };
     }, [activeDropdown]);
 
-    const handleAccount = (postId: number) => {
+    const handleAccountDropdown = (postId: number) => {
+        console.log(`Toggling dropdown for post ID: ${postId}`);
         setActiveDropdown((prev) => (prev === postId ? null : postId));
+    };
+
+    const handleAkun = (akunid: number) => {
+        console.log(`Navigating to account with ID: ${akunid}`);
+        router.push(`/pages/user/akun/${akunid}`);
     };
 
     const getCurrentUserId = (): number | null => {
@@ -307,8 +327,153 @@ const DetailForum = () => {
         }));
     };
 
+    const handleLikePost = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            console.error('No token found');
+            return;
+        }
+
+        try {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/forum/${postid}/like`, {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setIsLiked(response.data.isLiked);
+        } catch (error) {
+            console.error('Error liking post:', error);
+        }
+    };
+
+    const handleReportAccount = (userId: number) => {
+        setReportedUserId(userId);
+        setShowReportModal(true);
+    };
+
+    const handleSubmitReport = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setAlertType('error');
+            setAlertMessage('Anda harus login terlebih dahulu');
+            setShowAlert(true);
+            return;
+        }
+
+        try {
+            const checkResponse = await axios.get(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/report/akun/check?reported_id=${reportedUserId}`,
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
+
+            if (checkResponse.data.exists) {
+                setAlertType('warning');
+                setAlertMessage('Anda sudah mereport akun ini dan laporan sedang diproses.');
+                setShowAlert(true);
+                setReason('');
+                setShowReportModal(false);
+                setTimeout(() => setShowAlert(false), 2000);
+                return;
+            }
+
+            await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/report/akun`,
+                { reported_id: reportedUserId, reason: reason },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            setAlertType('success');
+            setAlertMessage('Report berhasil dikirim');
+            setShowAlert(true);
+            setShowReportModal(false);
+            setReason('');
+
+            setTimeout(() => setShowAlert(false), 2000);
+        } catch (err) {
+            console.error('Error:', err);
+            setAlertType('error');
+            setAlertMessage('Gagal mengirim report');
+            setShowAlert(true);
+            setTimeout(() => setShowAlert(false), 2000);
+        }
+    };
+
+    const handleReportForum = (forumID: number) => {
+        setReportedForumId(forumID);
+        setShowReportModalForum(true);
+    };
+
+    const handleSubmitReportForum = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setAlertType('error');
+            setAlertMessage('Anda harus login terlebih dahulu');
+            setShowAlert(true);
+            return;
+        }
+
+        try {
+            const checkResponse = await axios.get(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/report/forum/check?forum_id=${reportedForumId}`,
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
+
+            if (checkResponse.data.exists) {
+                setAlertType('warning');
+                setAlertMessage('Anda sudah mereport postingan ini dan laporan sedang diproses.');
+                setShowAlert(true);
+                setReason('');
+                setShowReportModalForum(false);
+                setTimeout(() => setShowAlert(false), 2000);
+                return;
+            }
+
+            await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/report/forum`,
+                { forum_id: reportedForumId, reason: reason },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            setAlertType('success');
+            setAlertMessage('Report berhasil dikirim');
+            setShowAlert(true);
+            setShowReportModalForum(false);
+            setReason('');
+
+            setTimeout(() => setShowAlert(false), 2000);
+        } catch (err) {
+            console.error('Error:', err);
+            setAlertType('error');
+            setAlertMessage('Gagal mengirim report');
+            setShowAlert(true);
+            setTimeout(() => setShowAlert(false), 2000);
+        }
+    };
+
+    const handleCloseReportModal = () => {
+        setShowReportModal(false);
+        setReason('');
+    };
+
+    const handleCloseReportModalForum = () => {
+        setShowReportModalForum(false);
+        setReason('');
+    };
+
     return (
         <div>
+            {showAlert && (
+                <Alert
+                    type={alertType}
+                    message={alertMessage}
+                    onClose={() => setShowAlert(false)}
+                    className="mt-4"
+                />
+            )}
             {loading ? (
                 <div className='w-[700px] h-[100px] flex items-center justify-center bg-white border border-gray-300 border-t-0 '>
                     <p>loading</p>
@@ -318,7 +483,7 @@ const DetailForum = () => {
                     <p>{error}</p>
                 </div>
             ) : post ? (
-                <div className="w-[700px] bg-white border border-gray-400">
+                <div className="w-[700px] ">
                     {/* profil */}
                     <div className="flex justify-between w-full items-center px-[30px] pt-[20px]">
                         <div className="flex">
@@ -344,20 +509,41 @@ const DetailForum = () => {
                         {/* report */}
                         <div className="relative">
                             <button
-                                onClick={() => handleAccount(post.id)}
+                                onClick={() => handleAccountDropdown(post.id)}
                                 className="focus:outline-none w-[25px]"
                             >
                                 <img src="../../../icons/menu.svg" alt="menu" />
                             </button>
-                            {activeDropdown === post.id && (
-                                <div className="absolute bg-[#F2F2F2] w-[150px] rounded-[15px] overflow-hidden -right-[60px]">
-                                    <button className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda text-[12px]">
+                            {activeDropdown && (
+                                <div
+                                    className="absolute bg-[#F2F2F2] w-[150px] rounded-[15px] overflow-hidden -right-[60px] dropdown-container"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleAkun(post.user_id);
+                                        }}
+                                        className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda text-[12px]"
+                                    >
                                         Lihat akun
                                     </button>
-                                    <button className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda text-[12px]">
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleReportForum(post.id);
+                                        }}
+                                        className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda text-[12px]"
+                                    >
                                         Laporkan postingan
                                     </button>
-                                    <button className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda text-[12px]">
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleReportAccount(post.user_id)
+                                        }}
+                                        className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda text-[12px]"
+                                    >
                                         Laporkan akun
                                     </button>
                                 </div>
@@ -370,20 +556,33 @@ const DetailForum = () => {
                         <div className="font-sans text-[16px] ">
                             <h2>{post.title}</h2>
                             {post.photo && (
-                                <div className="w-full h-[600px] bg-white bg-opacity-50 backdrop-blur-70 rounded-[15px] mt-[10px] border border-gray-400 flex justify-center items-center overflow-hidden">
+                                <div className="w-full max-h-[600px] bg-white bg-opacity-50 backdrop-blur-70 rounded-[15px] mt-[10px] border border-gray-400 flex justify-center items-center overflow-hidden">
                                     <img
                                         src={`${process.env.NEXT_PUBLIC_API_URL}${post.photo}`}
                                         alt={post.title}
-                                        className="max-w-full max-h-full"
+                                        className="w-full bg-cover"
                                     />
                                 </div>
                             )}
                         </div>
+                        < div className=" mt-4" >
+                            {
+                                post.tags && post.tags.length > 0 ? (
+                                    post.tags.map((tag) => (
+                                        <span key={tag.id} className="bg-gray-300 text-[12px] py-1 px-2 me-1 rounded-md" >
+                                            #{tag.name}
+                                        </span>
+                                    ))
+                                ) : (
+                                    <span className="" > </span>
+                                )}
+                        </div>
                         {/* like&komen */}
                         <div className="mt-[15px] flex">
-                            <button>
-                                <img src="../../../icons/like.svg" alt=""
-                                    className="w-[15px] h-[15px] mr-[20px] text-primary font-ruda mb-[10px] flex items-center text-[15px]" />
+                            <button onClick={handleLikePost} className='font-ruda mb-[10px] flex items-center text-[15px] me-2'>
+                                <img src={isLiked ? "../../../icons/liked.svg" : "../../../icons/like.svg"} alt=""
+                                    className="w-[15px] h-[15px] mr-[5px] text-primary font-ruda flex items-center text-[15px]" />
+                                <p className='mt-[1px]'>{post.like}</p>
                             </button>
                             <button
                                 className="font-ruda mb-[10px] flex items-center text-[15px]"
@@ -398,7 +597,7 @@ const DetailForum = () => {
 
                     {/* input komen */}
                     <div className="w-full relative mt-[10px]">
-                        <div className="w-full h-[80px] flex bg-white overflow-hidden justify-between items-center border-gray-400 border-t px-[30px]">
+                        <div className="w-full h-[80px] flex  overflow-hidden justify-between items-center border-gray-400 border-t px-[30px]">
                             <div className="w-[40px] h-[40px] rounded-full bg-white overflow-hidden border border-gray-300 bg-cover flex items-center justify-center">
                                 {user && (
                                     <img
@@ -496,7 +695,7 @@ const DetailForum = () => {
                                     {/* Form balasan */}
                                     {visibleComments[comment.id] && (
                                         <div className="mt-[10px] ms-[78px]">
-                                            <div className="w-[500px] h-[40px] flex bg-white justify-between items-center border-b ms-[40px]">
+                                            <div className="w-[500px] h-[40px] flex justify-between items-center border-b ms-[40px]">
                                                 <input
                                                     type='text'
                                                     value={replies[comment.id] !== undefined ? replies[comment.id] : `@${comment.username} `}
@@ -612,6 +811,57 @@ const DetailForum = () => {
             ) : (
                 <p>Post not found.</p>
             )}
+            <Modal isOpen={showReportModal} onClose={handleCloseReportModal}>
+                <div className="p-2 flex flex-col justify-center" >
+                    <h2 className="text-xl font-black mb-4 text-center font-ruda "> Laporkan Akun </h2>
+                    <textarea
+                        className="w-full p-2 border border-gray-300 rounded mb-4 outline-none"
+                        placeholder="Alasan Report"
+                        value={reason}
+                        onChange={(e) => setReason(e.target.value)}
+                    />
+                    <div className="flex justify-end gap-2 mt-2" >
+                        <button
+                            className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100"
+                            onClick={handleCloseReportModal}
+                        >
+                            Batal
+                        </button>
+                        < button
+                            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark"
+                            onClick={handleSubmitReport}
+                        >
+                            Kirim
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+
+            <Modal isOpen={showReportModalForum} onClose={handleCloseReportModalForum}>
+                <div className="p-2 flex flex-col justify-center" >
+                    <h2 className="text-xl font-black mb-4 text-center font-ruda "> Laporkan Postingan </h2>
+                    <textarea
+                        className="w-full p-2 border border-gray-300 rounded mb-4 outline-none"
+                        placeholder="Alasan Report"
+                        value={reason}
+                        onChange={(e) => setReason(e.target.value)}
+                    />
+                    <div className="flex justify-end gap-2 mt-2" >
+                        <button
+                            className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100"
+                            onClick={handleCloseReportModalForum}
+                        >
+                            Batal
+                        </button>
+                        < button
+                            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark"
+                            onClick={handleSubmitReportForum}
+                        >
+                            Kirim
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     )
 }

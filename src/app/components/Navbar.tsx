@@ -5,6 +5,8 @@ import axios from 'axios';
 import Modal from './Modal';
 import { useRouter } from 'next/navigation';
 import { User } from '@/app/types/types';
+import ThemeToggle from './ThemeTogle';
+import { Homesvg } from './svgs/page';
 
 const Navbar = () => {
     const [user, setUser] = useState<User | null>(null);
@@ -106,7 +108,7 @@ const Navbar = () => {
 
     return (
         <div className="relative">
-            <div className="fixed h-[calc(100vh)] w-[270px] flex flex-col bg-white border-e">
+            <div className="fixed h-[calc(100vh)] w-[270px] flex flex-col bg-white">
                 {loading ? (
                     <div className='text-center'>
                         <div className="flex justify-center">
@@ -160,9 +162,9 @@ const Navbar = () => {
                 )}
 
                 <div className='ms-[30px]'>
-                    <button className="px-[20px] h-[50px] rounded-[20px] mt-[67px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors text-primary"
+                    <button className="px-[20px] h-[50px] rounded-[20px] mt-[67px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors "
                         onClick={() => router.push('/pages/user/Home')}>
-                        <img src="../../../icons/home.svg" alt="" className='me-[20px]' /><h1 className='mt-[2px]'>Beranda</h1>
+                        <Homesvg className=" fill-primary dark:fill-white me-[20px]"/> <h1 className='mt-[2px] text-primary'>Beranda</h1>
                     </button>
                     <button className="px-[20px] h-[50px] rounded-[20px] mt-[5px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors text-primary"
                         onClick={() => router.push('/pages/user/notif')}>
@@ -186,9 +188,7 @@ const Navbar = () => {
                     <div className="">
                         <div className="dropdown-container">
                             <button
-                                onClick={() =>
-                                    setActiveDropdown(activeDropdown === 1 ? null : 1)
-                                }
+                                onClick={() =>setActiveDropdown(activeDropdown === 1 ? null : 1)}
                                 className="dropdown-trigger px-[20px] h-[50px] rounded-[20px] mt-[5px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors text-primary"
                             >
                                 <img src="../../../icons/more.svg" alt="" className='me-[20px]' /><h1 className='mt-[2px]'>Lainya</h1>
@@ -201,6 +201,7 @@ const Navbar = () => {
                                     >
                                         Logout
                                     </button>
+                                    <ThemeToggle />
                                 </div>
                             )}
                         </div>
