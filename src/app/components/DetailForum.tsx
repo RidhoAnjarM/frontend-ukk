@@ -6,8 +6,9 @@ import { useParams } from 'next/navigation';
 import { ForumPost, User, DecodedToken } from '@/app/types/types';
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
-import Alert from './Alert';
-import Modal from './Modal';
+import { Ellipse, Heart, Horizontal, Vertikal } from './svgs/page';
+import Dropdown from './Dropdown';
+import ReportModal from './ReportModal';
 
 const DetailForum = () => {
     const [post, setPost] = useState<ForumPost | null>(null);
@@ -15,24 +16,55 @@ const DetailForum = () => {
     const [error, setError] = useState<string | null>(null);
     const [newComment, setNewComment] = useState<{ [key: number]: string }>({});
     const { postid } = useParams();
-    const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
     const [visibleComments, setVisibleComments] = useState<{ [key: number]: boolean }>({});
     const [replies, setReplies] = useState<{ [key: number]: string }>({});
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [username, setUsername] = useState<string | null>(null);
     const [currentUserId, setCurrentUserId] = useState<number | null>(null);
-    const [visibleSubReplyInput, setVisibleSubReplyInput] = useState<{ [key: number]: boolean }>({});
+    const [visibleSubReplyInput, setVisibleSubReplyInput] = useState(null);
     const [subReplies, setSubReplies] = useState<{ [key: number]: string }>({});
-    const [isLiked, setIsLiked] = useState<boolean>(false);
-    const [showReportModal, setShowReportModal] = useState<boolean>(false);
-    const [showReportModalForum, setShowReportModalForum] = useState<boolean>(false);
     const [reportedUserId, setReportedUserId] = useState<number | null>(null);
     const [reportedForumId, setReportedForumId] = useState<number | null>(null);
-    const [reason, setReason] = useState<string>('');
-    const [showAlert, setShowAlert] = useState(false);
-    const [alertType, setAlertType] = useState<'success' | 'error' | 'warning' | 'info'>('error');
-    const [alertMessage, setAlertMessage] = useState('');
+    const [showReportModal, setShowReportModal] = useState<boolean>(false);
+    const [showReportModalForum, setShowReportModalForum] = useState<boolean>(false);
+    const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
+
+    const handleClickOutside = (event: MouseEvent) => {
+        const target = event.target as HTMLElement;
+        if (!target.closest('.dropdown-container') && !target.closest('.dropdown-item')) {
+            setActiveDropdown(null);
+        }
+    };
+
+    useEffect(() => {
+        if (activeDropdown !== null) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [activeDropdown]);
+
+    const handleShowDropdown = (postId: number) => {
+        setActiveDropdown((prev) => (prev === postId ? null : postId));
+    };
+
+    const handleReportAccount = (userId: number) => {
+        setReportedUserId(userId);
+        setShowReportModal(true);
+    };
+
+    const handleReportForum = (forumId: number) => {
+        setReportedForumId(forumId);
+        setShowReportModalForum(true);
+    };
+
+    const handleAkun = (akunid: number) => {
+        router.push(`/pages/user/akun/${akunid}`);
+    };
 
     //get profile
     useEffect(() => {
@@ -264,35 +296,6 @@ const DetailForum = () => {
         }
     };
 
-    const handleClickOutside = (event: MouseEvent) => {
-        const target = event.target as HTMLElement;
-        if (!target.closest('.dropdown-container')) {
-            setActiveDropdown(null);
-        }
-    };
-
-    useEffect(() => {
-        if (activeDropdown !== null) {
-            document.addEventListener('mousedown', handleClickOutside);
-        } else {
-            document.removeEventListener('mousedown', handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [activeDropdown]);
-
-    const handleAccountDropdown = (postId: number) => {
-        console.log(`Toggling dropdown for post ID: ${postId}`);
-        setActiveDropdown((prev) => (prev === postId ? null : postId));
-    };
-
-    const handleAkun = (akunid: number) => {
-        console.log(`Navigating to account with ID: ${akunid}`);
-        router.push(`/pages/user/akun/${akunid}`);
-    };
-
     const getCurrentUserId = (): number | null => {
         const token = localStorage.getItem('token');
         if (!token) return null;
@@ -320,160 +323,56 @@ const DetailForum = () => {
         }
     }, []);
 
-    const toggleSubReplyInput = (replyId: number) => {
-        setVisibleSubReplyInput((prev) => ({
-            ...prev,
-            [replyId]: !prev[replyId],
-        }));
+    const toggleSubReplyInput = (replyId: any) => {
+        setVisibleSubReplyInput((prev) => (prev === replyId ? null : replyId));
     };
 
-    const handleLikePost = async () => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            console.error('No token found');
-            return;
-        }
-
+    const handleLikeForum = async (forumId: number) => {
         try {
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/forum/${postid}/like`, {}, {
+            const token = localStorage.getItem('token')
+            if (!token) {
+                alert('Silakan login untuk menyukai forum')
+                return
+            }
+
+            const response = await fetch('http://localhost:5000/api/like/', {
+                method: 'POST',
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
                 },
-            });
-            setIsLiked(response.data.isLiked);
+                body: JSON.stringify({ forum_id: forumId }),
+            })
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
+
+            const result = await response.json()
+            console.log('Like Response:', result)
+
+            setPost(prevPost =>
+                prevPost
+                    ? { ...prevPost, liked: result.liked, like: result.liked ? prevPost.like + 1 : prevPost.like - 1 }
+                    : null
+            );
         } catch (error) {
-            console.error('Error liking post:', error);
+            console.error('Error liking forum:', error)
+            alert('Gagal menyukai forum')
         }
-    };
+    }
 
-    const handleReportAccount = (userId: number) => {
-        setReportedUserId(userId);
-        setShowReportModal(true);
-    };
-
-    const handleSubmitReport = async () => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            setAlertType('error');
-            setAlertMessage('Anda harus login terlebih dahulu');
-            setShowAlert(true);
-            return;
-        }
-
-        try {
-            const checkResponse = await axios.get(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/report/akun/check?reported_id=${reportedUserId}`,
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            );
-
-            if (checkResponse.data.exists) {
-                setAlertType('warning');
-                setAlertMessage('Anda sudah mereport akun ini dan laporan sedang diproses.');
-                setShowAlert(true);
-                setReason('');
-                setShowReportModal(false);
-                setTimeout(() => setShowAlert(false), 2000);
-                return;
-            }
-
-            await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/report/akun`,
-                { reported_id: reportedUserId, reason: reason },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-
-            setAlertType('success');
-            setAlertMessage('Report berhasil dikirim');
-            setShowAlert(true);
-            setShowReportModal(false);
-            setReason('');
-
-            setTimeout(() => setShowAlert(false), 2000);
-        } catch (err) {
-            console.error('Error:', err);
-            setAlertType('error');
-            setAlertMessage('Gagal mengirim report');
-            setShowAlert(true);
-            setTimeout(() => setShowAlert(false), 2000);
-        }
-    };
-
-    const handleReportForum = (forumID: number) => {
-        setReportedForumId(forumID);
-        setShowReportModalForum(true);
-    };
-
-    const handleSubmitReportForum = async () => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            setAlertType('error');
-            setAlertMessage('Anda harus login terlebih dahulu');
-            setShowAlert(true);
-            return;
-        }
-
-        try {
-            const checkResponse = await axios.get(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/report/forum/check?forum_id=${reportedForumId}`,
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            );
-
-            if (checkResponse.data.exists) {
-                setAlertType('warning');
-                setAlertMessage('Anda sudah mereport postingan ini dan laporan sedang diproses.');
-                setShowAlert(true);
-                setReason('');
-                setShowReportModalForum(false);
-                setTimeout(() => setShowAlert(false), 2000);
-                return;
-            }
-
-            await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/report/forum`,
-                { forum_id: reportedForumId, reason: reason },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-
-            setAlertType('success');
-            setAlertMessage('Report berhasil dikirim');
-            setShowAlert(true);
-            setShowReportModalForum(false);
-            setReason('');
-
-            setTimeout(() => setShowAlert(false), 2000);
-        } catch (err) {
-            console.error('Error:', err);
-            setAlertType('error');
-            setAlertMessage('Gagal mengirim report');
-            setShowAlert(true);
-            setTimeout(() => setShowAlert(false), 2000);
-        }
-    };
-
-    const handleCloseReportModal = () => {
-        setShowReportModal(false);
-        setReason('');
-    };
-
-    const handleCloseReportModalForum = () => {
-        setShowReportModalForum(false);
-        setReason('');
-    };
+    const getTotalComments = (forum: any) => {
+        if (!forum.comments || !Array.isArray(forum.comments)) return 0
+        const commentsCount = forum.comments.length
+        const repliesCount = forum.comments.reduce((total: number, comment: any) => {
+            return total + (comment.replies && Array.isArray(comment.replies) ? comment.replies.length : 0)
+        }, 0)
+        return commentsCount + repliesCount
+    }
 
     return (
         <div>
-            {showAlert && (
-                <Alert
-                    type={alertType}
-                    message={alertMessage}
-                    onClose={() => setShowAlert(false)}
-                    className="mt-4"
-                />
-            )}
             {loading ? (
                 <div className='w-[700px] h-[100px] flex items-center justify-center bg-white border border-gray-300 border-t-0 '>
                     <p>loading</p>
@@ -483,127 +382,96 @@ const DetailForum = () => {
                     <p>{error}</p>
                 </div>
             ) : post ? (
-                <div className="w-[700px] ">
+                <div className="w-[750px] p-[25px] bg-white dark:bg-hitam2 rounded-[16px] border border-hitam2 hover:shadow-lg transition-shadow relative z-0">
                     {/* profil */}
-                    <div className="flex justify-between w-full items-center px-[30px] pt-[20px]">
+                    <div className="flex justify-between w-full items-center">
                         <div className="flex">
-                            <div className="w-[40px] h-[40px] rounded-full bg-white overflow-hidden border border-gray-300 bg-cover flex items-center justify-center">
-                                <img
-                                    src={`${process.env.NEXT_PUBLIC_API_URL}${post.profile}`}
-                                    alt=""
-                                    className="w-[40px] h-[40px]"
-                                    onError={(e) => {
-                                        console.log(`Image not found for user: ${post.profile}, setting to default.`);
-                                        (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
-                                    }}
-                                />
-                            </div>
-                            <div className="ms-[10px] py-[1px]">
-                                <div className="flex gap-1">
-                                    <p className="text-[14px] font-ruda font-bold">{post.name}</p>
-                                    <p className="text-[14px] font-sans text-gray-500 -mt-[2px]">@{post.username}</p>
+                            <img
+                                src={`${process.env.NEXT_PUBLIC_API_URL}${post.profile}`}
+                                alt=""
+                                className="w-[40px] h-[40px] object-cover rounded-full border border-hitam2"
+                                onError={(e) => {
+                                    console.log(`Image not found for user: ${post.profile}, setting to default.`);
+                                    (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
+                                }}
+                            />
+                            <div className="ms-[10px]">
+                                <div className='flex items-center'>
+                                    <p className="text-[15px] font-ruda text-hitam2 dark:text-putih1 font-semibold me-[6px] cursor-pointer hover:underline" onClick={() => { handleAkun(post.user_id) }}>{post.name}</p>
+                                    <Ellipse className="fill-black dark:fill-white" />
+                                    <p className="text-[14px] font-ruda text-hitam3 dark:text-abu font-medium ms-[6px] cursor-pointer hover:underline" onClick={() => { handleAkun(post.user_id) }}>@{post.username}</p>
                                 </div>
-                                <p className="text-[10px] font-sans">{post.relative_time}</p>
+                                <p className='text-[9px] font-ruda text-hitam4 dark:text-putih3 font-semibold'>{post.relative_time}</p>
                             </div>
                         </div>
-                        {/* report */}
-                        <div className="relative">
-                            <button
-                                onClick={() => handleAccountDropdown(post.id)}
-                                className="focus:outline-none w-[25px]"
-                            >
-                                <img src="../../../icons/menu.svg" alt="menu" />
-                            </button>
-                            {activeDropdown && (
-                                <div
-                                    className="absolute bg-[#F2F2F2] w-[150px] rounded-[15px] overflow-hidden -right-[60px] dropdown-container"
-                                    onClick={(e) => e.stopPropagation()}
-                                >
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleAkun(post.user_id);
-                                        }}
-                                        className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda text-[12px]"
-                                    >
-                                        Lihat akun
-                                    </button>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleReportForum(post.id);
-                                        }}
-                                        className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda text-[12px]"
-                                    >
-                                        Laporkan postingan
-                                    </button>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleReportAccount(post.user_id)
-                                        }}
-                                        className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda text-[12px]"
-                                    >
-                                        Laporkan akun
-                                    </button>
-                                </div>
-                            )}
-                        </div>
+                        <Dropdown
+                            id={post.id}
+                            userId={post.user_id}
+                            onReportForum={handleReportForum}
+                            onReportAccount={handleReportAccount}
+                        />
                     </div>
 
                     {/* content */}
-                    <div className="px-[30px] ">
-                        <div className="font-sans text-[16px] ">
-                            <h2>{post.title}</h2>
-                            {post.photo && (
-                                <div className="w-full max-h-[600px] bg-white bg-opacity-50 backdrop-blur-70 rounded-[15px] mt-[10px] border border-gray-400 flex justify-center items-center overflow-hidden">
-                                    <img
-                                        src={`${process.env.NEXT_PUBLIC_API_URL}${post.photo}`}
-                                        alt={post.title}
-                                        className="w-full bg-cover"
-                                    />
-                                </div>
-                            )}
+                    <div className="">
+                        <div>
+                            <h2 className="text-[17px] font-ruda font-bold mt-1 text-hitam1 dark:text-abu">{post.title}</h2>
+                            <p className='text-[15px] font-ruda font-medium mt-3 text-hitam1 dark:text-putih1'>{post.description}</p>
                         </div>
-                        < div className=" mt-4" >
-                            {
-                                post.tags && post.tags.length > 0 ? (
-                                    post.tags.map((tag) => (
-                                        <span key={tag.id} className="bg-gray-300 text-[12px] py-1 px-2 me-1 rounded-md" >
-                                            #{tag.name}
-                                        </span>
-                                    ))
+                        <div className="mt-[5px] flex flex-wrap">
+                            {post.category_name ? (
+                                <p className="py-[6px] px-[10px] text-[10px] font-ruda font-bold bg-putih3 dark:bg-hitam4 text-hitam2 dark:text-abu rounded-full me-[5px] mb-[5px]">
+                                    {post.category_name}
+                                </p>
+                            ) : null}
+                            {post.tags && post.tags.length > 0 ? (
+                                post.tags.map((tag: any) => (
+                                    <span key={tag.id} className="py-[6px] px-[10px] text-[10px] font-ruda font-bold bg-putih3 dark:bg-hitam4 text-hitam2 dark:text-abu rounded-full me-[5px] mb-[5px]" >
+                                        #{tag.name}
+                                    </span>
+                                ))
+                            ) : null}
+                        </div>
+                        {post.photo && (
+                            <div className="w-[500px] bg-white bg-opacity-50 backdrop-blur-70 rounded-[15px] mt-3 border border-gray-400 object-cover overflow-hidden">
+                                <img
+                                    src={`${process.env.NEXT_PUBLIC_API_URL}${post.photo}`}
+                                    alt={post.title}
+                                    className="w-full bg-cover"
+                                />
+                            </div>
+                        )}
+                        {/* like dan komentar */}
+                        <div className="flex items-center dark:text-abu mt-3">
+                            <button
+                                onClick={() => handleLikeForum(post.id)}
+                                className="flex font-ruda items-center text-[13px] me-[27px]"
+                            >
+                                {post.liked ? (
+                                    <Heart className="fill-ungu me-[5px]" />
                                 ) : (
-                                    <span className="" > </span>
+                                    <Heart className="fill-abu me-[5px]" />
                                 )}
-                        </div>
-                        {/* like&komen */}
-                        <div className="mt-[15px] flex">
-                            <button onClick={handleLikePost} className='font-ruda mb-[10px] flex items-center text-[15px] me-2'>
-                                <img src={isLiked ? "../../../icons/liked.svg" : "../../../icons/like.svg"} alt=""
-                                    className="w-[15px] h-[15px] mr-[5px] text-primary font-ruda flex items-center text-[15px]" />
-                                <p className='mt-[1px]'>{post.like}</p>
+                                {post.like} Like
                             </button>
                             <button
-                                className="font-ruda mb-[10px] flex items-center text-[15px]"
+                                className='flex font-ruda items-center text-[13px]'
                             >
-                                <img src="../../../icons/comment.svg"
-                                    className="w-[15px] h-[15px] mr-[5px]"
-                                />
-                                <p className='mt-[1px]'>{post.comments ? post.comments.length + post.comments.reduce((acc, comment) => acc + (comment.replies ? comment.replies.length : 0), 0) : 0}</p>
+                                <span>{getTotalComments(post)} Komentar</span>
                             </button>
                         </div>
+
                     </div>
 
                     {/* input komen */}
-                    <div className="w-full relative mt-[10px]">
-                        <div className="w-full h-[80px] flex  overflow-hidden justify-between items-center border-gray-400 border-t px-[30px]">
-                            <div className="w-[40px] h-[40px] rounded-full bg-white overflow-hidden border border-gray-300 bg-cover flex items-center justify-center">
+                    <div className="w-full relative mt-[10px] flex">
+                        <div className="w-[599px] h-[45px] bg-putih3 dark:bg-hitam3 flex overflow-hidden items-center px-2 rounded-[16px]">
+                            <div >
                                 {user && (
                                     <img
                                         src={user.profile ? `http://localhost:5000${user.profile}` : 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg'}
                                         alt="User profile"
-                                        className="w-[40px] h-[40px]"
+                                        className="w-[27px] h-[27px] object-cover rounded-full border border-hitam2"
                                         onError={(e) => {
                                             console.log(`Image not found for user: ${user.profile}, setting to default.`);
                                             (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
@@ -616,100 +484,125 @@ const DetailForum = () => {
                                 autoComplete='off'
                                 value={newComment[post.id] || ''}
                                 onChange={(e) => handleNewCommentChange(post.id, e.target.value)}
-                                placeholder="Posting komentar..."
-                                className='w-[520px] h-[35px] outline-none px-[15px] font-sans border-b'
+                                placeholder="ketik disini untuk komentar..."
+                                className='w-[530px] h-[35px] bg-putih3 dark:bg-hitam3 outline-none px-[15px] text-[16px] font-sans text-hitam1 dark:text-abu placeholder-hitam4 dark:placeholder-gray-600'
                             />
-                            <button
-                                onClick={() => handleNewCommentSubmit(post.id)}
-                                className={`text-[14px] font-ruda w-[70px] h-[30px] rounded-full ${newComment[post.id] ? 'bg-primary text-white' : 'bg-gray-300 text-gray-700 cursor-not-allowed'}`}
-                                disabled={!newComment[post.id]}
-                            >
-                                Posting
-                            </button>
                         </div>
+                        <button
+                            onClick={() => handleNewCommentSubmit(post.id)}
+                            className={`w-[45px] h-[45px] rounded-[10px] ms-2 flex items-center justify-center ${newComment[post.id] ? 'bg-ungu text-white' : 'bg-gray-400 text-gray-700 cursor-not-allowed'}`}
+                            disabled={!newComment[post.id]}
+                        >
+                            <img src="../../../icons/paperplane.svg" alt="" />
+                        </button>
                     </div>
 
-                    <div className="mt-[10px] text-[16px] font-sans">
+                    <h3 className='text-[16px] font-ruda text-hitam1 dark:text-abu mt-5 mb-4'>Komentar</h3>
+
+                    <div className="">
                         {/* komen */}
                         {post.comments && post.comments.length > 0 ? (
                             post.comments.map((comment) => (
-                                <div key={comment.id} className="comment-container pt-[10px] pb-[10px] border-t border-gray-400 relative">
-                                    {/* Garis vertikal utama */}
-                                    {visibleComments[comment.id] && comment.replies && comment.replies.length > 0 && (
-                                        <div
-                                            className="absolute left-[50px] top-[50px] bottom-0 w-[1px] bg-gray-300"
-
-                                        ></div>
-                                    )}
+                                <div key={comment.id} className="comment-container w-full bg-putih1 dark:bg-hitam3 rounded-[10px] p-[10px] mt-3">
 
                                     {/* Profil komentar utama */}
-                                    <div className="flex items-center justify-between px-[30px] relative">
-                                        <div className='flex items-center'>
-                                            <div className="w-[40px] h-[40px] rounded-full bg-white overflow-hidden border border-gray-300 flex items-center justify-center">
-                                                <img
-                                                    src={`${process.env.NEXT_PUBLIC_API_URL}${comment.profile}`}
-                                                    alt=""
-                                                    className="w-full h-full object-cover"
-                                                    onError={(e) => {
-                                                        console.log(`Image not found for user: ${comment.profile}, setting to default.`);
-                                                        (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className="ms-[10px] flex items-center">
-                                                <div className="flex gap-1">
-                                                    <p className="text-[14px] font-ruda font-black">{comment.name}</p>
-                                                    <p className="text-[14px] font-sans text-gray-500 -mt-[2px]">@{comment.username}</p>
+                                    <div className="flex items-center justify-between relative">
+                                        <div className="flex">
+                                            <img
+                                                src={`${process.env.NEXT_PUBLIC_API_URL}${comment.profile}`}
+                                                alt=""
+                                                className="w-[35px] h-[35px] object-cover rounded-full border border-hitam2"
+                                                onError={(e) => {
+                                                    console.log(`Image not found for user: ${comment.profile}, setting to default.`);
+                                                    (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
+                                                }}
+                                            />
+                                            <div className="ms-[10px]">
+                                                <div className='flex items-center'>
+                                                    <p className="text-[13px] font-ruda text-hitam2 dark:text-putih1 font-semibold me-[6px] cursor-pointer hover:underline" onClick={() => { handleAkun(comment.user_id) }}>{comment.name}</p>
+                                                    <Ellipse className="fill-black dark:fill-white" />
+                                                    <p className="text-[12px] font-ruda text-hitam3 dark:text-abu font-medium ms-[6px] cursor-pointer hover:underline" onClick={() => { handleAkun(comment.user_id) }}>@{comment.username}</p>
                                                 </div>
-                                                <div className="flex items-center ">
-                                                    <div className='w-[2px] h-[2px] bg-black rounded-full mx-[5px]'></div>
-                                                    <p className='text-[9px]'>{comment.relative_time}</p>
-                                                </div>
+                                                <p className='text-[9px] font-ruda text-hitam4 dark:text-putih3 font-semibold'>{comment.relative_time}</p>
                                             </div>
                                         </div>
 
-                                        {comment.user_id === currentUserId && (
-                                            <button
-                                                onClick={() => handleDeleteComment(comment.id)}
-                                                className="text-red-500 font-ruda text-[12px] flex items-center"
-                                            >
-                                                <img src="../../../icons/delete.svg" alt="" />
-                                            </button>
-                                        )}
+                                        <div className="dropdown-container">
+                                            <div className="flex items-center justify-center">
+                                                <button onClick={() => handleShowDropdown(comment.id)}>
+                                                    <Vertikal className="fill-hitam2 dark:fill-abu me-[15px]" />
+                                                </button>
+                                            </div>
+                                            {activeDropdown === comment.id && (
+                                                <div className="absolute bg-[#F2F2F2] w-[150px] rounded-[6px] overflow-hidden text-[12px] mt-2 -ms-[65px]" >
+                                                    <button
+                                                        onClick={() => handleAkun(comment.user_id)}
+                                                        className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda"
+                                                    >
+                                                        Lihat Akun
+                                                    </button>
+                                                    {comment.user_id === currentUserId && (
+                                                        <button
+                                                            onClick={() => handleDeleteComment(comment.id)}
+                                                            className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda"
+                                                        >
+                                                            Hapus komentar
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
 
                                     {/* Konten komentar */}
-                                    <div className="w-full ps-[80px] pe-[50px]">
-                                        <p className="text-[15px] font-sans">{comment.content}</p>
-                                        <button
-                                            onClick={() => setVisibleComments((prev) => ({ ...prev, [comment.id]: !prev[comment.id] }))}
-                                            className="text-primary font-ruda mt-[10px] -ms-[7px] text-[12px] flex items-center hover:bg-cyan-400 rounded-full px-2 transition-colors"
-                                        >
-                                            {visibleComments[comment.id] ? 'Tutup Balasan' : 'Balas'}
-                                            {comment.replies && comment.replies.length > 0 && (
-                                                <span className="ms-[5px]">({comment.replies.length})</span>
-                                            )}
-                                        </button>
+                                    <div className="ms-[45px] text-wrap mt-2">
+                                        <p className="text-[14px] font-ruda text-hitam1 dark:text-putih3 text-wrap">{comment.content}</p>
+                                        <div className="flex items-center">
+                                            <hr className='w-[15px] me-1 border border-blue-900 dark:border-abu' />
+                                            <button
+                                                onClick={() => setVisibleComments((prev) => ({ ...prev, [comment.id]: !prev[comment.id] }))}
+                                                className="text-blue-900 dark:text-abu text-[12px] hover:underline"
+                                            >
+                                                {visibleComments[comment.id] ? 'Tutup balasan' : 'Balas'}
+                                                {comment.replies && comment.replies.length > 0 && (
+                                                    <span className="ms-[2px]">({comment.replies.length})</span>
+                                                )}
+                                            </button>
+                                        </div>
                                     </div>
+
 
                                     {/* Form balasan */}
                                     {visibleComments[comment.id] && (
-                                        <div className="mt-[10px] ms-[78px]">
-                                            <div className="w-[500px] h-[40px] flex justify-between items-center border-b ms-[40px]">
+                                        <div className="ms-[45px]">
+                                            <div className="w-[599px] h-[45px] bg-putih3 dark:bg-hitam4 flex overflow-hidden items-center px-2 rounded-[16px] my-4">
+                                                <div>
+                                                    {user && (
+                                                        <img
+                                                            src={user.profile ? `http://localhost:5000${user.profile}` : 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg'}
+                                                            alt="User profile"
+                                                            className="w-[27px] h-[27px] object-cover rounded-full border border-hitam2"
+                                                            onError={(e) => {
+                                                                console.log(`Image not found for user: ${user.profile}, setting to default.`);
+                                                                (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
+                                                            }}
+                                                        />
+                                                    )}
+                                                </div>
                                                 <input
                                                     type='text'
-                                                    value={replies[comment.id] !== undefined ? replies[comment.id] : `@${comment.username} `}
+                                                    value={replies[comment.id]}
                                                     onChange={(e) => handleReplyChange(comment.id, e.target.value)}
-                                                    placeholder="Balas komentar ..."
-                                                    className="w-full px-[15px] text-sm outline-none"
+                                                    placeholder="Ketik disini untuk balas komentar..."
+                                                    className="w-[510px] h-[35px] bg-putih3 dark:bg-hitam4 outline-none px-[15px] text-[16px] font-sans text-hitam1 dark:text-abu placeholder-hitam4 dark:placeholder-gray-400"
                                                 />
                                                 <button
                                                     onClick={() => handleReplySubmit(comment.id, post.id)}
-                                                    className={`rounded-full font-ruda text-[14px] w-[80px] h-[30px] ${replies[comment.id] ? 'bg-primary text-white' : 'bg-gray-300 text-gray-700 cursor-not-allowed'
+                                                    className={`rounded-[13px] font-ruda text-[14px] w-[45px] h-[33px] flex items-center justify-center ${replies[comment.id] ? 'bg-ungu ' : 'bg-gray-400 cursor-not-allowed'
                                                         }`}
                                                     disabled={!replies[comment.id]}
                                                 >
-                                                    Balas
+                                                    <img src="../../../icons/paperplane.svg" alt="" />
                                                 </button>
                                             </div>
 
@@ -718,80 +611,106 @@ const DetailForum = () => {
                                                 <div className="mt-[10px]">
                                                     {comment.replies.map((reply) => (
                                                         <div key={reply.id} className="relative mt-3">
-                                                            {/* Garis horizontal untuk reply */}
-                                                            <div className="absolute -left-[28px] top-[15px] w-[29px] h-[1.5px] bg-gray-300"></div>
-
                                                             <div className="flex items-center justify-between pe-10">
-                                                                <div className="flex items-center">
-                                                                    <div className="w-[30px] h-[30px] rounded-full bg-white overflow-hidden border border-gray-300 flex items-center justify-center">
-                                                                        <img
-                                                                            src={`${process.env.NEXT_PUBLIC_API_URL}${reply.profile}`}
-                                                                            alt=""
-                                                                            className="w-full h-full object-cover"
-                                                                            onError={(e) => {
-                                                                                console.log(`Image not found for user: ${reply.profile}, setting to default.`);
-                                                                                (e.target as HTMLImageElement).src =
-                                                                                    'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
-                                                                            }}
-                                                                        />
-                                                                    </div>
-                                                                    <div className="ms-[10px] flex items-center">
-                                                                        <div className="flex gap-1">
-                                                                            <p className="text-[14px] font-ruda font-black">{reply.name}</p> {/* Display the name */}
-                                                                            <p className="text-[14px] font-sans text-gray-500 -mt-[2px]">@{reply.username}</p>
+                                                                <div className="flex">
+                                                                    <img
+                                                                        src={`${process.env.NEXT_PUBLIC_API_URL}${reply.profile}`}
+                                                                        alt=""
+                                                                        className="w-[35px] h-[35px] object-cover rounded-full border border-hitam2"
+                                                                        onError={(e) => {
+                                                                            console.log(`Image not found for user: ${reply.profile}, setting to default.`);
+                                                                            (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
+                                                                        }}
+                                                                    />
+                                                                    <div className="ms-[10px]">
+                                                                        <div className='flex items-center'>
+                                                                            <p className="text-[13px] font-ruda text-hitam2 dark:text-putih1 font-semibold me-[6px] cursor-pointer hover:underline" onClick={() => { handleAkun(reply.user_id) }}>{reply.name}</p>
+                                                                            <Ellipse className="fill-black dark:fill-white" />
+                                                                            <p className="text-[12px] font-ruda text-hitam3 dark:text-abu font-medium ms-[6px] cursor-pointer hover:underline" onClick={() => { handleAkun(reply.user_id) }}>@{reply.username}</p>
                                                                         </div>
-                                                                        <div className="flex items-center">
-                                                                            <div className="w-[2px] h-[2px] bg-black rounded-full mx-[5px]"></div>
-                                                                            <p className="text-[9px]">{reply.relative_time}</p>
-                                                                        </div>
+                                                                        <p className='text-[9px] font-ruda text-hitam4 dark:text-putih3 font-semibold'>{reply.relative_time}</p>
                                                                     </div>
                                                                 </div>
-                                                                {reply && comment && reply.user_id === currentUserId && (
-                                                                    <button
-                                                                        onClick={() => handleDeleteReply(comment.id, reply.id)}
-                                                                        className="text-red-500 font-ruda mt-[10px] mb-[10px] text-[12px] flex items-center"
-                                                                    >
-                                                                        <img src="../../../icons/delete.svg" alt="" />
-                                                                    </button>
-                                                                )}
+                                                                <div className="dropdown-container">
+                                                                    <div className="flex items-center justify-center">
+                                                                        <button onClick={() => handleShowDropdown(reply.id)}>
+                                                                            <Vertikal className="fill-hitam2 dark:fill-abu me-[15px]" />
+                                                                        </button>
+                                                                    </div>
+                                                                    {activeDropdown === reply.id && (
+                                                                        <div className="absolute bg-[#F2F2F2] w-[150px] rounded-[6px] overflow-hidden text-[12px] mt-2 -ms-[65px]" >
+                                                                            <button
+                                                                                onClick={() => handleAkun(reply.user_id)}
+                                                                                className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda"
+                                                                            >
+                                                                                Lihat Akun
+                                                                            </button>
+                                                                            {reply && comment && reply.user_id === currentUserId && (
+                                                                                <button
+                                                                                    onClick={() => handleDeleteReply(comment.id, reply.id)}
+                                                                                    className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda"
+                                                                                >
+                                                                                    Hapus Komentar
+                                                                                </button>
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+
                                                             </div>
 
-                                                            <p className="text-[14px] font-sans ms-[40px] -mt-[7px]">{reply.content}</p>
-
-                                                            {/* Button untuk balasan balasan */}
-                                                            <div className="ml-[40px] mt-2">
-                                                                <button
-                                                                    onClick={() => toggleSubReplyInput(reply.id)}
-                                                                    className="text-primary font-ruda text-[12px]"
-                                                                >
-                                                                    Balas
-                                                                </button>
-                                                            </div>
-                                                            {visibleSubReplyInput[reply.id] && (
-                                                                <div className="mt-2 ml-[50px] flex items-center">
-                                                                    <input
-                                                                        type="text"
-                                                                        value={subReplies[reply.id] !== undefined ? subReplies[reply.id] : `@${reply.username} `}
-                                                                        onChange={(e) => setSubReplies((prev) => ({ ...prev, [reply.id]: e.target.value }))}
-                                                                        placeholder="Balas balasan..."
-                                                                        className="w-[350px] px-[15px] text-sm outline-none border-b"
-                                                                    />
+                                                            <div className="ms-[45px] text-wrap mt-1">
+                                                                <p className="text-[14px] font-ruda text-hitam1 dark:text-putih3 text-wrap">{reply.content}</p>
+                                                                <div className="flex items-center mt-1">
                                                                     <button
-                                                                        onClick={() => {
-                                                                            handleReplySubmit(comment.id, post.id, reply.id);
-                                                                            setSubReplies((prev) => ({ ...prev, [reply.id]: '' }));
-                                                                        }}
-                                                                        className={`rounded-full font-ruda text-[14px] w-[80px] h-[30px] ml-2 ${subReplies[reply.id] && subReplies[reply.id].trim() !== `@${reply.username}`
-                                                                            ? 'bg-primary text-white'
-                                                                            : 'bg-gray-300 text-gray-700 cursor-not-allowed'
-                                                                            }`}
-                                                                        disabled={
-                                                                            !subReplies[reply.id] ||
-                                                                            subReplies[reply.id].trim() === `@${reply.username}`
-                                                                        }
+                                                                        onClick={() => toggleSubReplyInput(reply.id)}
+                                                                        className="text-blue-900 dark:text-abu text-[12px] hover:underline"
                                                                     >
-                                                                        Balas
+                                                                        balas
                                                                     </button>
+                                                                </div>
+                                                            </div>
+
+                                                            {visibleSubReplyInput === reply.id && (
+                                                                <div className="ms-[45px]">
+                                                                    <div className="w-[550px] h-[45px] bg-putih3 dark:bg-hitam4 flex items-center px-2 rounded-[16px] my-4">
+                                                                        <div>
+                                                                            {user && (
+                                                                                <img
+                                                                                    src={user.profile ? `http://localhost:5000${user.profile}` : 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg'}
+                                                                                    alt="User profile"
+                                                                                    className="w-[27px] h-[27px] object-cover rounded-full border border-hitam2"
+                                                                                    onError={(e) => {
+                                                                                        console.log(`Image not found for user: ${user.profile}, setting to default.`);
+                                                                                        (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
+                                                                                    }}
+                                                                                />
+                                                                            )}
+                                                                        </div>
+                                                                        <input
+                                                                            type="text"
+                                                                            value={subReplies[reply.id] !== undefined ? subReplies[reply.id] : `@${reply.username} `}
+                                                                            onChange={(e) => setSubReplies((prev) => ({ ...prev, [reply.id]: e.target.value }))}
+                                                                            placeholder="Balas balasan..."
+                                                                            className="w-[460px] h-[35px] bg-putih3 dark:bg-hitam4 outline-none px-[15px] text-[16px] font-sans text-hitam1 dark:text-abu placeholder-hitam4 dark:placeholder-gray-400"
+                                                                        />
+                                                                        <button
+                                                                            onClick={() => {
+                                                                                handleReplySubmit(comment.id, post.id, reply.id);
+                                                                                setSubReplies((prev) => ({ ...prev, [reply.id]: '' }));
+                                                                            }}
+                                                                            className={`rounded-[13px] font-ruda text-[14px] w-[45px] h-[33px] flex items-center justify-center ${subReplies[reply.id] && subReplies[reply.id].trim() !== `@${reply.username}`
+                                                                                ? 'bg-ungu '
+                                                                                : 'bg-gray-400 cursor-not-allowed'
+                                                                                }`}
+                                                                            disabled={
+                                                                                !subReplies[reply.id] ||
+                                                                                subReplies[reply.id].trim() === `@${reply.username}`
+                                                                            }
+                                                                        >
+                                                                            <img src="../../../icons/paperplane.svg" alt="" />
+                                                                        </button>
+                                                                    </div>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -803,65 +722,29 @@ const DetailForum = () => {
                                 </div>
                             ))
                         ) : (
-                            <p className='text-center mb-5'>Tidak ada komentar.</p>
+                            <p className='text-center mb-5 text-hitam1 dark:text-putih1'>Tidak ada komentar.</p>
                         )}
 
                     </div>
                 </div>
             ) : (
-                <p>Post not found.</p>
+                <p>Tidak ada postingan.</p>
             )}
-            <Modal isOpen={showReportModal} onClose={handleCloseReportModal}>
-                <div className="p-2 flex flex-col justify-center" >
-                    <h2 className="text-xl font-black mb-4 text-center font-ruda "> Laporkan Akun </h2>
-                    <textarea
-                        className="w-full p-2 border border-gray-300 rounded mb-4 outline-none"
-                        placeholder="Alasan Report"
-                        value={reason}
-                        onChange={(e) => setReason(e.target.value)}
-                    />
-                    <div className="flex justify-end gap-2 mt-2" >
-                        <button
-                            className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100"
-                            onClick={handleCloseReportModal}
-                        >
-                            Batal
-                        </button>
-                        < button
-                            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark"
-                            onClick={handleSubmitReport}
-                        >
-                            Kirim
-                        </button>
-                    </div>
-                </div>
-            </Modal>
+            <ReportModal
+                isOpen={showReportModal}
+                onClose={() => setShowReportModal(false)}
+                title="Laporkan Akun"
+                reportType="account"
+                id={reportedUserId || 0}
+            />
 
-            <Modal isOpen={showReportModalForum} onClose={handleCloseReportModalForum}>
-                <div className="p-2 flex flex-col justify-center" >
-                    <h2 className="text-xl font-black mb-4 text-center font-ruda "> Laporkan Postingan </h2>
-                    <textarea
-                        className="w-full p-2 border border-gray-300 rounded mb-4 outline-none"
-                        placeholder="Alasan Report"
-                        value={reason}
-                        onChange={(e) => setReason(e.target.value)}
-                    />
-                    <div className="flex justify-end gap-2 mt-2" >
-                        <button
-                            className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100"
-                            onClick={handleCloseReportModalForum}
-                        >
-                            Batal
-                        </button>
-                        < button
-                            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark"
-                            onClick={handleSubmitReportForum}
-                        >
-                            Kirim
-                        </button>
-                    </div>
-                </div>
-            </Modal>
+            <ReportModal
+                isOpen={showReportModalForum}
+                onClose={() => setShowReportModalForum(false)}
+                title="Laporkan Postingan"
+                reportType="forum"
+                id={reportedForumId || 0}
+            />
         </div>
     )
 }

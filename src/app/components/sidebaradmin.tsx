@@ -1,4 +1,3 @@
-// src/components/SidebarAdmin.tsx
 'use client'
 
 import { useState } from 'react'

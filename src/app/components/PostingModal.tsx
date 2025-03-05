@@ -61,10 +61,18 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
       return;
     }
 
+    if (!selectedCategory) {
+      setAlertType('error');
+      setAlertMessage('Kategori wajib diisi.');
+      setShowAlert(true);
+      setLoading(false);
+      return;
+    }
+
     const formData = new FormData();
     formData.append('title', title);
     formData.append('description', description);
-    if (selectedCategory) formData.append('category_id', selectedCategory);
+    formData.append('category_id', selectedCategory);
     if (photo) formData.append('photo', photo);
     selectedTags.forEach(tag => formData.append('tags', tag.name));
 
@@ -81,14 +89,14 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
       setShowAlert(true);
 
       setTimeout(() => {
-        router.push('/pages/user/Home');
         onClose();
+        window.location.reload();
       }, 1500);
     } catch (error: any) {
-      let errorMessage = 'gagal membuat forum';
+      let errorMessage = 'Gagal membuat forum';
       if (error.response) {
         switch (error.response.status) {
-          case 400: errorMessage = 'gagal upload.'; break;
+          case 400: errorMessage = 'Gagal membuat forum, pastikan field diisi dengan benar.'; break;
           case 500: errorMessage = 'Server error.'; break;
           default: errorMessage = error.response.data.message || 'Unexpected error occurred.';
         }
@@ -142,11 +150,20 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
   }, [query, isOpen]);
 
   const handleConfirmTag = async () => {
-    // Tag confirmation logic remains the same
+    // Batasi maksimal 10 tag
+    if (selectedTags.length >= 10) {
+      setAlertType('warning');
+      setAlertMessage('Maksimal 10 tag diperbolehkan.');
+      setShowAlert(true);
+      return;
+    }
+
     const existingTag = suggestions.find(tag => tag.name === query);
     const alreadySelected = selectedTags.some(tag => tag.name === query);
     if (alreadySelected) {
-      alert("Tag sudah dipilih");
+      setAlertType('warning');
+      setAlertMessage('Tag sudah dipilih.');
+      setShowAlert(true);
       return;
     }
     if (existingTag) {
@@ -162,7 +179,9 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
           setQuery("");
         }
       } catch (error) {
-        alert("Terjadi kesalahan saat membuat tag");
+        setAlertType('error');
+        setAlertMessage('Terjadi kesalahan saat membuat tag.');
+        setShowAlert(true);
       }
     }
   };
@@ -206,44 +225,44 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full h-[40px] border border-hitam2 rounded-[6px] text-[14px] font-ruda ps-[10px] outline-none mt-[20px] bg-white dark:bg-hitam3 dark:text-abu"
+            className="w-full h-[40px] border border-gray-300 dark:border-hitam4 rounded-[6px] text-[14px] font-ruda ps-[10px] outline-none mt-[20px] bg-putih1 dark:bg-hitam3 dark:text-abu"
           >
-            <option value="">pilih kategori</option>
+            <option value="">Pilih kategori diskusi...</option>
             {categories.map((category: any) => (
               <option key={category.id} value={category.id}>{category.name}</option>
             ))}
           </select>
 
-          <div className='mt-[10px]'>
-            <label className='ms-[25px] text-[14px] font-ruda dark:text-putih1'>Judul</label>
+          <div className='mt-[15px]'>
+            {/* <label className='ms-[25px] text-[14px] font-ruda dark:text-putih1'>Judul</label> */}
             <textarea
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Apa yang akan dibahas?"
-              className="w-full h-[60px] ps-[10px] border border-hitam2 rounded-[6px] font-ruda text-[14px] outline-none resize-none bg-putih1 dark:bg-hitam3 dark:text-abu"
+              placeholder="Tulis judul diskusi..."
+              className="w-full h-[60px] p-[10px] border border-gray-300 dark:border-hitam4 rounded-[6px] font-ruda text-[14px] outline-none resize-none bg-putih1 dark:bg-hitam3 dark:text-abu"
             />
           </div>
 
           <div className='mt-[10px] '>
-            <label className='ms-[25px] text-[14px] font-ruda dark:text-putih1'>Deskripsi</label>
+            {/* <label className='ms-[25px] text-[14px] font-ruda dark:text-putih1'>Deskripsi</label> */}
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Deskripsi"
-              className="w-full h-[100px] ps-[10px] border border-hitam2 rounded-[6px] font-ruda text-[14px] outline-none resize-none bg-putih1 dark:bg-hitam3 dark:text-abu"
+              placeholder="Jelaskan lebih lanjut tentang topik ini..."
+              className="w-full h-[100px] p-[10px] border border-gray-300 dark:border-hitam4 rounded-[6px] font-ruda text-[14px] outline-none resize-none bg-putih1 dark:bg-hitam3 dark:text-abu"
             />
           </div>
 
           <div className="mt-[10px]">
-            <label className='ms-[25px] text-[14px] font-ruda dark:text-putih1'>Hastag</label>
+            {/* <label className='ms-[25px] text-[14px] font-ruda dark:text-putih1'>Hastag</label> */}
             <div className="flex items-center">
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Tambah hashtag"
-                className="w-[510px] h-[40px] border border-hitam2 rounded-[6px] text-[14px] font-ruda ps-[10px] outline-none bg-putih1 dark:bg-hitam3 dark:text-abu"
+                placeholder="Ketik disini untuk menambahkan hashtag"
+                className="w-[510px] h-[40px] border border-gray-300 dark:border-hitam4 rounded-[6px] text-[14px] font-ruda ps-[10px] outline-none bg-putih1 dark:bg-hitam3 dark:text-abu"
               />
               {/* {query.trim() && ( */}
               <button
@@ -290,7 +309,7 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="mt-[10px]">
-            <label className='ms-[25px] text-[14px] font-ruda dark:text-putih1'>Gambar(opsional)</label>
+            {/* <label className='ms-[25px] text-[14px] font-ruda dark:text-putih1'>Gambar(opsional)</label> */}
             <div className="relative w-full">
               <input
                 id="file-upload"
@@ -299,9 +318,9 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
                 onChange={handleFileChange}
                 className="absolute w-full h-[40px] opacity-0 cursor-pointer rounded-[10px]"
               />
-              <div className="w-full h-[40px] border border-hitam2 rounded-[6px] text-[14px] font-ruda px-[8px] flex items-center gap-2 bg-putih1 dark:bg-hitam3 dark:text-abu">
-                <Image className="fill-black dark:fill-white"/>
-                <span>{fileName || 'tambah gambar'}</span>
+              <div className="w-full h-[40px] border border-gray-300 dark:border-hitam4 rounded-[6px] text-[14px] font-ruda px-[8px] flex items-center gap-2 bg-putih1 dark:bg-hitam3 dark:text-abu">
+                <Image className="fill-black dark:fill-white" />
+                <span>{fileName || 'Unggah gambar terkait (opsional)...'}</span>
               </div>
             </div>
             {photo && (
@@ -326,19 +345,22 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
             )}
           </div>
 
-          <button
-            type="submit"
-            className="w-[150px] h-[40px] rounded-full bg-ungu flex items-center justify-center mt-4 ml-auto text-white"
-            disabled={loading}
-          >
-            {loading ? 'tunggu bentar...' : (
-              <div className="flex items-center gap-2">
-                <p>Posting</p>
-                <img src="/icons/paperplane.svg" alt="" />
-              </div>
-            )}
+          <div className='w-full mt-4 flex items-center justify-end'>
+            <button onClick={onClose} className="text-hitam1 dark:text-abu me-4 hover:underline">kembali</button>
+            <button
+              type="submit"
+              className="w-[150px] h-[40px] rounded-full bg-ungu flex items-center justify-center text-white"
+              disabled={loading}
+            >
+              {loading ? 'tunggu bentar...' : (
+                <div className="flex items-center gap-2">
+                  <p>Posting</p>
+                  <img src="/icons/paperplane.svg" alt="" />
+                </div>
+              )}
 
-          </button>
+            </button>
+          </div>
           {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
         </form>
       </div>

@@ -6,6 +6,7 @@ import { User } from '../types/types';
 import Modal from './Modal';
 import PostingModal from './PostingModal';
 import axios from 'axios';
+import ThemeToggle from './ThemeTogle';
 
 export default function Sidebar() {
   const router = useRouter();
@@ -123,6 +124,9 @@ export default function Sidebar() {
               >
                 Logout
               </button>
+              <div className="flex justify-center items-center py-2">
+                <ThemeToggle />
+              </div>
             </div>
           )}
         </div>

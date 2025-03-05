@@ -1,4 +1,3 @@
-// src/app/components/CategoryBarChart.tsx
 'use client'
 
 import { Bar } from 'react-chartjs-2'

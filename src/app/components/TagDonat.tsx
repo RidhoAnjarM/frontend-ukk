@@ -1,4 +1,3 @@
-// src/app/components/TagDoughnutChart.tsx
 'use client'
 
 import { Doughnut } from 'react-chartjs-2'

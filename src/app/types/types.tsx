@@ -13,6 +13,7 @@ export interface Comment {
 export interface Tags {
     id: number;
     name: string;
+    usage_count: number;
 }
 
 export interface Category {
@@ -37,6 +38,7 @@ export interface ForumPost {
     category: string;
     id: number;
     title: string;
+    description: string;
     photo: string;
     profile: string;
     user_id: number;
@@ -57,16 +59,21 @@ export interface Like {
 
 export interface Forum {
     id: number;
-    category_id: number;
-    category_name: string;
     title: string;
-    user_id: number;
-    username: string;
+    description: string;
     photo: string;
     profile: string;
+    user_id: number;
+    username: string;
     name: string;
+    category: string;
+    category_id: number;
+    category_name: string;
     relative_time: string;
     comments: Comment[];
+    tags: Tags[];
+    like: number;
+    liked: number;
 }
 
 export interface UserProfile {
