@@ -99,7 +99,7 @@ const Register = () => {
     };
 
     return (
-        <div className="w-full flex justify-center mt-[10px]">
+        <div className="w-full min-h-screen bg-white dark:bg-hitam1 flex justify-center mt-[10px] ">
             <div>
                 <img src="../images/ilustration.svg" alt="" className='' />
                 <form onSubmit={handleSubmit} className='w-[500px]'>
@@ -112,62 +112,59 @@ const Register = () => {
                     )}
                     <div>
                         <label
-                            className='text-[20px] font-bold font-ruda mb-[10px]'
+                            className='text-[20px] font-bold font-ruda mb-[10px] dark:text-white'
                         >
                             Nama
                         </label>
                         <input
                             type="text"
-                            placeholder="Nama"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
-                            className='border w-full h-[50px] bg-white rounded-[10px] border-[0.5] outline-none px-[30px]'
+                            className='border w-full h-[50px] bg-putih1 dark:bg-hitam2 rounded-[10px] border-[0.5] border-hitam2 outline-none px-[30px]'
                         />
                     </div>
                     <div className="mt-[10px]">
                         <label
-                            className='text-[20px] font-bold font-ruda mb-[10px]'
+                            className='text-[20px] font-bold font-ruda mb-[10px] dark:text-white'
                         >
                             Username
                         </label>
                         <input
                             type="text"
-                            placeholder="Username"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             required
-                            className='border w-full h-[50px] bg-white rounded-[10px] border-[0.5] outline-none px-[30px]'
+                            className='border w-full h-[50px] bg-putih1 dark:bg-hitam2 rounded-[10px] border-[0.5] border-hitam2 outline-none px-[30px]'
                         />
                     </div>
                     <div className="mt-[10px]">
                         <label
-                            className='text-[20px] font-bold font-ruda mb-[10px]'
+                            className='text-[20px] font-bold font-ruda mb-[10px] dark:text-white'
                         >
                             Password
                         </label>
                         <input
                             type="password"
-                            placeholder="Password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            className='border w-full h-[50px] bg-white rounded-[10px] border-[0.5] outline-none px-[30px]'
+                            className='border w-full h-[50px] bg-putih1 dark:bg-hitam2 rounded-[10px] border-[0.5] border-hitam2 outline-none px-[30px]'
                         />
                     </div>
-                    <button type="submit" className='w-full h-[50px] bg-primary text-white rounded-[10px] mt-[30px] font-ruda text-[30px] hover:bg-black transition-colors flex justify-center items-center'>
+                    <button type="submit" className='w-full h-[50px] bg-ungu text-white rounded-[10px] mt-[30px] font-ruda text-[30px] hover:shadow-lg transition-colors flex justify-center items-center'>
                         {loading ? (
                             <div className="flex flex-row gap-2">
-                                <div className="w-2 h-2 rounded-full bg-gray-500 animate-bounce [animation-delay:.7s]"></div>
-                                <div className="w-2 h-2 rounded-full bg-gray-500 animate-bounce [animation-delay:.3s]"></div>
-                                <div className="w-2 h-2 rounded-full bg-gray-500 animate-bounce [animation-delay:.7s]"></div>
+                                <div className="w-2 h-2 rounded-full bg-gray-300 animate-bounce [animation-delay:.7s]"></div>
+                                <div className="w-2 h-2 rounded-full bg-gray-300 animate-bounce [animation-delay:.3s]"></div>
+                                <div className="w-2 h-2 rounded-full bg-gray-300 animate-bounce [animation-delay:.7s]"></div>
                             </div>
                         ) : (
                             "Register"
                         )}
                     </button>
                 </form>
-                <p className='text-center mt-3'>Sudah punya akun? <a href="/login" className='text-blue-900'>Login Sekarang</a></p>
+                <p className='text-center mt-3 dark:text-white'>Sudah punya akun? <a href="/login" className='text-blue-900'>Login Sekarang</a></p>
             </div>
         </div>
     );

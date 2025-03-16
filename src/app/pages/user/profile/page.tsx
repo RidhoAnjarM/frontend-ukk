@@ -260,7 +260,7 @@ const Profile = () => {
                 <h1 className="text-[24px] font-ruda font-medium text-hitam1 dark:text-putih1 ms-[300px] mt-[240px] fixed">
                     Postingan Anda
                 </h1>
-                <div className="fixed w-[770px] bg-putih1 dark:bg-hitam2 ms-[270px] mt-[290px] rounded-t-[16px] overflow-y-auto max-h-[calc(100vh-290px)] scrollbar-hide grid justify-center pt-[10px]">
+                <div className="fixed w-[770px] bg-putih1 dark:bg-hitam2 ms-[270px] mt-[290px] rounded-[16px] overflow-y-auto max-h-[calc(100vh-290px)] scrollbar-hide grid justify-center p-[10px]">
                     {profile.forums && profile.forums.length > 0 ? (
                         profile.forums
                             .sort((a: ForumPost, b: ForumPost) => b.id - a.id)

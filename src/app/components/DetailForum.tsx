@@ -6,9 +6,11 @@ import { useParams } from 'next/navigation';
 import { ForumPost, User, DecodedToken } from '@/app/types/types';
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
-import { Ellipse, Heart, Horizontal, Vertikal } from './svgs/page';
+import { Ellipse, Heart, Vertikal } from './svgs/page';
 import Dropdown from './Dropdown';
 import ReportModal from './ReportModal';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 const DetailForum = () => {
     const [post, setPost] = useState<ForumPost | null>(null);
@@ -71,7 +73,7 @@ const DetailForum = () => {
         const token = localStorage.getItem('token');
         if (token) {
             axios
-                .get(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {
+                .get(`${API_URL}/api/profile`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -95,7 +97,7 @@ const DetailForum = () => {
 
         const fetchPostDetail = async () => {
             try {
-                const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/forum/${postid}`, {
+                const response = await axios.get(`${API_URL}/api/forum/${postid}`, {
                     headers: {
                         "Authorization": `Bearer ${localStorage.getItem("token")}`
                     }
@@ -127,7 +129,7 @@ const DetailForum = () => {
         formData.append('content', newComment[postId]);
 
         try {
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/comment/`, formData, {
+            const response = await axios.post(`${API_URL}/api/comment/`, formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -173,7 +175,7 @@ const DetailForum = () => {
         }
 
         try {
-            await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/comment/${commentId}`, {
+            await axios.delete(`${API_URL}/api/comment/${commentId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -211,7 +213,7 @@ const DetailForum = () => {
         }
 
         try {
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/comment/reply`, formData, {
+            const response = await axios.post(`${API_URL}/api/comment/reply`, formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -271,7 +273,7 @@ const DetailForum = () => {
         }
 
         try {
-            await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/comment/reply/${replyId}`, {
+            await axios.delete(`${API_URL}/api/comment/reply/${replyId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -335,7 +337,7 @@ const DetailForum = () => {
                 return
             }
 
-            const response = await fetch('http://localhost:5000/api/like/', {
+            const response = await fetch(`${API_URL}/api/like/`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -374,8 +376,19 @@ const DetailForum = () => {
     return (
         <div>
             {loading ? (
-                <div className='w-[700px] h-[100px] flex items-center justify-center bg-white border border-gray-300 border-t-0 '>
-                    <p>loading</p>
+                <div className="w-[750px] h-[242px] bg-gray-300 rounded-[16px] p-[20px] animate-pulse" >
+                    <div className="flex items-center mb-3">
+                        <div className="w-[40px] h-[40px] rounded-full bg-gray-400 animate-pulse" > </div>
+                        <div className="ms-3" >
+                            <div className='flex items-center' >
+                                <div className="w-[150px] h-[20px] bg-gray-400 animate-pulse me-2" > </div>
+                                <div className="w-[150px] h-[20px] bg-gray-400 animate-pulse" > </div>
+                            </div>
+                            <div className="w-[150px] h-[10px] bg-gray-400 animate-pulse" > </div>
+                        </div>
+                    </div>
+                    <div className="w-full h-[50px] bg-gray-400 rounded animate-pulse" > </div>
+                    <div className="w-full h-[50px] bg-gray-400 rounded animate-pulse mt-4" > </div>
                 </div>
             ) : error ? (
                 <div className='w-[700px] h-[100px] flex items-center justify-center bg-white border border-gray-300 border-t-0 '>
@@ -591,7 +604,7 @@ const DetailForum = () => {
                                                 </div>
                                                 <input
                                                     type='text'
-                                                    value={replies[comment.id]}
+                                                    value={replies[comment.id] || ''}
                                                     onChange={(e) => handleReplyChange(comment.id, e.target.value)}
                                                     placeholder="Ketik disini untuk balas komentar..."
                                                     className="w-[510px] h-[35px] bg-putih3 dark:bg-hitam4 outline-none px-[15px] text-[16px] font-sans text-hitam1 dark:text-abu placeholder-hitam4 dark:placeholder-gray-400"

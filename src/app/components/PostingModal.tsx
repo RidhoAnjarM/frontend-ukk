@@ -1,4 +1,3 @@
-// components/PostingModal.tsx
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -12,6 +11,8 @@ interface PostingModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
   const [title, setTitle] = useState('');
@@ -37,7 +38,7 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
     if (isOpen) {
       const fetchCategories = async () => {
         try {
-          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/category/`);
+          const response = await axios.get(`${API_URL}/api/category/`);
           setCategories(response.data);
         } catch (error) {
           console.error('Failed to fetch categories', error);
@@ -77,7 +78,7 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
     selectedTags.forEach(tag => formData.append('tags', tag.name));
 
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/forum/`, formData, {
+      await axios.post(`${API_URL}/api/forum/`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,
@@ -134,7 +135,7 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
       return;
     }
     try {
-      const response = await axios.get("http://localhost:5000/api/tags/", { params: { q } });
+      const response = await axios.get(`${API_URL}/api/tags/`, { params: { q } });
       setSuggestions(response.data ?? []);
     } catch (error) {
       console.error("Fetch error:", error);
@@ -172,7 +173,7 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
       setSuggestions([]);
     } else {
       try {
-        const response = await axios.post("http://localhost:5000/api/tags/", { name: query });
+        const response = await axios.post(`${API_URL}/api/tags/`, { name: query });
         if (response.status === 201) {
           const newTag = response.data.tag;
           setSelectedTags(prev => [...prev, newTag]);

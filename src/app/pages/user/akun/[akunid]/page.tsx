@@ -7,6 +7,8 @@ import { UserProfile, Forum } from "@/app/types/types";
 import Sidebar from "@/app/components/Sidebar";
 import { Back, Ellipse, Heart } from "@/app/components/svgs/page";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
 const ProfilePage = () => {
   const router = useRouter();
   const { akunid } = useParams();
@@ -28,14 +30,13 @@ const ProfilePage = () => {
       try {
         console.log("Fetching user with ID:", akunid);
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/users/${akunid}`,
+          `${API_URL}/api/users/${akunid}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        console.log("Response dari backend:", response.data);
 
         if (response.data.profile) {
           setUser({
@@ -69,7 +70,7 @@ const ProfilePage = () => {
         return
       }
 
-      const response = await fetch('http://localhost:5000/api/like/', {
+      const response = await fetch(`${API_URL}/api/like/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -176,7 +177,6 @@ const ProfilePage = () => {
                         <p className="text-[14px] font-ruda text-hitam2 dark:text-putih1 font-semibold me-[6px]">{forum.name}</p>
                         <Ellipse className="fill-black dark:fill-white" />
                         <p className="text-[14px] font-ruda text-hitam3 dark:text-abu font-medium ms-[6px]">{forum.username}</p>
-                        <Ellipse className="fill-black dark:fill-white mx-[6px] " />
                       </div>
                       <p className='text-[9px] font-ruda text-hitam4 dark:text-putih3 font-semibold'>{forum.relative_time}</p>
                     </div>

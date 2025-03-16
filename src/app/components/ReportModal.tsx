@@ -11,6 +11,8 @@ interface ReportModalProps {
   id: number;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
 const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, title, reportType, id }) => {
   const [reason, setReason] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -37,13 +39,12 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, title, repor
     setLoading(true);
     try {
       const endpoint = reportType === 'account' ? 'akun' : 'forum';
-      const checkUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/report/${endpoint}/check?${reportType === 'account' ? 'reported_id' : 'forum_id'
+      const checkUrl = `${API_URL}/api/report/${endpoint}/check?${reportType === 'account' ? 'reported_id' : 'forum_id'
         }=${id}`;
-      const postUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/report/${endpoint}`;
+      const postUrl = `${API_URL}/api/report/${endpoint}`;
       const payload =
         reportType === 'account' ? { reported_id: id, reason } : { forum_id: id, reason };
 
-      // Cek apakah sudah dilaporkan sebelumnya
       const checkResponse = await axios.get(checkUrl, {
         headers: { Authorization: `Bearer ${token}` },
       });

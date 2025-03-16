@@ -36,7 +36,7 @@ export default function TagDoughnutChart() {
     labels: tags.map(tag => tag.name),
     datasets: [
       {
-        label: 'Usage Count',
+        label: 'Digunakan',
         data: tags.map(tag => tag.usage_count),
         backgroundColor: [
           'rgba(255, 99, 132, 0.6)',
@@ -71,7 +71,7 @@ export default function TagDoughnutChart() {
     responsive: true,
     plugins: {
       legend: { position: 'top' as const },
-      title: { display: true, text: 'Tag Populer' },
+      title: { display: true, text: 'Hastag Populer Minggu ini' },
     },
   }
 

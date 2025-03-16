@@ -24,6 +24,9 @@ const Login = () => {
             setAlertMessage('Username dan password harus diisi');
             setShowAlert(true);
             setLoading(false);
+            setTimeout(() => {
+                setShowAlert(false);
+            }, 2000);
             return;
         }
     
@@ -41,6 +44,9 @@ const Login = () => {
                 setAlertMessage(`Akun Anda disuspend hingga ${suspensionDate}`);
                 setShowAlert(true);
                 setLoading(false);
+                setTimeout(() => {
+                    setShowAlert(false);
+                }, 10000); // Sudah 10 detik untuk kasus suspend dari response
                 return;
             }
     
@@ -53,6 +59,7 @@ const Login = () => {
             setShowAlert(true);
     
             setTimeout(() => {
+                setShowAlert(false);
                 if (role === 'user') {
                     router.push('/pages/user/Beranda');
                 } else if (role === 'admin') {
@@ -62,11 +69,17 @@ const Login = () => {
     
         } catch (error: any) {
             let errorMessage = 'Terjadi kesalahan saat login';
-        
+    
             if (error.response) {
-                if (error.response.status === 403) { 
+                if (error.response.status === 403) {
                     const suspendUntil = error.response.data?.suspend_until || "waktu tidak diketahui";
                     errorMessage = `Akun anda disuspend hingga ${suspendUntil}`;
+                    setAlertType('error');
+                    setAlertMessage(errorMessage);
+                    setShowAlert(true);
+                    setTimeout(() => {
+                        setShowAlert(false);
+                    }, 10000); // Tambahkan 10 detik untuk kasus suspend dari error 403
                 } else {
                     switch (error.response.status) {
                         case 401:
@@ -81,23 +94,30 @@ const Login = () => {
                         default:
                             errorMessage = error.response.data?.error || errorMessage;
                     }
+                    setAlertType('error');
+                    setAlertMessage(errorMessage);
+                    setShowAlert(true);
+                    setTimeout(() => {
+                        setShowAlert(false);
+                    }, 2000);
                 }
             } else if (error.message) {
                 errorMessage = error.message;
+                setAlertType('error');
+                setAlertMessage(errorMessage);
+                setShowAlert(true);
+                setTimeout(() => {
+                    setShowAlert(false);
+                }, 2000);
             }
-        
-            // Tampilkan alert tanpa nge-spam console
-            setAlertType('error');
-            setAlertMessage(errorMessage);
-            setShowAlert(true);
+    
         } finally {
             setLoading(false);
         }
     };
-    
 
     return (
-        <div className='h-screen bg-white dark:bg-gray-900 dark:text-gray-200 transition-colors '>
+        <div className='h-screen bg-white dark:bg-hitam1 dark:text-gray-200 transition-colors ' >
             {showAlert && (
                 <Alert
                     type={alertType}
@@ -105,53 +125,54 @@ const Login = () => {
                     onClose={() => setShowAlert(false)}
                 />
             )}
-            <div className="w-full flex justify-center">
+            <div className="w-full flex justify-center" >
                 <div>
                     <img src="../images/ilustration.svg" alt="" className='relative mt-[60px]' />
-                    <form onSubmit={handleSubmit} className='w-[500px]'>
+                    <form onSubmit={handleSubmit} className='w-[500px]' >
                         <div>
-                            <label htmlFor="username" className='text-[20px] font-ruda font-bold mb-[10px]'>
+                            <label htmlFor="username" className='text-[20px] font-ruda font-bold mb-[10px]' >
                                 Username
                             </label>
-                            <input
+                            < input
                                 id='username'
                                 onChange={(e) => setUsername(e.target.value)}
                                 type="text"
                                 autoComplete='off'
-                                className='border w-full h-[50px] bg-white rounded-[10px] border-[0.5] outline-none px-[30px]'
+                                className='border w-full h-[50px] bg-putih1 dark:bg-hitam2 rounded-[10px] border-[0.5] border-hitam2 outline-none px-[30px]'
                                 required
                             />
                         </div>
-                        <div className="mt-[20px]">
-                            <label htmlFor="password" className='text-[20px] font-ruda font-bold mb-[10px]'>
+                        <div className="mt-[20px]" >
+                            <label htmlFor="password" className='text-[20px] font-ruda font-bold mb-[10px]' >
                                 Password
                             </label>
-                            <input
+                            < input
                                 id='password'
                                 onChange={(e) => setPassword(e.target.value)}
                                 type="password"
-                                className='border w-full h-[50px] bg-white rounded-[10px] border-[0.5] outline-none px-[30px]'
+                                className='border w-full h-[50px] bg-putih1 dark:bg-hitam2 rounded-[10px] border-[0.5] border-hitam2 outline-none px-[30px]'
                                 required
                             />
                         </div>
-                        <button type="submit" className='w-full h-[50px] bg-primary text-white rounded-[10px] mt-[50px] font-ruda text-[30px] hover:bg-black transition-colors flex justify-center items-center'>
-                            {loading ? (
-                                <div className="flex flex-row gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-gray-500 animate-bounce [animation-delay:.7s]"></div>
-                                    <div className="w-2 h-2 rounded-full bg-gray-500 animate-bounce [animation-delay:.3s]"></div>
-                                    <div className="w-2 h-2 rounded-full bg-gray-500 animate-bounce [animation-delay:.7s]"></div>
-                                </div>
-                            ) : (
-                                "Login"
-                            )}
+                        <button type="submit" className='w-full h-[50px] bg-ungu text-white rounded-[10px] mt-[50px] font-ruda text-[30px] hover:shadow-lg transition-colors flex justify-center items-center' >
+                            {
+                                loading ? (
+                                    <div className="flex flex-row gap-2" >
+                                        <div className="w-2 h-2 rounded-full bg-gray-300 animate-bounce [animation-delay:.7s]"> </div>
+                                        < div className="w-2 h-2 rounded-full bg-gray-300 animate-bounce [animation-delay:.3s]" > </div>
+                                        < div className="w-2 h-2 rounded-full bg-gray-300 animate-bounce [animation-delay:.7s]" > </div>
+                                    </div>
+                                ) : (
+                                    "Login"
+                                )}
                         </button>
                     </form>
-                    <p className='text-center mt-3'>
-                        Belum punya akun? <a href="/register" className='text-blue-900'>Register Sekarang</a>
+                    < p className='text-center mt-3' >
+                        Belum punya akun ? <a href="/register" className='text-blue-900' > Register Sekarang </a>
                     </p>
-
                 </div>
             </div>
+
         </div>
     );
 };

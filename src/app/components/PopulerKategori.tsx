@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Category } from '../types/types';
-import Modal from './Modal'; // Pastikan path impor sesuai dengan lokasi file Modal
+import Modal from './Modal'; 
 import { Lihat } from './svgs/page';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 export default function PopulerKategori() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -12,10 +14,10 @@ export default function PopulerKategori() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/populer/category');
+        const response = await fetch(`${API_URL}/api/populer/category`);
         const data = await response.json();
-        setCategories(data.popular_categories.slice(0, 6)); // Untuk tampilan utama (6 kategori)
-        setAllCategories(data.popular_categories); // Untuk modal (semua kategori)
+        setCategories(data.popular_categories.slice(0, 6)); 
+        setAllCategories(data.popular_categories); 
       } catch (error) {
         console.error('Error fetching popular categories:', error);
       } finally {
@@ -32,7 +34,7 @@ export default function PopulerKategori() {
 
   return (
     <>
-      <div className='w-[300px] border border-hitam2 rounded-[16px] bg-putih1 dark:bg-hitam2 ps-[25px] pb-[20px] pt-[35px] hover:shadow-lg'>
+      <div className='w-[300px] border border-hitam2 rounded-[16px] bg-putih1 dark:bg-hitam2 ps-[25px] pb-[15px] pt-[15px] hover:shadow-lg'>
         <h2 
           className='text-[20px] font-ruda font-medium dark:text-putih1 mb-3 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 flex items-center hover:underline'
           onClick={handleTitleClick}
@@ -54,7 +56,7 @@ export default function PopulerKategori() {
                 className="mb-2 flex"
               >
                 <img
-                  src={`${process.env.NEXT_PUBLIC_API_URL}${category.photo}`}
+                  src={`${API_URL}${category.photo}`}
                   className='w-[40px] h-[40px] rounded-[4px] object-cover border me-[10px]'
                   onError={(e) => {
                     console.log(`Image not found for user: ${category.photo}, setting to default.`);
@@ -74,14 +76,14 @@ export default function PopulerKategori() {
       {/* Modal untuk menampilkan semua kategori */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <h2 className='text-[24px] font-ruda font-medium dark:text-putih1 mb-4 text-center'>Semua Kategori</h2>
-        <div className="max-h-[550px] overflow-y-auto scrollbar-hide">
+        <div className="max-h-[550px] overflow-y-auto scrollbar-hide cursor-grabbing">
           {allCategories.map((category) => (
             <div
               key={category.id}
               className="mb-3 flex items-center"
             >
               <img
-                src={`${process.env.NEXT_PUBLIC_API_URL}${category.photo}`}
+                src={`${API_URL}${category.photo}`}
                 className='w-[50px] h-[50px] rounded-[4px] object-cover border me-[15px]'
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = 'https://i.pinimg.com/736x/fc/7e/ce/fc7ece8e8ee1f5db97577a4622f33975.jpg';

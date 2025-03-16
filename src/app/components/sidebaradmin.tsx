@@ -10,8 +10,8 @@ export default function SidebarAdmin() {
     const navItems = [
         { name: 'Beranda', path: '/pages/admin/Home' },
         { name: 'Kategori', path: '/pages/admin/Kategori' },
-        { name: 'Pengguna', path: '/pages/admin/User' },
         { name: 'Laporan', path: '/pages/admin/Report' },
+        { name: 'Pengguna', path: '/pages/admin/User' },
     ]
 
     const handleLogout = () => {
@@ -24,7 +24,6 @@ export default function SidebarAdmin() {
 
     return (
         <>
-            {/* Tombol toggle untuk mobile */}
             <button
                 className="md:hidden p-2 fixed top-4 left-4 z-20 text-gray-900 dark:text-white"
                 onClick={() => setIsOpen(!isOpen)}
@@ -32,25 +31,21 @@ export default function SidebarAdmin() {
                 {isOpen ? '✕' : '☰'}
             </button>
 
-            {/* SidebarAdmin */}
-            <div
-                className={`fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 shadow-lg transform ${isOpen ? 'translate-x-0' : '-translate-x-full'
-                    } md:translate-x-0 transition-transform duration-300 ease-in-out z-10`}
-            >
-                <div className="p-4">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                        Admin Menu
-                    </h2>
-                    <nav>
-                        <ul className="space-y-2">
+            <div className={`fixed inset-y-0 left-0 w-[210px] bg-hitam1 shadow-lg transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 ease-in-out z-10`}>
+                <div>
+                    <div className="text-[24px] font-ruda text-putih1 text-center w-full mt-[50px]" >
+                        <h1>ForuMedia</h1>
+                    </div>
+                    <nav className='mt-[180px]'>
+                        <ul>
                             {navItems.map(item => (
-                                <li key={item.name}>
+                                <li key={item.name} >
                                     <button
                                         onClick={() => {
                                             router.push(item.path)
                                             setIsOpen(false)
                                         }}
-                                        className="w-full text-left px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                                        className="ms-[25px] px-[24px] py-[7px] text-putih1 font-ruda text-[20px] hover:bg-hitam3 rounded-[16px] mb-1"
                                     >
                                         {item.name}
                                     </button>
@@ -59,7 +54,7 @@ export default function SidebarAdmin() {
                             <li>
                                 <button
                                     onClick={handleLogout}
-                                    className="w-full text-left px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                                    className="ms-[25px] px-[24px] py-[7px] text-putih1 font-ruda text-[20px] hover:bg-hitam3 rounded-[16px]"
                                 >
                                     Logout
                                 </button>
@@ -69,11 +64,11 @@ export default function SidebarAdmin() {
                 </div>
             </div>
 
-            {/* Overlay untuk mobile saat SidebarAdmin terbuka */}
             {isOpen && (
                 <div
                     className="fixed inset-0 bg-black opacity-50 md:hidden z-0"
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => setIsOpen(false)
+                    }
                 />
             )}
         </>

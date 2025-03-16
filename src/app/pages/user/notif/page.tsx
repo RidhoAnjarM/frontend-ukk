@@ -137,7 +137,7 @@ const Notif = () => {
           {notifications.map((notif) => (
             <li
               key={notif.id}
-              className={`p-[20px] mt-[16px] rounded-[16px] bg-putih1 dark:bg-hitam2 border border-hitam2 flex items-start ${notif.isRead ? "bg-putih1 dark:bg-hitam2" : "bg-abu dark:bg-hitam4"} relative`}
+              className={`p-[20px] mt-[16px] rounded-[16px]  border border-hitam2 flex items-start ${notif.isRead ? "bg-putih1 dark:bg-hitam2" : "bg-putih3 dark:bg-hitam4"} relative`}
             >
               <div className="me-4">
                 <img

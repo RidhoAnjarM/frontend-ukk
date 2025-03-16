@@ -64,6 +64,7 @@ export interface Forum {
     photo: string;
     profile: string;
     user_id: number;
+    user: User;
     username: string;
     name: string;
     category: string;
@@ -92,6 +93,8 @@ export interface User {
     name: string;
     status: string;
     profile?: string;
+    suspend_until?: string;
+    created_at: string;
 }
 
 export interface Notification {
@@ -119,3 +122,23 @@ export type Tag = {
     id: number;
     name: string;
 };
+
+export interface Reports {
+    id: number;
+    reporter_id: number;
+    reported_id: number;
+    reason: string;
+    status: string;
+    created_at: string;
+    reported_user: User;
+}
+
+export interface ForumReport {
+    id: number;
+    reporter_id: number;
+    forum_id: number;
+    reason: string;
+    status: string;
+    created_at: string;
+    forum: Forum;
+}

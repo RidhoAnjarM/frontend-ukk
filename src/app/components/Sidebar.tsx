@@ -18,7 +18,7 @@ export default function Sidebar() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [notifications, setNotifications] = useState<any[]>(() => []);
   const [loading, setLoading] = useState(true);
-  const [showPostingModal, setShowPostingModal] = useState(false); // State untuk PostingModal
+  const [showPostingModal, setShowPostingModal] = useState(false);
 
   const handleClickOutside = (event: MouseEvent) => {
     const target = event.target as HTMLElement;

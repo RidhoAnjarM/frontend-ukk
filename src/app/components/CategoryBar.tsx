@@ -39,7 +39,7 @@ export default function CategoryBarChart() {
     labels: categories.map(cat => cat.name),
     datasets: [
       {
-        label: 'Usage Count',
+        label: 'Digunakan',
         data: categories.map(cat => cat.usage_count),
         backgroundColor: 'rgba(54, 162, 235, 0.6)',
         borderColor: 'rgba(54, 162, 235, 1)',
@@ -52,10 +52,7 @@ export default function CategoryBarChart() {
     responsive: true,
     plugins: {
       legend: { position: 'top' as const },
-      title: { display: true, text: 'Kategori Populer' },
-    },
-    scales: {
-      y: { beginAtZero: true },
+      title: { display: true, text: 'Kategori Populer Minggu ini' },
     },
   }
 
