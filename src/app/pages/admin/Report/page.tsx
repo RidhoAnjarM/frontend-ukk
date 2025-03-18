@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import SidebarAdmin from '@/app/components/sidebaradmin'
-import Modal from '@/app/components/Modal'
+import ModalWhite from '@/app/components/ModalWhite'
 import { Forum, ForumReport, Reports, UserProfile } from '@/app/types/types'
 import Alert from '@/app/components/Alert'
 import axios from 'axios'
+import { Ellipse } from '@/app/components/svgs/page'
 
 export default function Report() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -340,7 +341,7 @@ export default function Report() {
         )}
         <header className="flex justify-between items-center h-[100px]" >
           <h1 className="text-2xl font-bold text-hitam1 font-ruda" >
-            Kelola Pengguna
+            Kelola Laporan
           </h1>
         </header>
 
@@ -460,15 +461,16 @@ export default function Report() {
                           )}
                         </td>
                         <td className="p-3 text-gray-900">{reports[0].status}</td>
-                        <td className="p-3">
+                        <td className="p-3 flex items-center">
                           {reports.some(r => r.status === 'pending') && (
                             <>
                               <button
                                 onClick={() => openDeleteForumModal(forum.id)}
-                                className="text-red-600 hover:underline mr-2"
+                                className="text-red-600 hover:underline"
                               >
                                 Hapus Forum
                               </button>
+                              <Ellipse className="mx-2"/>
                               <button
                                 onClick={() => openDeleteReportModal(reports[0].id)}
                                 className="text-red-600 hover:underline"
@@ -488,7 +490,7 @@ export default function Report() {
         </div>
 
         {/* Modal Tinjau Laporan */}
-        <Modal
+        <ModalWhite
           isOpen={isReviewModalOpen}
           onClose={() => {
             setIsReviewModalOpen(false)
@@ -498,8 +500,7 @@ export default function Report() {
           <h2 className="text-xl font-semibold text-gray-900 mb-4" >
             Tinjau Laporan #{selectedReport?.id}
           </h2>
-          {
-            selectedReport && (
+          {selectedReport && (
               <div className="mb-4" >
                 <p className="text-gray-700" >
                   Pengguna Dilaporkan: {selectedReport.reported_user.username} ({selectedReport.reported_user.name})
@@ -508,8 +509,7 @@ export default function Report() {
                   Alasan: {selectedReport.reason}
                 </p>
               </div>
-            )
-          }
+            )}
           <form onSubmit={handleReviewReport}>
             <div className="mb-4" >
               <label className="block text-gray-700 mb-1" > Aksi </label>
@@ -553,10 +553,10 @@ export default function Report() {
               </button>
             </div>
           </form>
-        </Modal>
+        </ModalWhite>
 
         {/* Modal Hapus Laporan Forum */}
-        <Modal
+        <ModalWhite
           isOpen={isDeleteReportModalOpen}
           onClose={() => setIsDeleteReportModalOpen(false)}
         >
@@ -582,9 +582,9 @@ export default function Report() {
               Hapus
             </button>
           </div>
-        </Modal>
+        </ModalWhite>
 
-        <Modal
+        <ModalWhite
           isOpen={isDeleteForumModalOpen}
           onClose={() => {
             setIsDeleteForumModalOpen(false)
@@ -616,9 +616,9 @@ export default function Report() {
               Hapus
             </button>
           </div>
-        </Modal>
+        </ModalWhite>
 
-        <Modal
+        <ModalWhite
           isOpen={isDetailModalOpen}
           onClose={() => {
             setIsDetailModalOpen(false);
@@ -667,9 +667,9 @@ export default function Report() {
               Tutup
             </button>
           </div>
-        </Modal>
+        </ModalWhite>
 
-        <Modal
+        <ModalWhite
           isOpen={isAccountDetailModalOpen}
           onClose={() => {
             setIsAccountDetailModalOpen(false)
@@ -756,9 +756,9 @@ export default function Report() {
               Tutup
             </button>
           </div>
-        </Modal>
+        </ModalWhite>
 
-        <Modal
+        <ModalWhite
           isOpen={isReasonsModalOpen}
           onClose={() => {
             setIsReasonsModalOpen(false)
@@ -795,9 +795,9 @@ export default function Report() {
               Tutup
             </button>
           </div>
-        </Modal>
+        </ModalWhite>
 
-        <Modal
+        <ModalWhite
           isOpen={isForumReasonsModalOpen}
           onClose={() => {
             setIsForumReasonsModalOpen(false)
@@ -834,7 +834,7 @@ export default function Report() {
               Tutup
             </button>
           </div>
-        </Modal>
+        </ModalWhite>
       </div>
     </div>
   )

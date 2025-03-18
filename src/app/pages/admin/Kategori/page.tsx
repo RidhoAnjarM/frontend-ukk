@@ -3,8 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import SidebarAdmin from '@/app/components/sidebaradmin'
-import ThemeToggle from '@/app/components/ThemeTogle'
-import Modal from '@/app/components/Modal' // Import Modal component
+import ModalWhite from '@/app/components/ModalWhite' 
 import { Ellipse } from '@/app/components/svgs/page'
 
 export default function Kategori() {
@@ -12,9 +11,9 @@ export default function Kategori() {
   const [loading, setLoading] = useState(true)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false) // State untuk modal hapus
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<any>(null)
-  const [categoryToDelete, setCategoryToDelete] = useState<number | null>(null) // State untuk menyimpan ID kategori yang akan dihapus
+  const [categoryToDelete, setCategoryToDelete] = useState<number | null>(null) 
 
   useEffect(() => {
     fetchCategories()
@@ -161,7 +160,7 @@ export default function Kategori() {
         </div>
 
         {/* Modal Create menggunakan komponen Modal */}
-        <Modal
+        <ModalWhite
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
         >
@@ -176,7 +175,7 @@ export default function Kategori() {
                 name="name"
                 required
                 autoComplete='off'
-                className="w-full p-2 border rounded outline-ungu"
+                className="w-full p-2 border rounded outline-ungu bg-white"
               />
             </div>
             <div className="mb-4">
@@ -204,10 +203,10 @@ export default function Kategori() {
               </button>
             </div>
           </form>
-        </Modal>
+        </ModalWhite>
 
         {/* Modal Edit menggunakan komponen Modal */}
-        <Modal
+        <ModalWhite
           isOpen={isEditModalOpen}
           onClose={() => {
             setIsEditModalOpen(false)
@@ -225,7 +224,7 @@ export default function Kategori() {
                 name="name"
                 defaultValue={selectedCategory?.name}
                 required
-                className="w-full p-2 border rounded outline-ungu"
+                className="w-full p-2 border rounded outline-ungu bg-white"
               />
             </div>
             <div className="mb-4">
@@ -261,10 +260,10 @@ export default function Kategori() {
               </button>
             </div>
           </form>
-        </Modal>
+        </ModalWhite>
 
         {/* Modal Hapus menggunakan komponen Modal */}
-        <Modal
+        <ModalWhite
           isOpen={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}
         >
@@ -287,7 +286,7 @@ export default function Kategori() {
               Hapus
             </button>
           </div>
-        </Modal>
+        </ModalWhite>
       </div>
     </div>
   )

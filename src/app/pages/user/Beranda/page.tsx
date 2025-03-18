@@ -287,26 +287,27 @@ export default function Beranda() {
                 {isProfilePage ? (
                   <div></div>
                 ) : (
-                  <div className="flex items-center" >
+                  <div className="flex items-center hover:underline">
                     <div className='me-[15px]' >
-                      <p className="text-[14px] text-hitam1 dark:text-putih1 font-ruda" > {user.name} </p>
-                      <p className="text-[12px] text-hitam4 dark:text-abu font-ruda" > @{user.username} </p>
+                      <p className="text-[14px] text-hitam1 dark:text-putih1 font-ruda hover:underline cursor-pointer"  onClick={() => router.push('/pages/user/profile')} > {user.name} </p>
+                      <p className="text-[12px] text-hitam4 dark:text-abu font-ruda hover:underline cursor-pointer"  onClick={() => router.push('/pages/user/profile')} > @{user.username} </p>
                     </div>
                     <img
                       src={user.profile ? `${API_URL}${user.profile}` : 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg'}
                       alt="User profile"
-                      className="w-[45px] h-[45px] bg-white rounded-[6px] flex items-center justify-center object-cover"
+                      className="w-[45px] h-[45px] bg-white rounded-[6px] flex items-center justify-center object-cover cursor-pointer"
                       onError={(e) => {
                         console.log(`Image not found for user: ${user.profile}, setting to default.`);
                         (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
                       }}
+                      onClick={() => router.push('/pages/user/profile')}
                     />
                   </div>
                 )}
               </div>
             </div>
           ) : (
-            <div className='text-center' >
+            <div className='text-center dark:text-abu' >
               <p>server mati kayaknya..</p>
             </div>
           )}
@@ -332,8 +333,7 @@ export default function Beranda() {
           >
             Semua
           </button>
-          {
-            categories.map((category) => (
+          {categories.map((category) => (
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
@@ -381,7 +381,7 @@ export default function Beranda() {
               )}
             </div>
           ) : (
-            <div className='text-center' >
+            <div className='text-center dark:text-abu' >
               <p>server mati kayaknya..</p>
             </div>
           )}

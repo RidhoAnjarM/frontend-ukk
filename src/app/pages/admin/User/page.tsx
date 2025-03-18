@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import SidebarAdmin from '@/app/components/sidebaradmin'
-import ThemeToggle from '@/app/components/ThemeTogle'
-import Modal from '@/app/components/Modal'
+import ModalWhite from '@/app/components/ModalWhite'
 import { Ellipse } from '@/app/components/svgs/page'
 
 export default function User() {
@@ -148,7 +147,7 @@ export default function User() {
       </div>
 
       {isEditModalOpen && selectedUser && (
-        <Modal
+        <ModalWhite
           isOpen={isEditModalOpen}
           onClose={() => {
             setIsEditModalOpen(false)
@@ -164,7 +163,7 @@ export default function User() {
               <select
                 name="status"
                 defaultValue={selectedUser.status}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded bg-white"
               >
                 <option value="active">Active</option>
                 <option value="suspended">Suspended</option>
@@ -189,11 +188,11 @@ export default function User() {
               </button>
             </div>
           </form>
-        </Modal>
+        </ModalWhite>
       )}
 
       {/* Modal Hapus */}
-      <Modal
+      <ModalWhite
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
       >
@@ -216,7 +215,7 @@ export default function User() {
             Hapus
           </button>
         </div>
-      </Modal>
+      </ModalWhite>
 
     </div>
   )

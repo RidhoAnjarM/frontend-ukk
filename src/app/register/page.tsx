@@ -15,7 +15,6 @@ const Register = () => {
     const [showAlert, setShowAlert] = useState(false);
     const [alertType, setAlertType] = useState<'success' | 'error' | 'warning' | 'info'>('error');
     const [alertMessage, setAlertMessage] = useState('');
-    const [fileName, setFileName] = useState('');
     const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -74,32 +73,8 @@ const Register = () => {
         }
     };
 
-    const handleFileChange = (e?: React.ChangeEvent<HTMLInputElement>) => {
-        if (!e || !e.target.files || !e.target.files[0]) {
-            setProfile(null);
-            setError(null);
-            return;
-        }
-
-        const file = e.target.files[0];
-        const fileType = file.type;
-        if (!fileType.startsWith('image/')) {
-            setError('Please upload an image file.');
-            return;
-        }
-        setProfile(file);
-    };
-
-    const clearFileInput = () => {
-        const fileInput = document.getElementById('file-upload') as HTMLInputElement;
-        if (fileInput) {
-            fileInput.value = '';
-        }
-        handleFileChange();
-    };
-
     return (
-        <div className="w-full min-h-screen bg-white dark:bg-hitam1 flex justify-center mt-[10px] ">
+        <div className="w-full min-h-screen bg-white dark:bg-hitam1 flex justify-center pt-[10px] ">
             <div>
                 <img src="../images/ilustration.svg" alt="" className='' />
                 <form onSubmit={handleSubmit} className='w-[500px]'>
@@ -121,7 +96,7 @@ const Register = () => {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
-                            className='border w-full h-[50px] bg-putih1 dark:bg-hitam2 rounded-[10px] border-[0.5] border-hitam2 outline-none px-[30px]'
+                            className='border w-full h-[50px] bg-putih1 dark:bg-hitam2 rounded-[10px] border-[0.5] border-hitam2 outline-none dark:text-abu px-[30px]'
                         />
                     </div>
                     <div className="mt-[10px]">
@@ -135,7 +110,7 @@ const Register = () => {
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             required
-                            className='border w-full h-[50px] bg-putih1 dark:bg-hitam2 rounded-[10px] border-[0.5] border-hitam2 outline-none px-[30px]'
+                            className='border w-full h-[50px] bg-putih1 dark:bg-hitam2 rounded-[10px] border-[0.5] border-hitam2 outline-none dark:text-abu px-[30px]'
                         />
                     </div>
                     <div className="mt-[10px]">
@@ -149,7 +124,7 @@ const Register = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            className='border w-full h-[50px] bg-putih1 dark:bg-hitam2 rounded-[10px] border-[0.5] border-hitam2 outline-none px-[30px]'
+                            className='border w-full h-[50px] bg-putih1 dark:bg-hitam2 rounded-[10px] border-[0.5] border-hitam2 outline-none dark:text-abu px-[30px]'
                         />
                     </div>
                     <button type="submit" className='w-full h-[50px] bg-ungu text-white rounded-[10px] mt-[30px] font-ruda text-[30px] hover:shadow-lg transition-colors flex justify-center items-center'>
