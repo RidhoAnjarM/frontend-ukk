@@ -168,7 +168,7 @@ const Login = () => {
                         </button>
                     </form>
                     < p className='text-center mt-3' >
-                        Belum punya akun ? <a href="/register" className='text-blue-900' > Register Sekarang </a>
+                        Belum punya akun ? <a href="/register" className='text-blue-900' > Daftar Sekarang </a>
                     </p>
                 </div>
             </div>

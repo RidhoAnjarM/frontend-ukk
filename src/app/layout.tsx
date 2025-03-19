@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Ruda } from "next/font/google";
-import { Sansita } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 

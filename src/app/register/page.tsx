@@ -89,7 +89,7 @@ const Register = () => {
                         <label
                             className='text-[20px] font-bold font-ruda mb-[10px] dark:text-white'
                         >
-                            Nama
+                            Nama Lengkap
                         </label>
                         <input
                             type="text"

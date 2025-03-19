@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Tags } from '../types/types';
 
-export default function PopulerTag() {
+interface PopulerTagProps {
+  onTagClick?: (tag: string) => void; // Prop opsional untuk menangani klik
+}
+
+export default function PopulerTag({ onTagClick }: PopulerTagProps) {
   const [tags, setTags] = useState<Tags[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -12,7 +16,7 @@ export default function PopulerTag() {
         const data = await response.json();
         setTags(data.popular_tags.slice(0, 8));
       } catch (error) {
-        console.error('Error fetching popular categories:', error);
+        console.error('Error fetching popular tags:', error);
       } finally {
         setLoading(false);
       }
@@ -20,9 +24,10 @@ export default function PopulerTag() {
 
     fetchTags();
   }, []);
+
   return (
-    <div className='w-[300px] border border-hitam2 rounded-[16px] bg-putih1 dark:bg-hitam2 ps-[25px] py-[12px] hover:shadow-lg'>
-      <h2 className='text-[20px] font-ruda font-medium dark:text-putih1 mb-2'>Hastag Populer</h2>
+    <div className="w-[300px] border border-hitam2 rounded-[16px] bg-putih1 dark:bg-hitam2 ps-[25px] py-[12px] hover:shadow-lg">
+      <h2 className="text-[20px] font-ruda font-medium dark:text-putih1 mb-2">Hastag Populer</h2>
       <div>
         {loading ? (
           Array.from({ length: 8 }).map((_, index) => (
@@ -33,18 +38,20 @@ export default function PopulerTag() {
           ))
         ) : (
           tags.map((tag) => (
-              <div
-                key={tag.id}
-                className="mb-1 flex"
-              >
-                <div className="flex items-center gap-1">
-                  <h3 className="font-bold font-ruda text-[14px] text-hitam1 dark:text-putih1">#{tag.name}</h3>
-                  <p className="text-[10px] font-ruda text-hitam4 dark:text-abu">Digunakan {tag.usage_count} kali</p>
-                </div>
+            <div key={tag.id} className="mb-1 flex">
+              <div className="flex items-center gap-1">
+                <h3
+                  className="font-bold font-ruda text-[14px] text-hitam1 dark:text-putih1 cursor-pointer hover:text-ungu hover:underline"
+                  onClick={() => onTagClick && onTagClick(tag.name)} // Panggil callback jika ada
+                >
+                  #{tag.name}
+                </h3>
+                <p className="text-[10px] font-ruda text-hitam4 dark:text-abu">Digunakan {tag.usage_count} kali</p>
               </div>
+            </div>
           ))
         )}
       </div>
     </div>
-  )
+  );
 }

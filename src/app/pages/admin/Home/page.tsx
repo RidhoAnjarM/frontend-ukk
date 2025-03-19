@@ -134,7 +134,7 @@ export default function AdminHome() {
                 <p className='text-[17px] font-extrabold font-sans mt-[35px]'>{totalUsers}</p>
               </div>
               <div className='w-[125px] text-center font-ruda text-[14px] font-medium pt-[25px]'>
-                <h3>Total Pengguna Minggu ini</h3>
+                <h3>Total Pendaftar Minggu ini</h3>
                 <p className='text-[17px] font-extrabold font-sans mt-[15px]'>{weeklyUsers}</p>
               </div>
             </div>
