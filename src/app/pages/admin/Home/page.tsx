@@ -112,7 +112,7 @@ export default function AdminHome() {
 
           <section className="bg-white w-[600px] h-[350px] rounded-lg shadow flex items-center justify-center">
             <div className="w-[550px]">
-              <CategoryBarChart />
+              {/* <CategoryBarChart /> */}
             </div>
           </section>
 

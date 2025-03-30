@@ -16,13 +16,6 @@ export interface Tags {
     usage_count: number;
 }
 
-export interface Category {
-    id: number;
-    name: string;
-    photo: string;
-    usage_count: number;
-}
-
 export interface Reply {
     id: number;
     content: string;
@@ -35,17 +28,15 @@ export interface Reply {
 }
 
 export interface ForumPost {
-    category: string;
     id: number;
     title: string;
     description: string;
     photo: string;
+    photos: string[];
     profile: string;
     user_id: number;
     username: string;
     name: string;
-    category_id: number;
-    category_name: string;
     relative_time: string;
     comments: Comment[];
     tags: Tags[];
@@ -62,14 +53,12 @@ export interface Forum {
     title: string;
     description: string;
     photo: string;
+    photos: string[];
     profile: string;
     user_id: number;
     user: User;
     username: string;
     name: string;
-    category: string;
-    category_id: number;
-    category_name: string;
     relative_time: string;
     comments: Comment[];
     tags: Tags[];

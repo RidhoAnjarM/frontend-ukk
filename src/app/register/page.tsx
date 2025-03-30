@@ -15,7 +15,6 @@ const Register = () => {
     const [showAlert, setShowAlert] = useState(false);
     const [alertType, setAlertType] = useState<'success' | 'error' | 'warning' | 'info'>('error');
     const [alertMessage, setAlertMessage] = useState('');
-    const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -57,7 +56,7 @@ const Register = () => {
             if (error.response) {
                 switch (error.response.status) {
                     case 400:
-                        errorMessage = 'Data tidak valid atau sudah digunakan';
+                        errorMessage = 'Username sudah digunakan';
                         break;
                     case 500:
                         errorMessage = 'Terjadi kesalahan pada server';
@@ -74,60 +73,50 @@ const Register = () => {
     };
 
     return (
-        <div className="w-full min-h-screen bg-white dark:bg-hitam1 flex justify-center pt-[10px] ">
+        <div className="w-full min-h-screen bg-gradient-to-br from-putih1 to-gray-100 flex justify-center items-center">
             <div>
-                <img src="../images/ilustration.svg" alt="" className='' />
-                <form onSubmit={handleSubmit} className='w-[500px]'>
-                    {showAlert && (
-                        <Alert
-                            type={alertType}
-                            message={alertMessage}
-                            onClose={() => setShowAlert(false)}
-                        />
-                    )}
+                {showAlert && (
+                    <Alert
+                        type={alertType}
+                        message={alertMessage}
+                        onClose={() => setShowAlert(false)}
+                    />
+                )}
+                <form onSubmit={handleSubmit} className='w-[400px] bg-white rounded-[20px] shadow-xl overflow-hidden flex flex-col items-center p-8'>
+                    <h1 className="text-[24px] mt-4 font-ruda font-bold text-hitam2 mb-20 animate-fade-in">
+                        Daftar ke ForuMedia
+                    </h1>
                     <div>
-                        <label
-                            className='text-[20px] font-bold font-ruda mb-[10px] dark:text-white'
-                        >
-                            Nama Lengkap
-                        </label>
                         <input
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
-                            className='border w-full h-[50px] bg-putih1 dark:bg-hitam2 rounded-[10px] border-[0.5] border-hitam2 outline-none dark:text-abu px-[30px]'
+                            placeholder='Nama Lengkap'
+                            className='w-[300px] h-[40px] bg-putih2 rounded-[10px] placeholder-gray-600 outline-none px-[20px] text-hitam1 focus:ring-2 focus:ring-ungu transition-all duration-200'
                         />
                     </div>
-                    <div className="mt-[10px]">
-                        <label
-                            className='text-[20px] font-bold font-ruda mb-[10px] dark:text-white'
-                        >
-                            Username
-                        </label>
+                    <div className="mt-4">
                         <input
                             type="text"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             required
-                            className='border w-full h-[50px] bg-putih1 dark:bg-hitam2 rounded-[10px] border-[0.5] border-hitam2 outline-none dark:text-abu px-[30px]'
+                            placeholder='Username'
+                            className='w-[300px] h-[40px] bg-putih2 rounded-[10px] placeholder-gray-600 outline-none px-[20px] text-hitam1 focus:ring-2 focus:ring-ungu transition-all duration-200'
                         />
                     </div>
-                    <div className="mt-[10px]">
-                        <label
-                            className='text-[20px] font-bold font-ruda mb-[10px] dark:text-white'
-                        >
-                            Password
-                        </label>
+                    <div className="mt-4">
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            className='border w-full h-[50px] bg-putih1 dark:bg-hitam2 rounded-[10px] border-[0.5] border-hitam2 outline-none dark:text-abu px-[30px]'
+                            placeholder='Password'
+                            className='w-[300px] h-[40px] bg-putih2 rounded-[10px] placeholder-gray-600 outline-none px-[20px] text-hitam1 focus:ring-2 focus:ring-ungu transition-all duration-200'
                         />
                     </div>
-                    <button type="submit" className='w-full h-[50px] bg-ungu text-white rounded-[10px] mt-[30px] font-ruda text-[30px] hover:shadow-lg transition-colors flex justify-center items-center'>
+                    <button type="submit" className='w-[300px] h-[40px] bg-ungu text-white rounded-[10px] font-ruda text-[20px] font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center mt-8'>
                         {loading ? (
                             <div className="flex flex-row gap-2">
                                 <div className="w-2 h-2 rounded-full bg-gray-300 animate-bounce [animation-delay:.7s]"></div>
@@ -138,8 +127,13 @@ const Register = () => {
                             "Register"
                         )}
                     </button>
+                    <p className="text-center mt-20 text-[14px] font-ruda text-hitam2">
+                        Sudah punya akun?{' '}
+                        <a href="/login" className="text-ungu hover:underline font-semibold">
+                            Login Sekarang
+                        </a>
+                    </p>
                 </form>
-                <p className='text-center mt-3 dark:text-white'>Sudah punya akun? <a href="/login" className='text-blue-900'>Login Sekarang</a></p>
             </div>
         </div>
     );

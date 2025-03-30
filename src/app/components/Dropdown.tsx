@@ -48,7 +48,7 @@ const Dropdown: React.FC<DropdownProps> = ({ id, userId, onReportForum, onReport
         </button>
       </div>
       {activeDropdown === id && (
-        <div className="absolute bg-[#F2F2F2] w-[150px] rounded-[6px] overflow-hidden text-[12px] mt-2 -ms-[45px]" >
+        <div className="absolute bg-[#F2F2F2] shadow w-[150px] rounded-[6px] overflow-hidden text-[12px] mt-2 -ms-[45px]" >
           <button
             onClick={() => handleAkun(userId)}
             className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center font-ruda"

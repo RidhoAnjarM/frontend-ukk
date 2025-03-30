@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Tags } from '../types/types';
 
 interface PopulerTagProps {
-  onTagClick?: (tag: string) => void; // Prop opsional untuk menangani klik
+  onTagClick?: (tag: string) => void;
 }
 
 export default function PopulerTag({ onTagClick }: PopulerTagProps) {
@@ -16,7 +16,7 @@ export default function PopulerTag({ onTagClick }: PopulerTagProps) {
         const data = await response.json();
         setTags(data.popular_tags.slice(0, 8));
       } catch (error) {
-        console.error('Error fetching popular tags:', error);
+        console.error('Error fetching trending tags:', error);
       } finally {
         setLoading(false);
       }
@@ -26,28 +26,38 @@ export default function PopulerTag({ onTagClick }: PopulerTagProps) {
   }, []);
 
   return (
-    <div className="w-[300px] border border-hitam2 rounded-[16px] bg-putih1 dark:bg-hitam2 ps-[25px] py-[12px] hover:shadow-lg">
-      <h2 className="text-[20px] font-ruda font-medium dark:text-putih1 mb-2">Hastag Populer</h2>
-      <div>
+    <div className="w-[300px] bg-gradient-to-br from-putih1 to-gray-100 dark:from-hitam2 dark:to-gray-800 border border-hitam2 rounded-[20px] p-5 shadow-md hover:shadow-xl transition-shadow duration-300">
+      <h2 className="text-[22px] font-ruda font-bold text-hitam1 dark:text-putih1 mb-4 flex items-center gap-2">
+         Hastag Populer 🔥
+      </h2>
+      <div className="space-y-3">
         {loading ? (
           Array.from({ length: 8 }).map((_, index) => (
             <div
               key={`loading-${index}`}
-              className="h-[20px] w-[200px] bg-gray-300 rounded animate-pulse mb-1"
+              className="h-[25px] w-[220px] bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse"
             />
           ))
         ) : (
-          tags.map((tag) => (
-            <div key={tag.id} className="mb-1 flex">
-              <div className="flex items-center gap-1">
+          tags.map((tag, index) => (
+            <div
+              key={tag.id}
+              className="group flex items-center justify-between bg-putih3 dark:bg-hitam3 p-2 rounded-lg hover:bg-ungu hover:bg-opacity-10 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
+              onClick={() => onTagClick && onTagClick(tag.name)}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-[12px] font-ruda font-semibold text-ungu dark:text-ungu">
+                  #{index + 1}
+                </span>
                 <h3
-                  className="font-bold font-ruda text-[14px] text-hitam1 dark:text-putih1 cursor-pointer hover:text-ungu hover:underline"
-                  onClick={() => onTagClick && onTagClick(tag.name)} // Panggil callback jika ada
+                  className="font-ruda text-[15px] font-bold text-hitam1 dark:text-putih1 group-hover:text-ungu transition-colors duration-200"
                 >
                   #{tag.name}
                 </h3>
-                <p className="text-[10px] font-ruda text-hitam4 dark:text-abu">Digunakan {tag.usage_count} kali</p>
               </div>
+              <p className="text-[11px] font-ruda text-hitam4 dark:text-abu bg-putih1 dark:bg-hitam4 px-2 py-1 rounded-full">
+                {tag.usage_count} posts
+              </p>
             </div>
           ))
         )}

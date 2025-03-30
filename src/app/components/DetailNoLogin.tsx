@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useParams } from 'next/navigation';
 import { ForumPost, Reply } from '@/app/types/types';
 import { useRouter } from 'next/navigation';
-import { Ellipse, Heart} from './svgs/page';
+import { Ellipse, Heart } from './svgs/page';
 import ModalLogin from './ModalLogin';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -15,12 +15,13 @@ const DetailForum = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const { postid } = useParams();
-    const router = useRouter();
     const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
     const [visibleComments, setVisibleComments] = useState<number | null>(null);
     const [inputValue, setInputValue] = useState<string>('');
     const [sortOption, setSortOption] = useState<'terbaru' | 'terpopuler'>('terbaru');
     const [showLogin, setShowLogin] = useState(false);
+    const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
     const handleClickOutside = (event: MouseEvent) => {
         const target = event.target as HTMLElement;
@@ -39,15 +40,6 @@ const DetailForum = () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [activeDropdown]);
-
-    const handleShowDropdown = (postId: number) => {
-        setActiveDropdown((prev) => (prev === postId ? null : postId));
-    };
-
-
-    const handleAkun = (akunid: number) => {
-        router.push(`/pages/user/akun/${akunid}`);
-    };
 
     // Get forum by id
     useEffect(() => {
@@ -89,6 +81,22 @@ const DetailForum = () => {
         return commentsCount + repliesCount;
     };
 
+    const handlePrevPhoto = () => {
+        setCurrentPhotoIndex((prev) => (prev > 0 ? prev - 1 : (post?.photos?.length || 1) - 1));
+    };
+
+    const handleNextPhoto = () => {
+        setCurrentPhotoIndex((prev) => (prev < (post?.photos?.length || 1) - 1 ? prev + 1 : 0));
+    };
+
+    const openImageModal = () => {
+        setIsImageModalOpen(true);
+    };
+
+    const closeImageModal = () => {
+        setIsImageModalOpen(false);
+    };
+
     return (
         <div className="relative min-h-screen pb-20">
             {loading ? (
@@ -125,9 +133,9 @@ const DetailForum = () => {
                             />
                             <div className="ms-[10px]">
                                 <div className="flex items-center">
-                                    <p className="text-[15px] font-ruda text-hitam2 dark:text-putih1 font-semibold me-[6px] cursor-pointer hover:underline" onClick={() => handleAkun(post.user_id)}>{post.name}</p>
+                                    <p className="text-[15px] font-ruda text-hitam2 dark:text-putih1 font-semibold me-[6px] cursor-pointer hover:underline">{post.name}</p>
                                     <Ellipse className="fill-black dark:fill-white" />
-                                    <p className="text-[14px] font-ruda text-hitam3 dark:text-abu font-medium ms-[6px] cursor-pointer hover:underline" onClick={() => handleAkun(post.user_id)}>@{post.username}</p>
+                                    <p className="text-[14px] font-ruda text-hitam3 dark:text-abu font-medium ms-[6px] cursor-pointer hover:underline">@{post.username}</p>
                                 </div>
                                 <p className="text-[9px] font-ruda text-hitam4 dark:text-putih3 font-semibold">{post.relative_time}</p>
                             </div>
@@ -139,11 +147,6 @@ const DetailForum = () => {
                         <h2 className="text-[17px] font-ruda font-bold mt-1 text-hitam1 dark:text-abu">{post.title}</h2>
                         <p className="text-[15px] font-ruda font-medium mt-3 text-hitam1 dark:text-putih1">{post.description}</p>
                         <div className="mt-[5px] flex flex-wrap">
-                            {post.category_name && (
-                                <p className="py-[6px] px-[10px] text-[10px] font-ruda font-bold bg-putih3 dark:bg-hitam4 text-hitam2 dark:text-abu rounded-full me-[5px] mb-[5px]">
-                                    {post.category_name}
-                                </p>
-                            )}
                             {post.tags && post.tags.map((tag: any) => (
                                 <span key={tag.id} className="py-[6px] px-[10px] text-[10px] font-ruda font-bold bg-putih3 dark:bg-hitam4 text-hitam2 dark:text-abu rounded-full me-[5px] mb-[5px]">
                                     #{tag.name}
@@ -152,7 +155,59 @@ const DetailForum = () => {
                         </div>
                         {post.photo && (
                             <div className="w-[500px] bg-white bg-opacity-50 backdrop-blur-70 rounded-[15px] mt-3 border border-gray-400 object-cover overflow-hidden">
-                                <img src={`${API_URL}${post.photo}`} alt={post.title} className="w-full bg-cover" />
+                                <img src={`${API_URL}${post.photo}`} alt={post.title} onClick={openImageModal} className="w-full bg-cover cursor-pointer" />
+                            </div>
+                        )}
+                        {post.photos && post.photos.length > 0 && (
+                            <div className="mt-3">
+                                {post.photos.length === 1 ? (
+                                    <div className="w-[500px] h-[500px] bg-white bg-opacity-50 backdrop-blur-md rounded-[15px] border border-gray-400 overflow-hidden flex items-center justify-center">
+                                        <img
+                                            src={`${API_URL}${post.photos[0]}`}
+                                            alt={post.title}
+                                            className="w-full cursor-pointer"
+                                            onClick={openImageModal}
+                                            onError={(e) => {
+                                                (e.target as HTMLImageElement).src =
+                                                    'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
+                                            }}
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="relative w-[500px] h-[500px] bg-white bg-opacity-50 backdrop-blur-md rounded-[15px] border border-gray-400 overflow-hidden flex items-center justify-center">
+                                        <img
+                                            src={`${API_URL}${post.photos[currentPhotoIndex]}`}
+                                            alt={post.title}
+                                            className="w-full transition-opacity duration-300 cursor-pointer"
+                                            onClick={openImageModal}
+                                            onError={(e) => {
+                                                (e.target as HTMLImageElement).src =
+                                                    'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
+                                            }}
+                                        />
+                                        <button
+                                            onClick={handlePrevPhoto}
+                                            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-all duration-200"
+                                        >
+                                            ‹
+                                        </button>
+                                        <button
+                                            onClick={handleNextPhoto}
+                                            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-all duration-200"
+                                        >
+                                            ›
+                                        </button>
+                                        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-2">
+                                            {post.photos.map((_, index) => (
+                                                <span
+                                                    key={index}
+                                                    className={`w-2 h-2 rounded-full transition-all duration-200 ${index === currentPhotoIndex ? 'bg-ungu scale-125' : 'bg-gray-400'
+                                                        }`}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
                         <div className="flex items-center dark:text-abu mt-3">
@@ -195,9 +250,9 @@ const DetailForum = () => {
                                             />
                                             <div className="ms-[10px]">
                                                 <div className="flex items-center">
-                                                    <p className="text-[13px] font-ruda text-hitam2 dark:text-putih1 font-semibold me-[6px] cursor-pointer hover:underline" onClick={() => handleAkun(comment.user_id)}>{comment.name}</p>
+                                                    <p className="text-[13px] font-ruda text-hitam2 dark:text-putih1 font-semibold me-[6px] cursor-pointer hover:underline">{comment.name}</p>
                                                     <Ellipse className="fill-black dark:fill-white" />
-                                                    <p className="text-[12px] font-ruda text-hitam3 dark:text-abu font-medium ms-[6px] cursor-pointer hover:underline" onClick={() => handleAkun(comment.user_id)}>@{comment.username}</p>
+                                                    <p className="text-[12px] font-ruda text-hitam3 dark:text-abu font-medium ms-[6px] cursor-pointer hover:underline">@{comment.username}</p>
                                                 </div>
                                                 <p className="text-[9px] font-ruda text-hitam4 dark:text-putih3 font-semibold">{comment.relative_time}</p>
                                             </div>
@@ -210,13 +265,21 @@ const DetailForum = () => {
                                             <hr className="w-[15px] me-1 border border-blue-900 dark:border-abu" />
                                             <button
                                                 onClick={() => {
-                                                    setVisibleComments((prev) => (prev === comment.id ? null : comment.id));
-                                                    setInputValue('');
+                                                    if (visibleComments !== comment.id && (!comment.replies || comment.replies.length === 0)) {
+                                                        setShowLogin(true);
+                                                    } else {
+                                                        setVisibleComments((prev) => (prev === comment.id ? null : comment.id));
+                                                        setInputValue('');
+                                                    }
                                                 }}
                                                 className="text-blue-900 dark:text-abu text-[12px] hover:underline"
                                             >
-                                                {visibleComments === comment.id ? 'Tutup Balasan' : 'Lihat Balasan'}
-                                                {comment.replies && comment.replies.length > 0 && <span className="ms-[2px]">({comment.replies.length})</span>}
+                                                {visibleComments === comment.id && comment.replies && comment.replies.length > 0
+                                                    ? 'Tutup Balasan'
+                                                    : comment.replies && comment.replies.length > 0
+                                                        ? `Lihat Balasan (${comment.replies.length})`
+                                                        : 'Balas'
+                                                }
                                             </button>
                                         </div>
                                     </div>
@@ -237,9 +300,9 @@ const DetailForum = () => {
                                                             />
                                                             <div className="ms-[10px]">
                                                                 <div className="flex items-center">
-                                                                    <p className="text-[13px] font-ruda text-hitam2 dark:text-putih1 font-semibold me-[6px] cursor-pointer hover:underline" onClick={() => handleAkun(reply.user_id)}>{reply.name}</p>
+                                                                    <p className="text-[13px] font-ruda text-hitam2 dark:text-putih1 font-semibold me-[6px] cursor-pointer hover:underline">{reply.name}</p>
                                                                     <Ellipse className="fill-black dark:fill-white" />
-                                                                    <p className="text-[12px] font-ruda text-hitam3 dark:text-abu font-medium ms-[6px] cursor-pointer hover:underline" onClick={() => handleAkun(reply.user_id)}>@{reply.username}</p>
+                                                                    <p className="text-[12px] font-ruda text-hitam3 dark:text-abu font-medium ms-[6px] cursor-pointer hover:underline">@{reply.username}</p>
                                                                 </div>
                                                                 <p className="text-[9px] font-ruda text-hitam4 dark:text-putih3 font-semibold">{reply.relative_time}</p>
                                                             </div>
@@ -250,9 +313,7 @@ const DetailForum = () => {
                                                         <p className="text-[14px] font-ruda text-hitam1 dark:text-putih3 text-wrap">{reply.content}</p>
                                                         <div className="flex items-center mt-1">
                                                             <button
-                                                                onClick={() => {
-                                                                    setInputValue(`@${reply.username} `);
-                                                                }}
+                                                                onClick={() => setShowLogin(true)}
                                                                 className="text-blue-900 dark:text-abu text-[12px] hover:underline"
                                                             >
                                                                 Balas
@@ -274,26 +335,37 @@ const DetailForum = () => {
                 <p>Tidak ada postingan.</p>
             )}
 
-            {/* Input Fixed */}
-            {post && (
-                <div className="fixed bottom-2 w-[780px] p-4 bg-white dark:bg-hitam2 z-10 rounded-[16px] border border-hitam2 -ms-[15px] flex justify-center">
-                    <div className="w-[650px] h-[45px] bg-putih3 dark:bg-hitam3 flex overflow-hidden items-center px-2 rounded-[16px] relative">
-                        <input
-                            type="text"
-                            autoComplete="off"
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            placeholder='Ketik disini untuk komentar...'
-                            className="w-[600px] h-[35px] bg-putih3 dark:bg-hitam3 outline-none px-[15px] text-[16px] font-sans text-hitam1 dark:text-abu placeholder-hitam4 dark:placeholder-gray-600"
+            {isImageModalOpen && post && (
+                <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center" onClick={closeImageModal}>
+                    <div className="relative max-w-[90vw] max-h-[90vh] p-4" onClick={(e) => e.stopPropagation()}>
+                        <img
+                            src={`${API_URL}${post.photos ? post.photos[currentPhotoIndex] : post.photo}`}
+                            alt={post.title}
+                            className="max-w-full max-h-[90vh] object-contain"
                         />
+                        <button
+                            onClick={closeImageModal}
+                            className="absolute top-0 right-0 mt-[20px] me-[20px] bg-red-500 rounded-full w-[25px] h-[25px] text-black hover:bg-red-400"
+                        >
+                            ✕
+                        </button>
+                        {post.photos && post.photos.length > 1 && (
+                            <>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); handlePrevPhoto(); }}
+                                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-2"
+                                >
+                                    ‹
+                                </button>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); handleNextPhoto(); }}
+                                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-2"
+                                >
+                                    ›
+                                </button>
+                            </>
+                        )}
                     </div>
-                    <button
-                        onClick={() => setShowLogin(true)}
-                        className={`w-[45px] h-[45px] rounded-[10px] ms-2 flex items-center justify-center ${inputValue.trim() ? 'bg-ungu text-white' : 'bg-gray-400 text-gray-700 cursor-not-allowed'}`}
-                        disabled={!inputValue.trim()}
-                    >
-                        <img src="../../../icons/paperplane.svg" alt="" />
-                    </button>
                 </div>
             )}
 

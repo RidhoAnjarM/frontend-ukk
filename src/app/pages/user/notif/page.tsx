@@ -5,7 +5,9 @@ import axios from "axios";
 import Link from "next/link";
 import Sidebar from "@/app/components/Sidebar";
 import { Notification } from "@/app/types/types";
-import { Vertikal } from "@/app/components/svgs/page";
+import { Back, Vertikal } from "@/app/components/svgs/page";
+import { useRouter } from "next/navigation";
+import Navbar from "@/app/components/Navbar";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -14,12 +16,13 @@ const Notif = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     fetchNotifications();
   }, []);
 
-  // fecth semua notif
+  // Fetch semua notif
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -42,7 +45,7 @@ const Notif = () => {
     }
   };
 
-  // tandai telah dibaca
+  // Tandai telah dibaca
   const markAsRead = async (id: string) => {
     try {
       const token = localStorage.getItem("token");
@@ -62,7 +65,7 @@ const Notif = () => {
     }
   };
 
-  // tandai semua dibaca
+  // Tandai semua dibaca
   const markAllAsRead = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -116,20 +119,33 @@ const Notif = () => {
     }
   };
 
+  // Fungsi untuk mengecek apakah notifikasi adalah laporan
+  const isReportNotification = (content: string) => {
+    return content.includes("Laporan Anda");
+  };
 
   return (
     <div className="bg-white dark:bg-hitam1 w-full min-h-screen">
       <Sidebar />
+      <Navbar />
+      <div className="fixed mt-[100px] ms-[220px] z-30">
+        <button
+          onClick={() => router.back()}
+          className="cursor-pointer group relative flex gap-1.5 w-[35px] h-[35px] hover:bg-black rounded-full hover:bg-opacity-20 transition items-center justify-center"
+        >
+          <Back className="fill-black dark:fill-white w-[25px]" />
 
-      <div className="pt-[33px] fixed bg-transparent backdrop-blur-lg w-full z-30">
-        <h1 className="text-[24px] font-ruda ms-[280px] text-black dark:text-putih1">Notifikasi</h1>
-        <button className="text-[12px] gap-2 text-blue-500 ms-[859px] hover:underline" onClick={markAllAsRead}>
-          Tandai semua telah dibaca
-          <span> ({notifications?.length ? notifications.filter((notif) => !notif.isRead).length : 0})</span>
+          <div className="absolute w-[80px] h-[30px] opacity-0 -bottom-full rounded-md bg-black left-1/2 -translate-x-1/2 group-hover:opacity-100 transition-opacity text-white text-center font-sans">
+            kembali
+          </div>
         </button>
       </div>
+      <button className="fixed px-2 py-1 text-[12px] gap-2 text-blue-500 mt-[85px] ms-[859px] hover:underline z-10 bg-transparent backdrop-blur-lg" onClick={markAllAsRead}>
+        Tandai semua telah dibaca
+        <span> ({notifications?.length ? notifications.filter((notif) => !notif.isRead).length : 0})</span>
+      </button>
       {loading ? (
-        <div className="ms-[280px] pt-[100px] w-[750px]">
+        <div className="ms-[280px] pt-[120px] w-[750px]">
           <div className="rounded-[16px] bg-gray-300 animate-pulse w-full h-[100px]"></div>
         </div>
       ) : notifications.length > 0 ? (
@@ -137,22 +153,26 @@ const Notif = () => {
           {notifications.map((notif) => (
             <li
               key={notif.id}
-              className={`p-[20px] mt-[16px] rounded-[16px]  border border-hitam2 flex items-start ${notif.isRead ? "bg-putih1 dark:bg-hitam2" : "bg-putih3 dark:bg-hitam4"} relative`}
+              className={`p-[20px] mt-[16px] rounded-[16px] border border-hitam2 flex items-start ${notif.isRead ? "bg-putih1 dark:bg-hitam2" : "bg-putih3 dark:bg-hitam4"
+                } relative`}
             >
-              <div className="me-4">
-                <img
-                  src={
-                    notif.reply_profile || notif.profile
-                      ? `${process.env.NEXT_PUBLIC_API_URL}${notif.reply_profile || notif.profile}`
-                      : 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg'
-                  }
-                  alt="Profile"
-                  className="w-[40px] h-[40px] object-cover rounded-full bg-white"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
-                  }}
-                />
-              </div>
+              {/* Foto profil hanya muncul jika bukan notifikasi laporan */}
+              {!isReportNotification(notif.content) && (
+                <div className="me-4">
+                  <img
+                    src={
+                      notif.reply_profile || notif.profile
+                        ? `${process.env.NEXT_PUBLIC_API_URL}${notif.reply_profile || notif.profile}`
+                        : 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg'
+                    }
+                    alt="Profile"
+                    className="w-[40px] h-[40px] object-cover rounded-full bg-white"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
+                    }}
+                  />
+                </div>
+              )}
 
               <div className="text-hitam2 dark:text-abu flex-wrap flex max-w-[500px]">
                 {notif.forum_id ? (
@@ -164,7 +184,7 @@ const Notif = () => {
                 )}
               </div>
 
-              {/* menu */}
+              {/* Menu */}
               <div className="absolute top-4 right-4">
                 <button
                   onClick={() => setActiveDropdown(activeDropdown === notif.id ? null : notif.id)}
@@ -192,7 +212,7 @@ const Notif = () => {
                 )}
               </div>
 
-              {/* image */}
+              {/* Image postingan tetap ada jika ada */}
               {notif.photo && (
                 <div className="absolute top-4 right-4 me-[20px] mt-[10px]">
                   <img
@@ -210,10 +230,8 @@ const Notif = () => {
           Tidak ada notifikasi apapun.
         </div>
       )}
-
     </div>
   );
 };
 
 export default Notif;
-

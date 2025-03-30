@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Alert from '@/app/components/Alert';
 import { Tag } from '@/app/types/types';
-import { useRouter } from 'next/navigation';
 import { Image } from './svgs/page';
 
 interface PostingModalProps {
@@ -17,36 +16,18 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [photo, setPhoto] = useState<File | null>(null);
-  const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const router = useRouter();
+  const [photos, setPhotos] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertType, setAlertType] = useState<'success' | 'error' | 'warning' | 'info'>('error');
   const [alertMessage, setAlertMessage] = useState('');
-  const [fileName, setFileName] = useState('');
+  const [fileNames, setFileNames] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<Tag[]>([]);
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [isVisible, setIsVisible] = useState(false);
   const [renderModal, setRenderModal] = useState(false);
-
-  // Fetch categories
-  useEffect(() => {
-    if (isOpen) {
-      const fetchCategories = async () => {
-        try {
-          const response = await axios.get(`${API_URL}/api/category/`);
-          setCategories(response.data);
-        } catch (error) {
-          console.error('Failed to fetch categories', error);
-        }
-      };
-      fetchCategories();
-    }
-  }, [isOpen]);
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,20 +43,11 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
       return;
     }
 
-    if (!selectedCategory) {
-      setAlertType('error');
-      setAlertMessage('Kategori wajib diisi.');
-      setShowAlert(true);
-      setLoading(false);
-      return;
-    }
-
     const formData = new FormData();
     formData.append('title', title);
     formData.append('description', description);
-    formData.append('category_id', selectedCategory);
-    if (photo) formData.append('photo', photo);
-    selectedTags.forEach(tag => formData.append('tags', tag.name));
+    photos.forEach((photo) => formData.append('photos', photo));
+    selectedTags.forEach((tag) => formData.append('tags', tag.name));
 
     try {
       await axios.post(`${API_URL}/api/forum/`, formData, {
@@ -112,25 +84,33 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
 
   // File handling functions
   const handleFileChange = (e?: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e || !e.target.files || !e.target.files[0]) {
-      setPhoto(null);
-      setFileName('');
+    if (!e || !e.target.files || e.target.files.length === 0) {
+      setPhotos([]);
+      setFileNames([]);
       setError(null);
       return;
     }
-    const file = e.target.files[0];
-    if (!file.type.startsWith('image/')) {
-      setError('Please upload a valid image file.');
+
+    const files = Array.from(e.target.files);
+    if (files.length > 5) {
+      setError('Maksimal 5 foto diperbolehkan.');
       return;
     }
-    setPhoto(file);
-    setFileName(file.name);
+
+    const validFiles = files.filter((file) => file.type.startsWith('image/'));
+    if (validFiles.length !== files.length) {
+      setError('Hanya file gambar yang diperbolehkan.');
+      return;
+    }
+
+    setPhotos(validFiles);
+    setFileNames(validFiles.map((file) => file.name));
     setError(null);
   };
 
   // Tag handling functions
   const fetchSuggestions = async (q: string) => {
-    if (q.trim() === "") {
+    if (q.trim() === '') {
       setSuggestions([]);
       return;
     }
@@ -138,7 +118,7 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
       const response = await axios.get(`${API_URL}/api/tags/`, { params: { q } });
       setSuggestions(response.data ?? []);
     } catch (error) {
-      console.error("Fetch error:", error);
+      console.error('Fetch error:', error);
       setSuggestions([]);
     }
   };
@@ -151,7 +131,6 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
   }, [query, isOpen]);
 
   const handleConfirmTag = async () => {
-    // Batasi maksimal 10 tag
     if (selectedTags.length >= 10) {
       setAlertType('warning');
       setAlertMessage('Maksimal 10 tag diperbolehkan.');
@@ -159,8 +138,8 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
       return;
     }
 
-    const existingTag = suggestions.find(tag => tag.name === query);
-    const alreadySelected = selectedTags.some(tag => tag.name === query);
+    const existingTag = suggestions.find((tag) => tag.name === query);
+    const alreadySelected = selectedTags.some((tag) => tag.name === query);
     if (alreadySelected) {
       setAlertType('warning');
       setAlertMessage('Tag sudah dipilih.');
@@ -168,16 +147,16 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
       return;
     }
     if (existingTag) {
-      setSelectedTags(prev => [...prev, existingTag]);
-      setQuery("");
+      setSelectedTags((prev) => [...prev, existingTag]);
+      setQuery('');
       setSuggestions([]);
     } else {
       try {
         const response = await axios.post(`${API_URL}/api/tags/`, { name: query });
         if (response.status === 201) {
           const newTag = response.data.tag;
-          setSelectedTags(prev => [...prev, newTag]);
-          setQuery("");
+          setSelectedTags((prev) => [...prev, newTag]);
+          setQuery('');
         }
       } catch (error) {
         setAlertType('error');
@@ -188,7 +167,12 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
   };
 
   const handleRemoveTag = (id: number) => {
-    setSelectedTags(prev => prev.filter(tag => tag.id !== id));
+    setSelectedTags((prev) => prev.filter((tag) => tag.id !== id));
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos((prev) => prev.filter((_, i) => i !== index));
+    setFileNames((prev) => prev.filter((_, i) => i !== index));
   };
 
   useEffect(() => {
@@ -206,36 +190,28 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className={`fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 transition-opacity duration-300 ${isVisible ? "opacity-100" : "opacity-0"}`}>
-      <div className={`relative w-[700px] max-h-[780px] px-[50px] py-[30px] overflow-y-auto bg-white dark:bg-hitam2 rounded-lg transform transition-transform duration-300 ${isVisible ? "translate-y-0 scale-100" : "translate-y-10 scale-95"}`}>
+    <div
+      className={`fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 transition-opacity duration-300 ${
+        isVisible ? 'opacity-100' : 'opacity-0'
+      }`}
+    >
+      <div
+        className={`relative w-[700px] max-h-[780px] px-[50px] py-[30px] overflow-y-auto bg-white dark:bg-hitam2 rounded-lg transform transition-transform duration-300 ${
+          isVisible ? 'translate-y-0 scale-100' : 'translate-y-10 scale-95'
+        }`}
+      >
         <div className="flex justify-between items-center">
           <div></div>
           <h1 className="text-[24px] font-ruda text-hitam2 dark:text-putih1">Postingan Baru</h1>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">✕</button>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            ✕
+          </button>
         </div>
 
         <form onSubmit={handleSubmit}>
-          {showAlert && (
-            <Alert
-              type={alertType}
-              message={alertMessage}
-              onClose={() => setShowAlert(false)}
-            />
-          )}
+          {showAlert && <Alert type={alertType} message={alertMessage} onClose={() => setShowAlert(false)} />}
 
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full h-[40px] border border-gray-300 dark:border-hitam4 rounded-[6px] text-[14px] font-ruda ps-[10px] outline-none mt-[20px] bg-putih1 dark:bg-hitam3 dark:text-abu"
-          >
-            <option value="">Pilih kategori diskusi...</option>
-            {categories.map((category: any) => (
-              <option key={category.id} value={category.id}>{category.name}</option>
-            ))}
-          </select>
-
-          <div className='mt-[15px]'>
-            {/* <label className='ms-[25px] text-[14px] font-ruda dark:text-putih1'>Judul</label> */}
+          <div className="mt-[15px]">
             <textarea
               id="title"
               value={title}
@@ -245,8 +221,7 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
             />
           </div>
 
-          <div className='mt-[10px] '>
-            {/* <label className='ms-[25px] text-[14px] font-ruda dark:text-putih1'>Deskripsi</label> */}
+          <div className="mt-[10px]">
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -256,7 +231,6 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="mt-[10px]">
-            {/* <label className='ms-[25px] text-[14px] font-ruda dark:text-putih1'>Hastag</label> */}
             <div className="flex items-center">
               <input
                 type="text"
@@ -265,7 +239,6 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
                 placeholder="Ketik disini untuk menambahkan hashtag"
                 className="w-[510px] h-[40px] border border-gray-300 dark:border-hitam4 rounded-[6px] text-[14px] font-ruda ps-[10px] outline-none bg-putih1 dark:bg-hitam3 dark:text-abu"
               />
-              {/* {query.trim() && ( */}
               <button
                 type="button"
                 onClick={handleConfirmTag}
@@ -273,18 +246,17 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
               >
                 Tambah
               </button>
-              {/* )} */}
             </div>
 
             {suggestions.length > 0 && (
               <ul className="bg-gray-200 p-2 rounded-md mt-1 w-[200px] max-h-[120px] overflow-y-auto absolute z-20">
-                {suggestions.map(tag => (
+                {suggestions.map((tag) => (
                   <li
                     key={tag.id}
                     onClick={() => {
-                      if (!selectedTags.some(selected => selected.id === tag.id)) {
+                      if (!selectedTags.some((selected) => selected.id === tag.id)) {
                         setSelectedTags([...selectedTags, tag]);
-                        setQuery("");
+                        setQuery('');
                         setSuggestions([]);
                       }
                     }}
@@ -297,7 +269,7 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
             )}
 
             <div className="mt-2 flex flex-wrap gap-2">
-              {selectedTags.map(tag => (
+              {selectedTags.map((tag) => (
                 <span
                   key={tag.id}
                   onClick={() => handleRemoveTag(tag.id)}
@@ -310,56 +282,61 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="mt-[10px]">
-            {/* <label className='ms-[25px] text-[14px] font-ruda dark:text-putih1'>Gambar(opsional)</label> */}
             <div className="relative w-full">
               <input
                 id="file-upload"
                 type="file"
                 accept="image/*"
+                multiple
                 onChange={handleFileChange}
                 className="absolute w-full h-[40px] opacity-0 cursor-pointer rounded-[10px]"
               />
               <div className="w-full h-[40px] border border-gray-300 dark:border-hitam4 rounded-[6px] text-[14px] font-ruda px-[8px] flex items-center gap-2 bg-putih1 dark:bg-hitam3 dark:text-abu">
                 <Image className="fill-black dark:fill-white" />
-                <span>{fileName || 'Unggah gambar terkait (opsional)...'}</span>
+                <span>
+                  {fileNames.length > 0 ? `${fileNames.length} foto dipilih` : 'Unggah gambar terkait (opsional, maks 5)...'}
+                </span>
               </div>
             </div>
-            {photo && (
-              <div className="mt-3 relative">
-                <img
-                  src={URL.createObjectURL(photo)}
-                  alt="Preview"
-                  className="w-[400px] object-cover rounded-[10px]"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPhoto(null);
-                    setFileName('');
-                    setError(null);
-                  }}
-                  className="absolute top-2 right-2 text-white bg-red-500 rounded-full w-[25px] h-[25px] flex items-center justify-center"
-                >
-                  x
-                </button>
+            {photos.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {photos.map((photo, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={URL.createObjectURL(photo)}
+                      alt={`Preview ${index}`}
+                      className="w-[100px] h-[100px] object-cover rounded-[10px]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removePhoto(index)}
+                      className="absolute top-1 right-1 text-white bg-red-500 rounded-full w-[20px] h-[20px] flex items-center justify-center"
+                    >
+                      x
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
           </div>
 
-          <div className='w-full mt-4 flex items-center justify-end'>
-            <button onClick={onClose} className="text-hitam1 dark:text-abu me-4 hover:underline">kembali</button>
+          <div className="w-full mt-4 flex items-center justify-end">
+            <button onClick={onClose} className="text-hitam1 dark:text-abu me-4 hover:underline">
+              Kembali
+            </button>
             <button
               type="submit"
               className="w-[150px] h-[40px] rounded-full bg-ungu flex items-center justify-center text-white"
               disabled={loading}
             >
-              {loading ? 'tunggu bentar...' : (
+              {loading ? (
+                'Tunggu bentar...'
+              ) : (
                 <div className="flex items-center gap-2">
                   <p>Posting</p>
                   <img src="/icons/paperplane.svg" alt="" />
                 </div>
               )}
-
             </button>
           </div>
           {error && <p className="text-red-500 text-sm mt-2">{error}</p>}

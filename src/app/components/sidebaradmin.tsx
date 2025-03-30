@@ -9,7 +9,6 @@ export default function SidebarAdmin() {
 
     const navItems = [
         { name: 'Beranda', path: '/pages/admin/Home' },
-        { name: 'Kategori', path: '/pages/admin/Kategori' },
         { name: 'Laporan', path: '/pages/admin/Report' },
         { name: 'Pengguna', path: '/pages/admin/User' },
     ]

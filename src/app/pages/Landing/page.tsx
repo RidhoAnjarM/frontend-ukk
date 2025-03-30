@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Ellipse, Search, Heart, Horizontal } from '@/app/components/svgs/page';
+import { Ellipse, Search, Heart } from '@/app/components/svgs/page';
 import { useRouter } from 'next/navigation';
-import PopulerKategori from '@/app/components/PopulerKategori';
 import PopulerTag from '@/app/components/PopulerTag';
 import ModalLogin from '@/app/components/ModalLogin';
 
@@ -13,11 +12,9 @@ export default function Landing() {
   const router = useRouter();
   const [forums, setForums] = useState<any[]>([]);
   const [filteredForums, setFilteredForums] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -29,24 +26,6 @@ export default function Landing() {
     const hashtagText = `#${hashtag}`;
     setSearchQuery(hashtagText);
   };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!containerRef.current) return;
-    setIsDragging(true);
-    setStartX(e.pageX - containerRef.current.offsetLeft);
-    setScrollLeft(containerRef.current.scrollLeft);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !containerRef.current) return;
-    e.preventDefault();
-    const x = e.pageX - containerRef.current.offsetLeft;
-    const walk = (x - startX) * 2;
-    containerRef.current.scrollLeft = scrollLeft - walk;
-  };
-
-  const handleMouseUp = () => setIsDragging(false);
-  const handleMouseLeave = () => setIsDragging(false);
 
   // Fetch semua forum
   useEffect(() => {
@@ -63,22 +42,11 @@ export default function Landing() {
         setForums(Array.isArray(forumData) ? forumData : []);
         setFilteredForums(Array.isArray(forumData) ? forumData : []);
 
-        const categoryResponse = await fetch(`${API_URL}/api/category/`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        if (!categoryResponse.ok) throw new Error(`Category HTTP error! status: ${categoryResponse.status}`);
-        const categoryData = await categoryResponse.json();
-        setCategories(Array.isArray(categoryData) ? categoryData : []);
-
         setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
         setForums([]);
         setFilteredForums([]);
-        setCategories([]);
         setLoading(false);
       }
     };
@@ -100,11 +68,6 @@ export default function Landing() {
   useEffect(() => {
     let result = [...forums];
 
-    // Filter berdasarkan kategori
-    if (selectedCategory !== null) {
-      result = result.filter((forum) => forum.category_id === selectedCategory);
-    }
-
     // Search filter (judul, username, dan hashtag)
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -123,7 +86,7 @@ export default function Landing() {
           result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
           break;
         case 'terhot':
-          result.sort((a, b) => getTotalComments(b) - getTotalComments(a)); // Hanya berdasarkan komentar
+          result.sort((a, b) => getTotalComments(b) - getTotalComments(a));
           break;
         case 'terlama':
           result.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
@@ -132,14 +95,10 @@ export default function Landing() {
     }
 
     setFilteredForums(result);
-  }, [searchQuery, sortOption, selectedCategory, forums]);
+  }, [searchQuery, sortOption, forums]);
 
   const handleGetByID = (postid: number) => {
     router.push(`/pages/nologin/${postid}`);
-  };
-
-  const handleAkun = (akunid: number) => {
-    router.push(`/pages/user/akun/${akunid}`);
   };
 
   return (
@@ -188,43 +147,30 @@ export default function Landing() {
           </div>
         </div>
         <div className="me-[50px] flex items-center">
-          <button className="w-[100px] h-[35px] bg-ungu rounded-[6px] text-white font-ruda" onClick={() => router.push('/login')}>
-            Login
+          <button className="px-3 h-[40px] bg-ungu bg-opacity-15 text-ungu rounded-full border-2 border-ungu font-ruda font-semibold hover:-translate-y-1 hover:shadow-lg transition-all duration-700" onClick={() => router.push('/login')}>
+            Login / Daftar
           </button>
         </div>
       </div>
 
-      <div className="ms-[280px] pt-[90px]">
-        <div
-          className="flex overflow-x-auto w-[750px] overflow-hidden scrollbar-hide mt-[15px]"
-          ref={containerRef}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseLeave}
-          style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
-        >
+      <div className="fixed top-[200px] left-3 w-[250px] bg-ungu bg-opacity-90 dark:bg-opacity-80 text-white p-6 flex flex-col justify-between z-0 shadow-lg">
+        <div>
+          <h2 className="text-[28px] font-ruda font-bold mt-10 animate-fade-in">
+            Gabung ForuMedia!
+          </h2>
+          <p className="text-[16px] font-ruda mt-4 leading-relaxed animate-fade-in delay-100">
+            "Jangan cuma lihat, jadi bagian dari cerita! Daftar sekarang dan mulai berbagi ide, diskusi seru, dan koneksi baru."
+          </p>
           <button
-            onClick={() => setSelectedCategory(null)}
-            className={`h-[30px] px-[10px] rounded-[6px] whitespace-nowrap text-[14px] font-ruda me-[10px] ${
-              selectedCategory === null ? 'bg-ungu text-white' : 'bg-putih3 dark:bg-hitam4 dark:text-abu'
-            }`}
+            onClick={() => router.push('/login')}
+            className="mt-6 w-full h-[45px] bg-white text-ungu font-ruda font-semibold rounded-[10px] hover:bg-gray-200 transition-all duration-300 animate-fade-in delay-200 mb-10"
           >
-            Semua
+            Mulai Sekarang
           </button>
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              onClick={() => setSelectedCategory(category.id)}
-              className={`h-[30px] px-[10px] rounded-[6px] whitespace-nowrap text-[14px] font-ruda me-[10px] ${
-                selectedCategory === category.id ? 'bg-ungu text-white' : 'bg-putih3 dark:bg-hitam4 dark:text-abu'
-              }`}
-            >
-              {category.name}
-            </button>
-          ))}
         </div>
+      </div>
 
+      <div className="ms-[280px] pt-[80px]">
         <div className="mt-[20px]">
           {loading ? (
             <div className="w-[750px] h-[242px] bg-gray-300 rounded-[16px] p-[20px] animate-pulse">
@@ -242,13 +188,15 @@ export default function Landing() {
               <div className="w-full h-[50px] bg-gray-400 rounded animate-pulse mt-4"></div>
             </div>
           ) : filteredForums.length === 0 ? (
-            <p className="text-gray-700 dark:text-gray-300">Postingan tidak ditemukan.</p>
+            <div className="w-[750px] text-center">
+              <p className="text-gray-700 dark:text-gray-300">Postingan tidak ditemukan.</p>
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-6">
               {filteredForums.map((forum) => (
                 <div
                   key={forum.id}
-                  className="w-[750px] h-[242px] p-[20px] bg-putih1 dark:bg-hitam2 rounded-[16px] border border-hitam2 hover:shadow-lg transition-shadow relative overflow-hidden"
+                  className="w-[750px] h-[242px] p-[20px] bg-putih1 dark:bg-hitam2 rounded-[16px] border border-hitam2 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative overflow-hidden"
                 >
                   <div className="flex items-center mb-3">
                     <img
@@ -258,21 +206,14 @@ export default function Landing() {
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
                       }}
-                      onClick={() => handleAkun(forum.user_id)}
                     />
                     <div>
                       <div className="flex items-center">
-                        <p
-                          className="text-[14px] font-ruda text-hitam2 dark:text-putih1 font-semibold me-[6px] cursor-pointer hover:underline"
-                          onClick={() => handleAkun(forum.user_id)}
-                        >
+                        <p className="text-[14px] font-ruda text-hitam2 dark:text-putih1 font-semibold me-[6px] cursor-pointer hover:underline">
                           {forum.name}
                         </p>
                         <Ellipse className="fill-black dark:fill-white" />
-                        <p
-                          className="text-[14px] font-ruda text-hitam3 dark:text-abu font-medium ms-[6px] cursor-pointer hover:underline"
-                          onClick={() => handleAkun(forum.user_id)}
-                        >
+                        <p className="text-[14px] font-ruda text-hitam3 dark:text-abu font-medium ms-[6px] cursor-pointer hover:underline">
                           @{forum.username}
                         </p>
                       </div>
@@ -289,16 +230,11 @@ export default function Landing() {
                         {forum.title}
                       </h2>
                       <div className="mt-[5px] flex flex-wrap">
-                        {forum.category_name && (
-                          <p className="py-[6px] px-[10px] text-[10px] font-ruda font-bold bg-putih3 dark:bg-hitam4 text-hitam2 dark:text-abu rounded-full me-[5px] mb-[5px]">
-                            {forum.category_name}
-                          </p>
-                        )}
                         {forum.tags && forum.tags.length > 0 && (
                           forum.tags.slice(0, 6).map((tag: any) => (
                             <span
                               key={tag.id}
-                              className="py-[6px] px-[10px] text-[10px] font-ruda font-bold bg-putih3 dark:bg-hitam4 text-hitam2 dark:text-abu rounded-full me-[5px] mb-[5px] cursor-pointer hover:bg-ungu hover:text-white"
+                              className="py-[6px] px-[10px] text-[10px] font-ruda font-bold bg-putih3 dark:bg-hitam4 text-hitam2 dark:text-abu rounded-full me-[5px] mb-[5px] cursor-pointer hover:bg-ungu hover:text-white dark:hover:bg-ungu hover:underline"
                               onClick={() => handleHashtagClick(tag.name)}
                             >
                               #{tag.name}
@@ -318,6 +254,25 @@ export default function Landing() {
                         }}
                       />
                     )}
+                    {forum.photos && forum.photos.length > 0 && (
+                      <div className="relative w-[200px] h-[200px] -mt-[50px] flex-shrink-0">
+                        <img
+                          onClick={() => handleGetByID(forum.id)}
+                          src={`${API_URL}${forum.photos[0]}`}
+                          alt={forum.title}
+                          className="w-full h-full rounded-[16px] object-cover border border-hitam2 cursor-pointer"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src =
+                              'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
+                          }}
+                        />
+                        {forum.photos.length > 1 && (
+                          <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-[12px] font-ruda px-2 py-1 rounded">
+                            +{Math.min(forum.photos.length - 1, 4)}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex items-center absolute bottom-[20px] left-[20px] dark:text-abu">
@@ -336,13 +291,8 @@ export default function Landing() {
         </div>
       </div>
 
-      <div className="block top-0 right-0 absolute me-[40px] mt-[90px]">
-        <div>
-          <PopulerKategori />
-        </div>
-        <div className="mt-[10px]">
-          <PopulerTag onTagClick={handleHashtagClick} />
-        </div>
+      <div className="block top-0 right-0 absolute me-[40px] mt-[100px]">
+        <PopulerTag onTagClick={handleHashtagClick} />
       </div>
       <ModalLogin isOpen={showLogin} onClose={() => setShowLogin(false)} />
     </div>

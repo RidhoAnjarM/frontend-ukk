@@ -1,237 +1,100 @@
-'use client'
+'use client';
 
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import Modal from './Modal';
 import { useRouter } from 'next/navigation';
-import { User } from '@/app/types/types';
-import ThemeToggle from './ThemeTogle';
-import { Homesvg } from './svgs/page';
+import React, { useEffect, useState } from 'react'
+import { User } from '../types/types';
+import axios from 'axios';
 
-const Navbar = () => {
-    const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [showDropdown, setShowDropdown] = useState(false);
-    const [showLogoutModal, setShowLogoutModal] = useState(false);
-    const router = useRouter();
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
-    const [notifications, setNotifications] = useState<any[]>(() => []);
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            axios
-                .get(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                })
-                .then((response) => {
-                    setUser(response.data);
-                    setLoading(false);
-                })
-                .catch((error) => {
-                    console.error('Failed to fetch user profile:', error);
-                    setLoading(false);
-                });
+export default function Navbar() {
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
-            axios
-                .get(`${process.env.NEXT_PUBLIC_API_URL}/api/notification/`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                })
-                .then((response) => {
-                    console.log('Notifications data:', response.data.notifications);
-                    setNotifications(response.data.notifications);
-                })
-                .catch((error) => {
-                    console.error('Failed to fetch notifications:', error);
-                });
+  const isActive = (path: string) => {
+    if (typeof window !== 'undefined') return window.location.pathname === path;
+    return false;
+  };
 
-        } else {
+  const isProfilePage = isActive('/pages/user/profile');
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+      if (token) {
+        axios
+          .get(`${API_URL}/api/profile`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((response) => {
+            setUser(response.data);
+          })
+          .catch((error) => {
+            console.error("Failed to fetch user profile:", error);
+          })
+          .finally(() => {
             setLoading(false);
-        }
-    }, []);
+          });
+      } else {
+        setLoading(false);
+      }
+    }
+  }, []);
 
-    const unreadCount = Array.isArray(notifications)
-        ? notifications.filter((notif) => !notif.isRead).length
-        : 0;
-
-    const handleConfirmLogout = () => {
-        setShowLogoutModal(true);
-        setShowDropdown(false);
-    };
-
-    const handleLogout = () => {
-        if (typeof window !== 'undefined') {
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
-            setIsLoggedIn(false);
-            setUser(null);
-            router.push("/login");
-        }
-    };
-
-    const cancelLogout = () => {
-        setShowLogoutModal(false);
-    };
-
-    const handleClickOutside = (event: MouseEvent) => {
-        const target = event.target as HTMLElement;
-        if (!target.closest('.dropdown-container') && !target.closest('.dropdown-trigger')) {
-            setActiveDropdown(null);
-        }
-    };
-
-    useEffect(() => {
-        if (activeDropdown !== null) {
-            document.addEventListener('mousedown', handleClickOutside);
-        } else {
-            document.removeEventListener('mousedown', handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [activeDropdown]);
-
-    const isActive = (path: string) => {
-        if (typeof window !== 'undefined') {
-            return window.location.pathname === path;
-        }
-        return false;
-    };
-
-    const isProfilePage = isActive('/pages/user/profile');
-
-    return (
-        <div className="relative">
-            <div className="fixed h-[calc(100vh)] w-[270px] flex flex-col bg-white">
-                {loading ? (
-                    <div className='text-center'>
-                        <div className="flex justify-center">
-                            <div className="w-[100px] h-[100px] bg-gray-200 border border-[#2E3781] rounded-full overflow-hidden bg-cover flex items-center justify-center z-10 mt-[75px]">
-                            </div>
-                        </div>
-                        <p className="text-black text-[16px] font-bold font-ruda mt-[37px]">@ ...</p>
-                    </div>
-                ) : user ? (
-                    <div className='text-center'>
-                        <div className="flex justify-center">
-                            {isProfilePage ? (
-                                <div className="w-[150px] h-[150px] bg-white overflow-hidden bg-cover flex items-center justify-center z-10 mt-[75px]">
-                                    <img
-                                        src="../../../images/logo.png"
-                                        alt="Logo"
-                                        className="w-[150px]"
-                                    />
-                                </div>
-                            ) : (
-                                <div className="w-[100px] h-[100px] bg-white border border-[#2E3781] rounded-full overflow-hidden bg-cover flex items-center justify-center z-10 mt-[75px]">
-                                    <img
-                                        src={user.profile ? `http://localhost:5000${user.profile}` : 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg'}
-                                        alt="User profile"
-                                        className="w-[100px]"
-                                        onError={(e) => {
-                                            console.log(`Image not found for user: ${user.profile}, setting to default.`);
-                                            (e.target as HTMLImageElement).src = 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
-                                        }}
-                                    />
-                                </div>
-                            )}
-                        </div>
-                        {isProfilePage ? (
-                            <div className="mt-[13px]"></div>
-                        ) : (
-                            <>
-                                <p className="text-black text-[16px] font-bold font-ruda mt-[15px]">{user.name}</p>
-                                <p className="text-[#6F6F6F] text-[12px] font-bold font-ruda mt-[7px]">@{user.username}</p>
-                            </>
-                        )}
-                    </div>
-                ) : (
-                    <div className='text-center'>
-                        <div className="flex justify-center">
-                            <div className="w-[100px] h-[100px] bg-gray-400 border border-[#2E3781] rounded-full overflow-hidden bg-cover flex items-center justify-center z-10 mt-[75px]">
-                            </div>
-                        </div>
-                        <p className="text-black text-[16px] font-bold font-ruda mt-[37px]">@ ...</p>
-                    </div>
-                )}
-
-                <div className='ms-[30px]'>
-                    <button className="px-[20px] h-[50px] rounded-[20px] mt-[67px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors "
-                        onClick={() => router.push('/pages/user/Home')}>
-                        <Homesvg className=" fill-primary dark:fill-white me-[20px]"/> <h1 className='mt-[2px] text-primary'>Beranda</h1>
-                    </button>
-                    <button className="px-[20px] h-[50px] rounded-[20px] mt-[5px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors text-primary"
-                        onClick={() => router.push('/pages/user/notif')}>
-                        <img src="../../../icons/message.svg" alt="" className='me-[20px]' />
-                        <h1 className='mt-[2px]'>Notifikasi
-                        </h1>
-                        {unreadCount > 0 && (
-                            <span className="ms-[20px] text-white bg-primary text-xs rounded-full px-2 py-1">
-                                {unreadCount}
-                            </span>
-                        )}
-                    </button>
-                    <button className={`px-[20px] h-[50px] rounded-[20px] mt-[5px] text-[16px] font-ruda flex items-center ${isActive('/pages/user/post') ? 'bg-primary text-white' : 'bg-primary text-white'}`}
-                        onClick={() => router.push('/pages/user/post')}>
-                        <img src="../../../icons/new.svg" alt="" className='me-[20px]' /><h1 className='mt-[2px]'>Posting</h1>
-                    </button>
-                    <button className="px-[20px] h-[50px] rounded-[20px] mt-[5px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors text-primary"
-                        onClick={() => router.push('/pages/user/profile')}>
-                        <img src="../../../icons/akun.svg" alt="" className='me-[20px]' /><h1 className='mt-[2px]'>Profil</h1>
-                    </button>
-                    <div className="">
-                        <div className="dropdown-container">
-                            <button
-                                onClick={() =>setActiveDropdown(activeDropdown === 1 ? null : 1)}
-                                className="dropdown-trigger px-[20px] h-[50px] rounded-[20px] mt-[5px] text-[16px] font-ruda flex items-center hover:bg-black hover:bg-opacity-15 transition-colors text-primary"
-                            >
-                                <img src="../../../icons/more.svg" alt="" className='me-[20px]' /><h1 className='mt-[2px]'>Lainya</h1>
-                            </button>
-                            {activeDropdown === 1 && (
-                                <div className="absolute bg-white z-10 w-[150px] mt-3 ms-[25px] rounded-[10px] border shadow-lg overflow-hidden">
-                                    <button
-                                        onClick={handleConfirmLogout}
-                                        className="block px-4 py-2 text-primary hover:bg-gray-200 w-full text-center"
-                                    >
-                                        Logout
-                                    </button>
-                                    <ThemeToggle />
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <Modal isOpen={showLogoutModal} onClose={cancelLogout}>
-                <div className="p-4">
-                    <h2 className="text-lg mb-4">Konfirmasi Logout</h2>
-                    <p>Apakah Anda yakin ingin keluar?</p>
-                    <div className="flex justify-end mt-4">
-                        <button
-                            onClick={cancelLogout}
-                            className="px-4 py-2 border border-gray-300 rounded-md mr-2"
-                        >
-                            Batal
-                        </button>
-                        <button
-                            onClick={handleLogout}
-                            className="px-4 py-2 bg-red-500 text-white rounded-md"
-                        >
-                            Logout
-                        </button>
-                    </div>
-                </div>
-            </Modal>
+  return (
+    <div>
+      <div className="fixed top-0 w-full h-[80px] bg-putih1 dark:bg-hitam2 border border-t-0 border-hitam2 flex items-center justify-between rounded-b-[16px] z-10">
+        <div className="text-[24px] font-ruda text-hitam2 dark:text-white ms-[57px]">
+          <h1>ForuMedia</h1>
         </div>
-    );
-};
-
-export default Navbar;
+        <div className="me-[50px] flex items-center">
+          {loading ? (
+            <p>loading...</p>
+          ) : user ? (
+            <div className="text-center">
+              <div className="flex justify-center items-center">
+                {!isProfilePage && (
+                  <div className="flex items-center hover:underline">
+                    <div className="me-[15px]">
+                      <p
+                        className="text-[14px] text-hitam1 dark:text-putih1 font-ruda hover:underline cursor-pointer"
+                        onClick={() => router.push('/pages/user/profile')}
+                      >
+                        {user.name}
+                      </p>
+                      <p
+                        className="text-[12px] text-hitam4 dark:text-abu font-ruda hover:underline cursor-pointer"
+                        onClick={() => router.push('/pages/user/profile')}
+                      >
+                        @{user.username}
+                      </p>
+                    </div>
+                    <img
+                      src={
+                        user.profile
+                          ? `${API_URL}${user.profile}`
+                          : 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg'
+                      }
+                      alt="User profile"
+                      className="w-[45px] h-[45px] bg-white rounded-[6px] flex items-center justify-center object-cover cursor-pointer"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src =
+                          'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
+                      }}
+                      onClick={() => router.push('/pages/user/profile')}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="text-center dark:text-abu">
+              <p>server mati kayaknya..</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}

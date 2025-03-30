@@ -11,7 +11,7 @@ interface ReportModalProps {
   id: number;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, title, reportType, id }) => {
   const [reason, setReason] = useState<string>('');
@@ -39,8 +39,9 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, title, repor
     setLoading(true);
     try {
       const endpoint = reportType === 'account' ? 'akun' : 'forum';
-      const checkUrl = `${API_URL}/api/report/${endpoint}/check?${reportType === 'account' ? 'reported_id' : 'forum_id'
-        }=${id}`;
+      const checkUrl = `${API_URL}/api/report/${endpoint}/check?${
+        reportType === 'account' ? 'reported_id' : 'forum_id'
+      }=${id}`;
       const postUrl = `${API_URL}/api/report/${endpoint}`;
       const payload =
         reportType === 'account' ? { reported_id: id, reason } : { forum_id: id, reason };
@@ -51,7 +52,9 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, title, repor
 
       if (checkResponse.data.exists) {
         setAlertType('warning');
-        setAlertMessage(`Anda sudah melaporkan ${reportType === 'account' ? 'akun' : 'postingan'} ini dan laporan sedang diproses.`);
+        setAlertMessage(
+          `Anda sudah melaporkan ${reportType === 'account' ? 'akun' : 'postingan'} ini dan laporan sedang diproses.`
+        );
         setShowAlert(true);
         setTimeout(() => {
           setShowAlert(false);
@@ -62,22 +65,38 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, title, repor
       }
 
       // Kirim laporan
-      await axios.post(postUrl, payload, {
+      const response = await axios.post(postUrl, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       setAlertType('success');
-      setAlertMessage('Report berhasil dikirim');
+      setAlertMessage('Report berhasil dikirim dan sedang diproses');
       setShowAlert(true);
       setTimeout(() => {
         setShowAlert(false);
         setReason('');
         onClose();
       }, 2000);
-    } catch (err) {
-      console.error('Error:', err);
-      setAlertType('error');
-      setAlertMessage('Gagal mengirim report');
+    } catch (err: any) {
+      // Tangani error tanpa membiarkan exception terlempar ke console
+      if (axios.isAxiosError(err) && err.response) {
+        if (err.response.status === 403) {
+          setAlertType('error');
+          setAlertMessage(
+            err.response.data.error || 'Anda tidak dapat melaporkan diri sendiri atau postingan Anda sendiri'
+          );
+        } else if (err.response.status === 401) {
+          setAlertType('error');
+          setAlertMessage('Sesi Anda telah habis, silakan login kembali');
+        } else {
+          setAlertType('error');
+          setAlertMessage('Gagal mengirim report: ' + (err.response.data.error || 'Terjadi kesalahan'));
+        }
+      } else {
+        setAlertType('error');
+        setAlertMessage('Gagal mengirim report: Koneksi bermasalah');
+      }
+
       setShowAlert(true);
       setTimeout(() => setShowAlert(false), 2000);
     } finally {
@@ -85,11 +104,25 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, title, repor
     }
   };
 
+  const handleClose = () => {
+    if (reason.trim()) {
+      const confirmClose = window.confirm('Apakah Anda yakin ingin membuang laporan ini?');
+      if (confirmClose) {
+        setReason('');
+        onClose();
+      }
+    } else {
+      onClose();
+    }
+  };
+
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={handleClose}>
         <div className="p-2 flex flex-col justify-center">
-          <h2 className="text-xl font-black mb-4 text-center font-ruda text-hitam1 dark:text-putih1">{title}</h2>
+          <h2 className="text-xl font-black mb-4 text-center font-ruda text-hitam1 dark:text-putih1">
+            {title}
+          </h2>
           <textarea
             className="w-full p-2 border border-hitam2 bg-putih1 dark:bg-hitam3 rounded mb-4 outline-none text-hitam2 dark:text-abu"
             placeholder="Alasan Report"
@@ -100,13 +133,13 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, title, repor
           <div className="flex justify-end gap-2 mt-2">
             <button
               className="px-4 py-2 border bg-gray-300 rounded hover:bg-gray-400 transition-colors"
-              onClick={onClose}
+              onClick={handleClose}
               disabled={loading}
             >
               Batal
             </button>
             <button
-              className="px-4 py-2 bg-ungu border border-ungu text-white rounded "
+              className="px-4 py-2 bg-ungu border border-ungu text-white rounded"
               onClick={handleSubmit}
               disabled={loading}
             >
