@@ -9,6 +9,7 @@ const Register = () => {
     const [name, setName] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState(''); // State baru untuk konfirmasi password
     const [profile, setProfile] = useState<File | null>(null);
     const router = useRouter();
     const [loading, setLoading] = useState(false);
@@ -20,9 +21,28 @@ const Register = () => {
         e.preventDefault();
         setLoading(true);
 
-        if (!username || !password) {
+        // Validasi field wajib
+        if (!username || !password || !confirmPassword) {
             setAlertType('warning');
-            setAlertMessage('Username dan password wajib diisi');
+            setAlertMessage('Semua field wajib diisi');
+            setShowAlert(true);
+            setLoading(false);
+            return;
+        }
+
+        // Validasi panjang password
+        if (password.length < 6) {
+            setAlertType('warning');
+            setAlertMessage('Password harus minimal 6 karakter');
+            setShowAlert(true);
+            setLoading(false);
+            return;
+        }
+
+        // Validasi kecocokan password
+        if (password !== confirmPassword) {
+            setAlertType('warning');
+            setAlertMessage('Password dan konfirmasi password tidak cocok');
             setShowAlert(true);
             setLoading(false);
             return;
@@ -56,7 +76,7 @@ const Register = () => {
             if (error.response) {
                 switch (error.response.status) {
                     case 400:
-                        errorMessage = 'Username sudah digunakan';
+                        errorMessage = error.response.data.error || 'Username sudah digunakan';
                         break;
                     case 500:
                         errorMessage = 'Terjadi kesalahan pada server';
@@ -113,6 +133,16 @@ const Register = () => {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             placeholder='Password'
+                            className='w-[300px] h-[40px] bg-putih2 rounded-[10px] placeholder-gray-600 outline-none px-[20px] text-hitam1 focus:ring-2 focus:ring-ungu transition-all duration-200'
+                        />
+                    </div>
+                    <div className="mt-4">
+                        <input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            required
+                            placeholder='Konfirmasi Password'
                             className='w-[300px] h-[40px] bg-putih2 rounded-[10px] placeholder-gray-600 outline-none px-[20px] text-hitam1 focus:ring-2 focus:ring-ungu transition-all duration-200'
                         />
                     </div>

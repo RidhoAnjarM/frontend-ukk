@@ -8,7 +8,7 @@ export interface Comment {
     username: string;
     name: string;
     replies?: Reply[];
-    
+    image_url: string;
 }
 
 export interface Tags {
@@ -24,6 +24,7 @@ export interface Reply {
     created_at: string;
     profile: string;
     relative_time: string;
+    image_url: string;
     user_id: number;
     username: string;
     name: string;

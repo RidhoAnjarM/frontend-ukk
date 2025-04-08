@@ -5,9 +5,11 @@ import SidebarAdmin from '@/app/components/sidebaradmin'
 import TagDoughnutChart from '@/app/components/TagDonat'
 import { ForumReport, Reports } from '@/app/types/types'
 import UserRegister from '@/app/components/UserRegister'
+import { useRouter } from 'next/navigation'
 
 export default function AdminHome() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+  const router = useRouter();
   const [totalUsers, setTotalUsers] = useState(0)
   const [weeklyUsers, setWeeklyUsers] = useState(0)
   const [totalForums, setTotalForums] = useState(0)
@@ -141,7 +143,7 @@ export default function AdminHome() {
         {/* Laporan */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Laporan Pengguna */}
-          <div className="bg-white p-6 rounded-xl shadow-md">
+          <div className="bg-white p-6 rounded-xl shadow-md cursor-pointer" onClick={() => router.push("/pages/admin/UserReport")}>
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold text-hitam1 font-ruda">Laporan Pengguna</h2>
               <span className="text-sm text-hitam1 font-ruda bg-gray-100 px-2 py-1 rounded-full">
@@ -186,7 +188,7 @@ export default function AdminHome() {
           </div>
 
           {/* Laporan Forum */}
-          <div className="bg-white p-6 rounded-xl shadow-md">
+          <div className="bg-white p-6 rounded-xl shadow-md cursor-pointer" onClick={() => router.push("/pages/admin/ForumReport")}>
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold text-hitam1 font-ruda">Laporan Forum</h2>
               <span className="text-sm text-hitam1 font-ruda bg-gray-100 px-2 py-1 rounded-full">

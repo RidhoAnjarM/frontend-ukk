@@ -32,6 +32,8 @@ const DetailForum = () => {
     targetId: null,
   });
   const [inputValue, setInputValue] = useState<string>('');
+  const [selectedImage, setSelectedImage] = useState<File | null>(null); // State untuk gambar yang dipilih
+  const [imagePreview, setImagePreview] = useState<string | null>(null); // State untuk preview gambar
   const [sortOption, setSortOption] = useState<'terbaru' | 'terpopuler'>('terbaru');
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -114,6 +116,18 @@ const DetailForum = () => {
     fetchPostDetail();
   }, [postid]);
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!inputValue.trim() || !inputMode.targetId) return;
 
@@ -124,20 +138,21 @@ const DetailForum = () => {
     }
 
     try {
+      const formData = new FormData();
       if (inputMode.type === 'comment') {
-        const formData = new FormData();
         formData.append('forum_id', inputMode.targetId.toString());
         formData.append('content', inputValue);
+        if (selectedImage) formData.append('image', selectedImage);
 
         const response = await axios.post(`${API_URL}/api/comment/`, formData, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' },
         });
 
         const newCommentData = {
           ...response.data.comment,
           replies: [],
-          created_at: response.data.comment.created_at || new Date().toISOString(),  
-          relative_time: 'Baru saja',  
+          created_at: response.data.comment.created_at || new Date().toISOString(),
+          relative_time: 'Baru saja',
         };
 
         setPost((prevPost) =>
@@ -147,13 +162,13 @@ const DetailForum = () => {
         const commentId = inputMode.type === 'reply' ? inputMode.targetId : getCommentIdByReplyId(inputMode.targetId);
         const parentReplyId = inputMode.type === 'subreply' ? inputMode.targetId : null;
 
-        const formData = new FormData();
         formData.append('parent_id', commentId!.toString());
         formData.append('content', inputValue);
         if (parentReplyId) formData.append('parent_reply_id', parentReplyId.toString());
+        if (selectedImage) formData.append('image', selectedImage);
 
         const response = await axios.post(`${API_URL}/api/comment/reply`, formData, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' },
         });
 
         const newReplyData = { ...response.data.reply, replies: [] };
@@ -161,18 +176,20 @@ const DetailForum = () => {
         setPost((prevPost) =>
           prevPost
             ? {
-              ...prevPost,
-              comments: prevPost.comments.map((comment) =>
-                comment.id === commentId
-                  ? { ...comment, replies: [...(comment.replies || []), newReplyData] }
-                  : comment
-              ),
-            }
+                ...prevPost,
+                comments: prevPost.comments.map((comment) =>
+                  comment.id === commentId
+                    ? { ...comment, replies: [...(comment.replies || []), newReplyData] }
+                    : comment
+                ),
+              }
             : prevPost
         );
       }
 
       setInputValue('');
+      setSelectedImage(null);
+      setImagePreview(null);
       setInputMode({ type: 'comment', targetId: post?.id || null });
     } catch (error) {
       console.error('Error submitting:', error);
@@ -230,13 +247,13 @@ const DetailForum = () => {
       setPost((prevPost) =>
         prevPost
           ? {
-            ...prevPost,
-            comments: prevPost.comments.map((comment) =>
-              comment.id === commentId
-                ? { ...comment, replies: (comment.replies ?? []).filter((reply) => reply.id !== replyId) }
-                : comment
-            ),
-          }
+              ...prevPost,
+              comments: prevPost.comments.map((comment) =>
+                comment.id === commentId
+                  ? { ...comment, replies: (comment.replies ?? []).filter((reply) => reply.id !== replyId) }
+                  : comment
+              ),
+            }
           : prevPost
       );
     } catch (error) {
@@ -288,13 +305,12 @@ const DetailForum = () => {
 
   const sortComments = (comments: any[]) => {
     if (!comments) return [];
-  
     const sortedComments = [...comments];
     if (sortOption === 'terbaru') {
       return sortedComments.sort((a, b) => {
         const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
         const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-        return dateB - dateA; 
+        return dateB - dateA;
       });
     } else if (sortOption === 'terpopuler') {
       return sortedComments.sort((a, b) => (b.replies?.length || 0) - (a.replies?.length || 0));
@@ -474,8 +490,7 @@ const DetailForum = () => {
                       {post.photos.map((_, index) => (
                         <span
                           key={index}
-                          className={`w-2 h-2 rounded-full transition-all duration-200 ${index === currentPhotoIndex ? 'bg-ungu scale-125' : 'bg-gray-400'
-                            }`}
+                          className={`w-2 h-2 rounded-full transition-all duration-200 ${index === currentPhotoIndex ? 'bg-ungu scale-125' : 'bg-gray-400'}`}
                         />
                       ))}
                     </div>
@@ -566,6 +581,19 @@ const DetailForum = () => {
                   </div>
                   <div className="ms-[45px] text-wrap mt-2">
                     <p className="text-[14px] font-ruda text-hitam1 dark:text-putih3 text-wrap">{comment.content}</p>
+                    {comment.image_url && (
+                      <div className="mt-2">
+                        <img
+                          src={`${API_URL}${comment.image_url}`}
+                          alt="Comment Image"
+                          className="w-[200px] h-auto rounded-[10px]"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src =
+                              'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
+                          }}
+                        />
+                      </div>
+                    )}
                     <div className="flex items-center">
                       <hr className="w-[15px] me-1 border border-blue-900 dark:border-abu" />
                       <button
@@ -579,8 +607,8 @@ const DetailForum = () => {
                         {visibleComments === comment.id && comment.replies && comment.replies.length > 0
                           ? 'Tutup Balasan'
                           : comment.replies && comment.replies.length > 0
-                            ? `Lihat Balasan (${comment.replies.length})`
-                            : 'Balas'}
+                          ? `Lihat Balasan (${comment.replies.length})`
+                          : 'Balas'}
                       </button>
                     </div>
                   </div>
@@ -645,6 +673,19 @@ const DetailForum = () => {
                           </div>
                           <div className="ms-[45px] text-wrap mt-1">
                             <p className="text-[14px] font-ruda text-hitam1 dark:text-putih3 text-wrap">{reply.content}</p>
+                            {reply.image_url && (
+                              <div className="mt-2">
+                                <img
+                                  src={`${API_URL}${reply.image_url}`}
+                                  alt="Reply Image"
+                                  className="w-[200px] h-auto rounded-[10px]"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src =
+                                      'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
+                                  }}
+                                />
+                              </div>
+                            )}
                             <div className="flex items-center mt-1">
                               <button
                                 onClick={() => {
@@ -673,77 +714,114 @@ const DetailForum = () => {
       )}
 
       {post && (
-        <div className="fixed bottom-0 w-[780px] p-4 bg-white dark:bg-hitam2 z-10 rounded-tl-[16px] rounded-tr-[16px] border border-hitam2 -ms-[15px] flex justify-center">
-          <div className="w-[650px] h-[45px] bg-putih3 dark:bg-hitam3 flex items-center px-2 rounded-[16px] relative">
-            {user && (
-              <img
-                src={
-                  user.profile
-                    ? `${API_URL}${user.profile}`
-                    : 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg'
-                }
-                alt="User profile"
-                className="w-[27px] h-[27px] object-cover rounded-full border border-hitam2"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
-                }}
-              />
+        <div className="fixed bottom-0 w-[780px] p-4 bg-white dark:bg-hitam2 z-10 rounded-tl-[16px] rounded-tr-[16px] border border-hitam2 -ms-[15px] flex justify-center items-end">
+          <div className="w-[650px] bg-putih3 dark:bg-hitam3 flex flex-col px-2 rounded-[16px] relative">
+            {imagePreview && (
+              <div className="mt-2 relative flex justify-end">
+                <img src={imagePreview} alt="Preview" className="w-[100px] h-auto rounded-[10px]" />
+                <button
+                  onClick={() => {
+                    setSelectedImage(null);
+                    setImagePreview(null);
+                  }}
+                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
+                >
+                  ✕
+                </button>
+              </div>
             )}
-            <input
-              type="text"
-              autoComplete="off"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && inputValue.trim()) {
-                  handleSubmit();
-                }
-              }}
-              placeholder={
-                inputMode.type === 'comment'
-                  ? 'Ketik disini untuk komentar...'
-                  : inputMode.type === 'reply'
+            <div className="flex items-center h-[45px]">
+              {user && (
+                <img
+                  src={
+                    user.profile
+                      ? `${API_URL}${user.profile}`
+                      : 'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg'
+                  }
+                  alt="User profile"
+                  className="w-[27px] h-[27px] object-cover rounded-full border border-hitam2"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src =
+                      'https://i.pinimg.com/236x/3c/ae/07/3cae079ca0b9e55ec6bfc1b358c9b1e2.jpg';
+                  }}
+                />
+              )}
+              <input
+                type="text"
+                autoComplete="off"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && inputValue.trim()) {
+                    handleSubmit();
+                  }
+                }}
+                placeholder={
+                  inputMode.type === 'comment'
+                    ? 'Ketik disini untuk komentar...'
+                    : inputMode.type === 'reply'
                     ? `Balas @${getUsernameByCommentId(inputMode.targetId)}...`
                     : `Balas @${getUsernameByReplyId(inputMode.targetId)}...`
-              }
-              className="w-[550px] h-[35px] bg-putih3 dark:bg-hitam3 outline-none px-[15px] text-[16px] font-sans text-hitam1 dark:text-abu placeholder-hitam4 dark:placeholder-gray-600"
-            />
-            <button
-              className="emoji-button absolute right-[30px] top-1/2 transform -translate-y-1/2 z-10"
-              onClick={() => setShowEmojiPicker((prev) => !prev)}
-            >
-              <span><Emote className="fill-black dark:fill-abu"/></span>
-            </button>
+                }
+                className="w-[525px] h-[35px] bg-putih3 dark:bg-hitam3 outline-none px-[15px] text-[16px] font-sans text-hitam1 dark:text-abu placeholder-hitam4 dark:placeholder-gray-600"
+              />
+              <button
+                className="emoji-button mx-1"
+                onClick={() => setShowEmojiPicker((prev) => !prev)}
+              >
+                <Emote className="fill-hitam3 dark:fill-abu w-[20px] h-[20px]" />
+              </button>
+              <label htmlFor="imageUpload" className="cursor-pointer mx-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-[28px] w-[28px] fill-hitam3 dark:fill-abu"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M4 5h13v7h2V5c0-1.103-.897-2-2-2H4c-1.103 0-2 .897-2 2v12c0 1.103.897 2 2 2h8v-2H4V5z" />
+                  <path d="m8 11-3 4h11l-4-6-3 4z" />
+                  <path d="M19 14h-2v3h-3v2h3v3h2v-3h3v-2h-3z" />
+                </svg>
+              </label>
+              <input
+                id="imageUpload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageChange}
+              />
+              {inputMode.type !== 'comment' && (
+                <button
+                  onClick={() => {
+                    setInputMode({ type: 'comment', targetId: post.id });
+                    setInputValue('');
+                    setSelectedImage(null);
+                    setImagePreview(null);
+                  }}
+                  className="absolute right-2 bottom-1 transform -translate-y-1/2 text-hitam1 dark:text-abu hover:text-ungu"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
             {showEmojiPicker && (
               <div className="emoji-picker-container absolute bottom-[50px] right-0 z-40">
                 <EmojiPicker onEmojiClick={handleEmojiClick} />
               </div>
             )}
-            {inputMode.type !== 'comment' && (
-              <button
-                onClick={() => {
-                  setInputMode({ type: 'comment', targetId: post.id });
-                  setInputValue('');
-                }}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-hitam1 dark:text-abu hover:text-ungu"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            )}
           </div>
           <button
             onClick={handleSubmit}
-            className={`w-[45px] h-[45px] rounded-[10px] ms-2 flex items-center justify-center ${inputValue.trim() ? 'bg-ungu text-white' : 'bg-gray-400 text-gray-700 cursor-not-allowed'
-              }`}
+            className={`w-[45px] h-[45px] rounded-[10px] ms-2 flex items-center justify-center relative bottom-0 right-0 ${
+              inputValue.trim() ? 'bg-ungu text-white' : 'bg-gray-400 text-gray-700 cursor-not-allowed'
+            }`}
             disabled={!inputValue.trim()}
           >
             <img src="../../../icons/paperplane.svg" alt="" />
@@ -783,13 +861,19 @@ const DetailForum = () => {
             {post.photos && post.photos.length > 1 && (
               <>
                 <button
-                  onClick={(e) => { e.stopPropagation(); handlePrevPhoto(); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePrevPhoto();
+                  }}
                   className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-2"
                 >
                   ‹
                 </button>
                 <button
-                  onClick={(e) => { e.stopPropagation(); handleNextPhoto(); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleNextPhoto();
+                  }}
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full p-2"
                 >
                   ›
