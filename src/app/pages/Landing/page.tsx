@@ -5,6 +5,7 @@ import { Ellipse, Search, Heart } from '@/app/components/svgs/page';
 import { useRouter } from 'next/navigation';
 import PopulerTag from '@/app/components/PopulerTag';
 import ModalLogin from '@/app/components/ModalLogin';
+import ThemeToggle from '@/app/components/ThemeTogle';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -146,7 +147,8 @@ export default function Landing() {
             )}
           </div>
         </div>
-        <div className="me-[50px] flex items-center">
+        <div className="me-[50px] flex items-center gap-4">
+          <ThemeToggle />
           <button className="px-3 h-[40px] bg-ungu bg-opacity-15 text-ungu rounded-full border-2 border-ungu font-ruda font-semibold hover:-translate-y-1 hover:shadow-lg transition-all duration-700" onClick={() => router.push('/login')}>
             Login / Daftar
           </button>
@@ -276,11 +278,11 @@ export default function Landing() {
                   </div>
 
                   <div className="flex items-center absolute bottom-[20px] left-[20px] dark:text-abu">
-                    <button onClick={() => setShowLogin(true)} className="flex font-ruda items-center text-[13px] me-[27px]">
+                    <button onClick={() => setShowLogin(true)} className="flex font-ruda items-center text-[13px] me-[27px] text-hitam1 dark:text-abu">
                       {forum.liked ? <Heart className="fill-ungu me-[5px]" /> : <Heart className="fill-abu me-[5px]" />}
                       {forum.like} Like
                     </button>
-                    <button onClick={() => handleGetByID(forum.id)} className="flex font-ruda items-center text-[13px]">
+                    <button onClick={() => handleGetByID(forum.id)} className="flex font-ruda items-center text-[13px] text-hitam1 dark:text-abu">
                       <span>{getTotalComments(forum)} Komentar</span>
                     </button>
                   </div>

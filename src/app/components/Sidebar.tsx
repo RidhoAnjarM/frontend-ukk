@@ -106,9 +106,12 @@ export default function Sidebar() {
 
         <button
           onClick={() => setShowPostingModal(true)}
-          className='w-[45px] h-[45px] bg-putih3 rounded-[6px] flex items-center justify-center hover:rounded-full transition ease-in-out dark:bg-hitam3'
+          className='w-[45px] h-[45px] bg-putih3 rounded-full flex items-center justify-center dark:bg-hitam3 cursor-pointer group relative gap-1.5 transition'
         >
           <Tambah className="fill-hitam2 dark:fill-white " />
+          <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 w-[80px] h-[30px] opacity-0 rounded-md bg-hitam2 dark:bg-putih1 dark:text-hitam1 group-hover:opacity-100 transition-opacity text-white text-center font-ruda flex items-center justify-center whitespace-nowrap">
+            Posting
+          </div>
         </button>
 
         <button onClick={() => router.push('/pages/user/profile')} className={`${pathname === '/pages/user/profile' ? 'border-b-[3px] pb-[1.5px] border-ungu' : 'cursor-pointer group relative flex gap-1.5 transition items-center justify-center'}`}>

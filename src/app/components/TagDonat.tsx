@@ -14,16 +14,24 @@ ChartJS.register(ArcElement, Tooltip, Legend)
 export default function TagDoughnutChart() {
   const [tags, setTags] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchTags() {
       try {
-        const response = await fetch('http://localhost:5000/api/populer/tag')
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/populer/tag`)
+        if (!response.ok) {
+          throw new Error('Gagal fecth tag')
+        }
         const data = await response.json()
-        setTags(data.popular_tags)
+        if (!data.popular_tags || data.popular_tags.length === 0) {
+          setError('Oops, hashtag populer lagi libur hari ini!')
+        } else {
+          setTags(data.popular_tags)
+        }
         setLoading(false)
       } catch (error) {
-        console.error('Error fetching tags:', error)
+        setError('Gagal menampilkan hastag')
         setLoading(false)
       }
     }
@@ -31,6 +39,8 @@ export default function TagDoughnutChart() {
   }, [])
 
   if (loading) return <p className="text-gray-700 dark:text-gray-300">Loading tags...</p>
+  if (error) return <p className="text-gray-700 dark:text-gray-300">{error}</p>
+  if (!tags || tags.length === 0) return <p className="text-gray-700 dark:text-gray-300">No popular tags data available</p>
 
   const data = {
     labels: tags.map(tag => tag.name),

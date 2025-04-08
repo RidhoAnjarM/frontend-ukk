@@ -8,12 +8,14 @@ export interface Comment {
     username: string;
     name: string;
     replies?: Reply[];
+    
 }
 
 export interface Tags {
     id: number;
     name: string;
     usage_count: number;
+    created_at: string;
 }
 
 export interface Reply {
@@ -25,6 +27,7 @@ export interface Reply {
     user_id: number;
     username: string;
     name: string;
+    
 }
 
 export interface ForumPost {
@@ -42,6 +45,7 @@ export interface ForumPost {
     tags: Tags[];
     like: number;
     liked: number;
+    created_at: string;
 }
 
 export interface Like {
@@ -64,6 +68,7 @@ export interface Forum {
     tags: Tags[];
     like: number;
     liked: number;
+    created_at: string;
 }
 
 export interface UserProfile {
@@ -74,6 +79,10 @@ export interface UserProfile {
     role: string;
     status: string;
     forums: Forum[];
+    suspend_until?: string;
+    suspend_duration?: number;
+    suspend_count?: number;
+    created_at: string;
 }
 
 export interface User {
@@ -84,6 +93,7 @@ export interface User {
     profile?: string;
     suspend_until?: string;
     created_at: string;
+    suspend_count?: number;
 }
 
 export interface Notification {
@@ -99,6 +109,7 @@ export interface Notification {
     forum_title?: string;
     photo?: string;
     reply_profile?: string;
+    created_at: string;
 }
 
 export interface DecodedToken {
@@ -110,6 +121,7 @@ export interface DecodedToken {
 export type Tag = {
     id: number;
     name: string;
+    created_at: string;
 };
 
 export interface Reports {
@@ -120,6 +132,8 @@ export interface Reports {
     status: string;
     created_at: string;
     reported_user: User;
+    suspend_until?: string;
+    suspend_count?: number;
 }
 
 export interface ForumReport {

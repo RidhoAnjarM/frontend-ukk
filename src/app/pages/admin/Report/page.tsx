@@ -631,7 +631,6 @@ export default function Report() {
               <p><span className="font-semibold">Judul:</span> {selectedForum.title}</p>
               <p><span className="font-semibold">Deskripsi:</span> {selectedForum.description}</p>
               <p><span className="font-semibold">Pembuat:</span> {selectedForum.username} ({selectedForum.name})</p>
-              <p><span className="font-semibold">Kategori:</span> {selectedForum.category_name || 'Tidak ada kategori'}</p>
 
               {selectedForum.photo && (
                 <img
@@ -719,9 +718,6 @@ export default function Report() {
                       <div key={forum.id} className="border p-3 rounded-lg">
                         <p className="text-gray-900 font-semibold">{forum.title || 'Tanpa judul'}</p>
                         <p className="text-gray-700 text-sm">{forum.description || 'Tanpa deskripsi'}</p>
-                        <p className="text-gray-600 text-xs mt-1">
-                          Kategori: {forum.category_name || 'Tidak ada'}
-                        </p>
                         <p className="text-gray-600 text-xs">Likes: {forum.like || 0}</p>
                         {forum.photo && (
                           <img 

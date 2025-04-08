@@ -1,4 +1,3 @@
-// src/components/ThemeToggle.tsx
 'use client'
 
 import { useTheme } from 'next-themes'
@@ -7,16 +6,24 @@ import { useEffect, useState } from 'react'
 export default function ThemeToggle() {
   const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
-
+ 
   useEffect(() => {
     setMounted(true)
   }, [])
-
+ 
   if (!mounted) return null
+ 
+  const isDark = theme === 'dark'
 
   return (
     <label className="inline-flex items-center relative">
-      <input className="peer hidden" id="toggle" type="checkbox" onClick = {() => setTheme(theme === 'light' ? 'dark' : 'light')}/>
+      <input
+        className="peer hidden"
+        id="toggle"
+        type="checkbox"
+        checked={isDark}  
+        onChange={() => setTheme(theme === 'light' ? 'dark' : 'light')} 
+      />
       <div
         className="relative w-[60px] h-[30px] border bg-white peer-checked:bg-zinc-500 rounded-full after:absolute after:content-[''] after:w-[20px] after:h-[20px] after:bg-gradient-to-r from-orange-700 to-yellow-400 peer-checked:after:from-zinc-900 peer-checked:after:to-zinc-900 after:rounded-full after:top-[4px] after:left-[4px] active:after:w-[20px] peer-checked:after:left-[53px] peer-checked:after:translate-x-[-100%] shadow-sm duration-300 after:duration-300 after:shadow-md"
       ></div>
@@ -47,6 +54,5 @@ export default function ThemeToggle() {
         ></path>
       </svg>
     </label>
-
   )
 }

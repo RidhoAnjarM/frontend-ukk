@@ -8,15 +8,24 @@ interface PopulerTagProps {
 export default function PopulerTag({ onTagClick }: PopulerTagProps) {
   const [tags, setTags] = useState<Tags[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isEmpty, setIsEmpty] = useState(false);
 
   useEffect(() => {
     const fetchTags = async () => {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/populer/tag`);
         const data = await response.json();
-        setTags(data.popular_tags.slice(0, 8));
+
+        if (data.popular_tags && data.popular_tags.length > 0) {
+          setTags(data.popular_tags.slice(0, 8));
+          setIsEmpty(false);
+        } else {
+          setTags([]);
+          setIsEmpty(true);
+        }
       } catch (error) {
         console.error('Error fetching trending tags:', error);
+        setIsEmpty(true);
       } finally {
         setLoading(false);
       }
@@ -28,7 +37,7 @@ export default function PopulerTag({ onTagClick }: PopulerTagProps) {
   return (
     <div className="w-[300px] bg-gradient-to-br from-putih1 to-gray-100 dark:from-hitam2 dark:to-gray-800 border border-hitam2 rounded-[20px] p-5 shadow-md hover:shadow-xl transition-shadow duration-300">
       <h2 className="text-[22px] font-ruda font-bold text-hitam1 dark:text-putih1 mb-4 flex items-center gap-2">
-         Hastag Populer 🔥
+        Hastag Populer 🔥
       </h2>
       <div className="space-y-3">
         {loading ? (
@@ -38,6 +47,15 @@ export default function PopulerTag({ onTagClick }: PopulerTagProps) {
               className="h-[25px] w-[220px] bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse"
             />
           ))
+        ) : isEmpty || tags.length === 0 ? (
+          <div className="text-center py-4">
+            <p className="font-ruda text-[16px] font-semibold text-hitam1 dark:text-putih1 mb-2">
+              Kosong nih
+            </p>
+            <p className="font-ruda text-[14px] text-ungu dark:text-ungu hover:text-ungu-dark transition-colors duration-200">
+              waktunya bikin hashtagmu sendiri!🌟
+            </p>
+          </div>
         ) : (
           tags.map((tag, index) => (
             <div

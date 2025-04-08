@@ -199,7 +199,7 @@ export default function Beranda() {
           <div className="flex items-center me-[20px]">
             <input
               type="text"
-              placeholder="Cari berdasarkan judul atau username..."
+              placeholder="Cari disini..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-[440px] h-[40px] outline-none bg-putih2 dark:bg-hitam3 border border-hitam3 rounded-[6px] font-ruda text-[14px] text-hitam1 dark:text-abu px-[20px] ms-[20px]"
@@ -302,7 +302,7 @@ export default function Beranda() {
                     }}
                   />
                   <div className="w-[500px] h-[40px] bg-putih3 dark:bg-hitam3 rounded-[6px] flex items-center text-[16px] text-black dark:text-abu font-ruda px-[10px] cursor-pointer">
-                    <p>Apa yang akan dibahas hari ini?</p>
+                    <p>Apa yang mau dibahas hari ini?</p>
                   </div>
                   <div className="w-[120px] h-[40px] bg-ungu rounded-[6px] flex items-center justify-center text-white font-ruda text-[14px] cursor-pointer">
                     <p>Buat Postingan</p>
@@ -436,11 +436,11 @@ export default function Beranda() {
                   </div>
 
                   <div className="flex items-center absolute bottom-[20px] left-[20px] dark:text-abu">
-                    <button onClick={() => handleLikeForum(forum.id)} className="flex font-ruda items-center text-[13px] me-[27px]">
+                    <button onClick={() => handleLikeForum(forum.id)} className="flex font-ruda items-center text-[13px] me-[27px] text-black dark:text-abu">
                       {forum.liked ? <Heart className="fill-ungu me-[5px]" /> : <Heart className="fill-abu me-[5px]" />}
                       {forum.like} Like
                     </button>
-                    <button onClick={() => handleGetByID(forum.id)} className="flex font-ruda items-center text-[13px]">
+                    <button onClick={() => handleGetByID(forum.id)} className="flex font-ruda items-center text-[13px] text-black dark:text-abu">
                       <span>{getTotalComments(forum)} Komentar</span>
                     </button>
                   </div>

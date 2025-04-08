@@ -211,11 +211,11 @@ const DetailForum = () => {
                             </div>
                         )}
                         <div className="flex items-center dark:text-abu mt-3">
-                            <button onClick={() => setShowLogin(true)} className="flex font-ruda items-center text-[13px] me-[27px]">
+                            <button onClick={() => setShowLogin(true)} className="flex font-ruda items-center text-[13px] me-[27px] text-hitam1 dark:text-abu">
                                 {post.liked ? <Heart className="fill-ungu me-[5px]" /> : <Heart className="fill-abu me-[5px]" />}
                                 {post.like} Like
                             </button>
-                            <button className="flex font-ruda items-center text-[13px]">
+                            <button className="flex font-ruda items-center text-[13px] text-hitam1 dark:text-abu">
                                 <span>{getTotalComments(post)} Komentar</span>
                             </button>
                         </div>

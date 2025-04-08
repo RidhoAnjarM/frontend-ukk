@@ -226,7 +226,7 @@ const Notif = () => {
           ))}
         </ul>
       ) : (
-        <div className="ms-[285px] w-[700px] pt-[100px] z-0 text-center dark:text-white">
+        <div className="ms-[285px] w-[700px] pt-[100px] z-0 text-center text-black dark:text-white">
           Tidak ada notifikasi apapun.
         </div>
       )}

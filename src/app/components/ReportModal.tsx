@@ -39,9 +39,8 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, title, repor
     setLoading(true);
     try {
       const endpoint = reportType === 'account' ? 'akun' : 'forum';
-      const checkUrl = `${API_URL}/api/report/${endpoint}/check?${
-        reportType === 'account' ? 'reported_id' : 'forum_id'
-      }=${id}`;
+      const checkUrl = `${API_URL}/api/report/${endpoint}/check?${reportType === 'account' ? 'reported_id' : 'forum_id'
+        }=${id}`;
       const postUrl = `${API_URL}/api/report/${endpoint}`;
       const payload =
         reportType === 'account' ? { reported_id: id, reason } : { forum_id: id, reason };
@@ -70,7 +69,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, title, repor
       });
 
       setAlertType('success');
-      setAlertMessage('Report berhasil dikirim dan sedang diproses');
+      setAlertMessage('Laporan berhasil dikirim dan akan diproses oleh admin');
       setShowAlert(true);
       setTimeout(() => {
         setShowAlert(false);
@@ -118,43 +117,52 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, title, repor
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={handleClose}>
-        <div className="p-2 flex flex-col justify-center">
-          <h2 className="text-xl font-black mb-4 text-center font-ruda text-hitam1 dark:text-putih1">
+      <Modal isOpen={isOpen} onClose={handleClose} >
+        <div className="p-2 flex flex-col justify-center" >
+          <h2 className="text-xl font-black mb-4 text-center font-ruda text-hitam1 dark:text-putih1" >
             {title}
           </h2>
-          <textarea
+          < textarea
             className="w-full p-2 border border-hitam2 bg-putih1 dark:bg-hitam3 rounded mb-4 outline-none text-hitam2 dark:text-abu"
-            placeholder="Alasan Report"
+            placeholder="Alasan Melaporkan"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             disabled={loading}
           />
-          <div className="flex justify-end gap-2 mt-2">
+          <div className="flex justify-center gap-3 mt-2" >
             <button
-              className="px-4 py-2 border bg-gray-300 rounded hover:bg-gray-400 transition-colors"
+              className="px-6 py-2 bg-gray-500 text-white font-ruda rounded-full hover:bg-gray-600 transition-all duration-200"
               onClick={handleClose}
               disabled={loading}
             >
               Batal
             </button>
-            <button
-              className="px-4 py-2 bg-ungu border border-ungu text-white rounded"
+            < button
+              className="px-6 py-2 bg-ungu text-white font-ruda rounded-full hover:bg-opacity-75 hover:shadow-lg transition-all duration-200 flex items-center justify-center"
               onClick={handleSubmit}
               disabled={loading}
             >
-              {loading ? 'Mengirim...' : 'Kirim'}
+              {loading ? (
+                <div className="flex flex-row gap-2" >
+                  <div className="w-2 h-2 rounded-full bg-white animate-bounce [animation-delay:.7s]"> </div>
+                  <div className="w-2 h-2 rounded-full bg-white animate-bounce [animation-delay:.3s]" > </div>
+                  <div className="w-2 h-2 rounded-full bg-white animate-bounce [animation-delay:.7s]" > </div>
+                </div>
+              ) : ('Kirim')
+              }
             </button>
           </div>
         </div>
       </Modal>
-      {showAlert && (
-        <Alert
-          type={alertType}
-          message={alertMessage}
-          onClose={() => setShowAlert(false)}
-        />
-      )}
+      {
+        showAlert && (
+          <Alert
+            type={alertType}
+            message={alertMessage}
+            onClose={() => setShowAlert(false)
+            }
+          />
+        )}
     </>
   );
 };
