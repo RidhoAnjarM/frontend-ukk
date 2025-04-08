@@ -266,7 +266,7 @@ const ProfilePage = () => {
                           ) : (
                             <Heart className="fill-abu me-[5px]" />
                           )}
-                          {forum.like} Like
+                          {forum.like} Suka
                         </button>
                         <button
                           onClick={() => handleGetByID(forum.id)}

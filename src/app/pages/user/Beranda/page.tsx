@@ -438,7 +438,7 @@ export default function Beranda() {
                   <div className="flex items-center absolute bottom-[20px] left-[20px] dark:text-abu">
                     <button onClick={() => handleLikeForum(forum.id)} className="flex font-ruda items-center text-[13px] me-[27px] text-black dark:text-abu">
                       {forum.liked ? <Heart className="fill-ungu me-[5px]" /> : <Heart className="fill-abu me-[5px]" />}
-                      {forum.like} Like
+                      {forum.like} Suka
                     </button>
                     <button onClick={() => handleGetByID(forum.id)} className="flex font-ruda items-center text-[13px] text-black dark:text-abu">
                       <span>{getTotalComments(forum)} Komentar</span>
