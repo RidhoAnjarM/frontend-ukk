@@ -260,210 +260,215 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
   if (!renderModal) return null;
 
   return (
-    <>
+    <div>
       <div
-        className={`fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'
-          }`}
-      >
-        {showAlert && <Alert type={alertType} message={alertMessage} onClose={() => setShowAlert(false)} />}
-        <div
-          className={`relative w-[700px] max-h-[780px] px-[50px] py-[30px] bg-white dark:bg-hitam2 rounded-[16px] transform transition-transform duration-300 ${isVisible ? 'translate-y-0 scale-100' : 'translate-y-10 scale-95'
-            }`}
+        className={`fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 transition-opacity duration-300 ${
+    isVisible ? 'opacity-100' : 'opacity-0'
+  }`}
+>
+  {showAlert && <Alert type={alertType} message={alertMessage} onClose={() => setShowAlert(false)} />}
+  <div
+    className={`relative w-[90vw] lg:w-[700px] max-h-[90vh] lg:max-h-[780px] px-[20px] lg:px-[50px] py-[20px] lg:py-[30px] bg-white dark:bg-hitam2 rounded-[16px] transform transition-transform duration-300 overflow-y-auto ${
+      isVisible ? 'translate-y-0 scale-100' : 'translate-y-10 scale-95'
+    }`}
+  >
+    <div className="flex justify-between items-center">
+      <div></div>
+      <h1 className="text-[20px] lg:text-[24px] font-ruda text-hitam2 dark:text-putih1">Postingan Baru</h1>
+      <button onClick={handleClose} className="text-gray-500 hover:text-gray-700 text-[16px] lg:text-[18px]">
+        ✕
+      </button>
+    </div>
+
+    <form onSubmit={handleSubmit}>
+      <div className="mt-[10px] lg:mt-[15px] relative">
+        <textarea
+          id="title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Tulis judul diskusi yang menarik ya!"
+          className="w-full h-[50px] lg:h-[60px] p-[8px] lg:p-[10px] border border-gray-300 dark:border-hitam4 rounded-[6px] font-ruda text-[13px] lg:text-[14px] outline-none resize-none bg-putih1 dark:bg-hitam3 dark:text-abu text-black pr-[36px] lg:pr-[40px]"
+        />
+        <button
+          type="button"
+          className="absolute top-[8px] lg:top-[10px] right-[8px] lg:right-[10px] text-hitam"
+          onClick={() => setShowTitleEmojiPicker((prev) => !prev)}
         >
-          <div className="flex justify-between items-center">
-            <div></div>
-            <h1 className="text-[24px] font-ruda text-hitam2 dark:text-putih1">Postingan Baru</h1>
-            <button onClick={handleClose} className="text-gray-500 hover:text-gray-700">
-              ✕
-            </button>
+          <Emote2 className="fill-gray-500 dark:fill-abu w-4 h-4 lg:w-5 lg:h-5" />
+        </button>
+        {showTitleEmojiPicker && (
+          <div className="absolute top-[60px] lg:top-[10px] right-0 lg:right-[-350px] z-50">
+            <EmojiPicker onEmojiClick={(data) => handleEmojiClick(data, 'title')} />
           </div>
+        )}
+      </div>
 
-          <form onSubmit={handleSubmit}>
+      <div className="mt-[8px] lg:mt-[10px] relative">
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Deskripsiin topiknya disini"
+          className="w-full h-[80px] lg:h-[100px] p-[8px] lg:p-[10px] border border-gray-300 dark:border-hitam4 rounded-[6px] font-ruda text-[13px] lg:text-[14px] outline-none resize-none bg-putih1 dark:bg-hitam3 dark:text-abu text-black pr-[36px] lg:pr-[40px]"
+        />
+        <button
+          type="button"
+          className="absolute top-[8px] lg:top-[10px] right-[8px] lg:right-[10px] text-hitam1 dark:text-abu"
+          onClick={() => setShowDescEmojiPicker((prev) => !prev)}
+        >
+          <Emote2 className="fill-gray-500 dark:fill-abu w-4 h-4 lg:w-5 lg:h-5" />
+        </button>
+        {showDescEmojiPicker && (
+          <div className="absolute top-[90px] lg:top-[10px] right-0 lg:right-[-350px] z-50">
+            <EmojiPicker onEmojiClick={(data) => handleEmojiClick(data, 'description')} />
+          </div>
+        )}
+      </div>
 
-            <div className="mt-[15px] relative">
-              <textarea
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Tulis judul diskusi yang menarik ya!"
-                className="w-full h-[60px] p-[10px] border border-gray-300 dark:border-hitam4 rounded-[6px] font-ruda text-[14px] outline-none resize-none bg-putih1 dark:bg-hitam3 dark:text-abu text-black pr-[40px]"
-              />
-              <button
-                type="button"
-                className="absolute top-[10px] right-[10px] text-hitam1 dark:text-abu"
-                onClick={() => setShowTitleEmojiPicker((prev) => !prev)}
+      <div className="mt-[8px] lg:mt-[10px]">
+        <div className="flex items-center">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Tambahin hastag disini(tidak perlu pake #)"
+            className="w-full lg:w-[510px] h-[36px] lg:h-[40px] border border-gray-300 dark:border-hitam4 rounded-[6px] text-[13px] lg:text-[14px] font-ruda ps-[8px] lg:ps-[10px] outline-none bg-putih1 dark:bg-hitam3 dark:text-abu text-black"
+          />
+          <button
+            type="button"
+            onClick={handleConfirmTag}
+            className="w-[70px] lg:w-[80px] h-[36px] lg:h-[40px] bg-ungu rounded-md text-white font-ruda text-[13px] lg:text-[14px] ms-[8px] lg:ms-[10px]"
+          >
+            Tambah
+          </button>
+        </div>
+
+        {suggestions.length > 0 && (
+          <ul className="bg-gray-200 p-1.5 lg:p-2 rounded-md mt-1 w-[180px] lg:w-[200px] max-h-[100px] lg:max-h-[120px] overflow-y-auto absolute z-20">
+            {suggestions.map((tag) => (
+              <li
+                key={tag.id}
+                onClick={() => {
+                  if (!selectedTags.some((selected) => selected.id === tag.id)) {
+                    setSelectedTags([...selectedTags, tag]);
+                    setQuery('');
+                    setSuggestions([]);
+                  }
+                }}
+                className="hover:underline cursor-pointer text-black text-[12px] lg:text-[14px] py-1"
               >
-                <Emote2 className="fill-gray-500 dark:fill-abu" />
-              </button>
-              {showTitleEmojiPicker && (
-                <div className="absolute top-[10px] right-[-350px] z-50">
-                  <EmojiPicker onEmojiClick={(data) => handleEmojiClick(data, 'title')} />
-                </div>
-              )}
-            </div>
+                {tag.name}
+              </li>
+            ))}
+          </ul>
+        )}
 
-            <div className="mt-[10px] relative">
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Deskripsiin topiknya disini"
-                className="w-full h-[100px] p-[10px] border border-gray-300 dark:border-hitam4 rounded-[6px] font-ruda text-[14px] outline-none resize-none bg-putih1 dark:bg-hitam3 dark:text-abu text-black pr-[40px]"
-              />
-              <button
-                type="button"
-                className="absolute top-[10px] right-[10px] text-hitam1 dark:text-abu"
-                onClick={() => setShowDescEmojiPicker((prev) => !prev)}
-              >
-                <Emote2 className="fill-gray-500 dark:fill-abu" />
-              </button>
-              {showDescEmojiPicker && (
-                <div className="absolute top-[10px] right-[-350px] z-50">
-                  <EmojiPicker onEmojiClick={(data) => handleEmojiClick(data, 'description')} />
-                </div>
-              )}
-            </div>
-
-            <div className="mt-[10px]">
-              <div className="flex items-center">
-                <input
-                  type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Tambahin hastag disini(tidak perlu pake #)"
-                  className="w-[510px] h-[40px] border border-gray-300 dark:border-hitam4 rounded-[6px] text-[14px] font-ruda ps-[10px] outline-none bg-putih1 dark:bg-hitam3 dark:text-abu text-black"
-                />
-                <button
-                  type="button"
-                  onClick={handleConfirmTag}
-                  className="w-[80px] h-[40px] bg-ungu rounded-md text-white font-ruda text-[14px] ms-[10px]"
-                >
-                  Tambah
-                </button>
-              </div>
-
-              {suggestions.length > 0 && (
-                <ul className="bg-gray-200 p-2 rounded-md mt-1 w-[200px] max-h-[120px] overflow-y-auto absolute z-20">
-                  {suggestions.map((tag) => (
-                    <li
-                      key={tag.id}
-                      onClick={() => {
-                        if (!selectedTags.some((selected) => selected.id === tag.id)) {
-                          setSelectedTags([...selectedTags, tag]);
-                          setQuery('');
-                          setSuggestions([]);
-                        }
-                      }}
-                      className="hover:underline cursor-pointer text-black"
-                    >
-                      {tag.name}
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              <div className="mt-2 flex flex-wrap gap-2">
-                {selectedTags.map((tag) => (
-                  <span
-                    key={tag.id}
-                    onClick={() => handleRemoveTag(tag.id)}
-                    className="cursor-pointer bg-gray-300 rounded-md px-2 py-1 text-black"
-                  >
-                    #{tag.name}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-[10px]">
-              <div className="relative w-full">
-                <input
-                  id="file-upload"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleFileChange}
-                  className="absolute w-full h-[40px] opacity-0 cursor-pointer rounded-[10px]"
-                />
-                <div className="w-full h-[40px] border border-gray-300 dark:border-hitam4 rounded-[6px] text-[14px] font-ruda px-[8px] flex items-center gap-2 bg-putih1 dark:bg-hitam3 dark:text-abu text-black">
-                  <Image className="fill-black dark:fill-white" />
-                  <span>
-                    {fileNames.length > 0 ? `${fileNames.length} foto dipilih` : 'Unggah gambar terkait (opsional, maks 5)...'}
-                  </span>
-                </div>
-              </div>
-              {photos.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {photos.map((photo, index) => (
-                    <div key={index} className="relative">
-                      <img
-                        src={URL.createObjectURL(photo)}
-                        alt={`Preview ${index}`}
-                        className="w-[100px] h-[100px] object-cover rounded-[10px]"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removePhoto(index)}
-                        className="absolute top-1 right-1 text-white bg-red-500 rounded-full w-[20px] h-[20px] flex items-center justify-center"
-                      >
-                        x
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="w-full mt-4 flex items-center justify-end">
-              <button type="button" onClick={handleClose} className="text-hitam1 dark:text-abu me-4 hover:underline">
-                Kembali
-              </button>
-              <button
-                type="submit"
-                className="w-[150px] h-[40px] rounded-full bg-ungu flex items-center justify-center text-white"
-                disabled={loading}
-              >
-                {loading ? (
-                  'Tunggu bentar...'
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <p>Posting</p>
-                    <img src="/icons/paperplane.svg" alt="" />
-                  </div>
-                )}
-              </button>
-            </div>
-            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-          </form>
+        <div className="mt-2 flex flex-wrap gap-1.5 lg:gap-2">
+          {selectedTags.map((tag) => (
+            <span
+              key={tag.id}
+              onClick={() => handleRemoveTag(tag.id)}
+              className="cursor-pointer bg-gray-300 rounded-md px-1.5 lg:px-2 py-0.5 lg:py-1 text-black text-[10px] lg:text-[12px]"
+            >
+              #{tag.name}
+            </span>
+          ))}
         </div>
       </div>
 
-      {showConfirmModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white dark:bg-hitam2 rounded-[16px] p-6 w-[400px] transform transition-transform duration-300 scale-100">
-            <h2 className="text-[20px] font-ruda font-bold text-hitam2 dark:text-putih1 mb-4">
-              Data Belum Disimpan
-            </h2>
-            <p className="text-[14px] font-ruda text-hitam2 dark:text-abu mb-6">
-              Ada perubahan di form yang belum disimpan. Apa yang ingin kamu lakukan?
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={handleDiscard}
-                className="px-4 py-2 bg-red-500 text-white font-ruda rounded-full hover:bg-red-600 transition-all"
-              >
-                Hapus
-              </button>
-              <button
-                onClick={handleContinue}
-                className="px-4 py-2 bg-ungu text-white font-ruda rounded-full hover:bg-ungu-dark transition-all"
-              >
-                Lanjutkan
-              </button>
-            </div>
+      <div className="mt-[8px] lg:mt-[10px]">
+        <div className="relative w-full">
+          <input
+            id="file-upload"
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleFileChange}
+            className="absolute w-full h-[36px] lg:h-[40px] opacity-0 cursor-pointer rounded-[10px]"
+          />
+          <div className="w-full h-[36px] lg:h-[40px] border border-gray-300 dark:border-hitam4 rounded-[6px] text-[13px] lg:text-[14px] font-ruda px-[8px] flex items-center gap-1.5 lg:gap-2 bg-putih1 dark:bg-hitam3 dark:text-abu text-black">
+            <Image className="fill-black dark:fill-white w-4 h-4 lg:w-5 lg:h-5" />
+            <span>
+              {fileNames.length > 0 ? `${fileNames.length} foto dipilih` : 'Unggah gambar terkait (opsional, maks 5)...'}
+            </span>
           </div>
         </div>
-      )}
-    </>
+        {photos.length > 0 && (
+          <div className="mt-2 lg:mt-3 flex flex-wrap gap-1.5 lg:gap-2">
+            {photos.map((photo, index) => (
+              <div key={index} className="relative">
+                <img
+                  src={URL.createObjectURL(photo)}
+                  alt={`Preview ${index}`}
+                  className="w-[80px] lg:w-[100px] h-[80px] lg:h-[100px] object-cover rounded-[10px]"
+                />
+                <button
+                  type="button"
+                  onClick={() => removePhoto(index)}
+                  className="absolute top-1 right-1 text-white bg-red-500 rounded-full w-[18px] lg:w-[20px] h-[18px] lg:h-[20px] flex items-center justify-center text-[10px] lg:text-[12px]"
+                >
+                  x
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="w-full mt-3 lg:mt-4 flex items-center justify-end">
+        <button
+          type="button"
+          onClick={handleClose}
+          className="text-hitam1 dark:text-abu me-3 lg:me-4 hover:underline text-[14px] lg:text-[16px]"
+        >
+          Kembali
+        </button>
+        <button
+          type="submit"
+          className="w-[120px] lg:w-[150px] h-[36px] lg:h-[40px] rounded-full bg-ungu flex items-center justify-center text-white text-[13px] lg:text-[14px]"
+          disabled={loading}
+        >
+          {loading ? (
+            'Tunggu bentar...'
+          ) : (
+            <div className="flex items-center gap-1.5 lg:gap-2">
+              <p>Posting</p>
+              <img src="/icons/paperplane.svg" alt="" className="w-4 h-4 lg:w-5 lg:h-5" />
+            </div>
+          )}
+        </button>
+      </div>
+      {error && <p className="text-red-500 text-[12px] lg:text-sm mt-2">{error}</p>}
+    </form>
+  </div>
+</div>
+
+{showConfirmModal && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="bg-white dark:bg-hitam2 rounded-[16px] p-4 lg:p-6 w-[90vw] max-w-[320px] lg:w-[400px] transform transition-transform duration-300 scale-100">
+      <h2 className="text-[18px] lg:text-[20px] font-ruda font-bold text-hitam2 dark:text-putih1 mb-3 lg:mb-4">
+        Data Belum Disimpan
+      </h2>
+      <p className="text-[13px] lg:text-[14px] font-ruda text-hitam2 dark:text-abu mb-4 lg:mb-6">
+        Ada perubahan di form yang belum disimpan. Apa yang ingin kamu lakukan?
+      </p>
+      <div className="flex justify-end gap-2 lg:gap-3">
+        <button
+          onClick={handleDiscard}
+          className="px-3 lg:px-4 py-1.5 lg:py-2 bg-red-500 text-white font-ruda rounded-full hover:bg-red-600 transition-all text-[13px] lg:text-[14px]"
+        >
+          Hapus
+        </button>
+        <button
+          onClick={handleContinue}
+          className="px-3 lg:px-4 py-1.5 lg:py-2 bg-ungu text-white font-ruda rounded-full hover:bg-ungu-dark transition-all text-[13px] lg:text-[14px]"
+        >
+          Lanjutkan
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+    </div>
   );
 };
 

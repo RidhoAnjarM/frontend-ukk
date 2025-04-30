@@ -17,23 +17,9 @@ const ForumDetail = () => {
       <nav >
         <Navbar />
       </nav>
-      <main className='ms-[280px] pt-[100px]' >
-        <div className="absolute top-[100px] left-[200px]">
-          <button
-            onClick={() => router.back()}
-            className="cursor-pointer group relative flex gap-1.5 w-[35px] h-[35px] hover:bg-black rounded-full hover:bg-opacity-20 transition items-center justify-center"
-          >
-            <Back className="fill-black dark:fill-white w-[25px]" />
-
-            <div className="absolute w-[80px] h-[30px] opacity-0 -bottom-full rounded-md bg-black left-1/2 -translate-x-1/2 group-hover:opacity-100 transition-opacity text-white text-center font-sans" >
-              kembali
-            </div>
-          </button>
-        </div>
-
+      <main className='pt-[100px]' >
         <DetailForum />
-
-        <div className="absolute top-[100px] right-[30px]" >
+        <div className="absolute top-[100px] right-[30px] hidden lg:block" >
           <PopulerTag />
         </div>
       </main>
