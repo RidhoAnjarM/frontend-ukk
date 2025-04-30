@@ -4,7 +4,7 @@ import Alert from '@/app/components/Alert';
 import Modal from '@/app/components/Modal';
 import PopulerTag from '@/app/components/PopulerTag';
 import Sidebar from '@/app/components/Sidebar';
-import { Back, Ellipse, Heart } from '@/app/components/svgs/page';
+import { Back, Ellipse, Heart } from '@/app/components/svgs';
 import { ForumPost } from '@/app/types/types';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';

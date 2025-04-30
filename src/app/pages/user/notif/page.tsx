@@ -5,7 +5,7 @@ import axios from "axios";
 import Link from "next/link";
 import Sidebar from "@/app/components/Sidebar";
 import { Notification } from "@/app/types/types";
-import { Back, Vertikal } from "@/app/components/svgs/page";
+import { Back, Vertikal } from "@/app/components/svgs";
 import { useRouter } from "next/navigation";
 import Navbar from "@/app/components/Navbar";
 

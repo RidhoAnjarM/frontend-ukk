@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import SidebarAdmin from '@/app/components/sidebaradmin';
 import ModalWhite from '@/app/components/ModalWhite';
-import { Ellipse } from '@/app/components/svgs/page';
+import { Ellipse } from '@/app/components/svgs';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,

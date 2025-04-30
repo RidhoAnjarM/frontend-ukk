@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import SidebarAdmin from '@/app/components/sidebaradmin';
 import ModalWhite from '@/app/components/ModalWhite';
-import { Ellipse } from '@/app/components/svgs/page';
+import { Ellipse } from '@/app/components/svgs';
 import { Forum, type ForumReport } from '@/app/types/types';
 import Alert from '@/app/components/Alert';
 import axios from 'axios';

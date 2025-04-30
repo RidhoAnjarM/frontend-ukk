@@ -1,7 +1,7 @@
 // components/Dropdown.tsx
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Horizontal } from './svgs/page';
+import { Horizontal } from './svgs';
 
 interface DropdownProps {
   id: number;

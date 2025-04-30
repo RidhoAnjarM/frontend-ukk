@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Alert from '@/app/components/Alert';
 import { Tag } from '@/app/types/types';
-import { Emote2, Image } from './svgs/page';
+import { Emote2, Image } from './svgs';
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 
 interface PostingModalProps {

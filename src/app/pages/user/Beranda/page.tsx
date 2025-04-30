@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Sidebar from '@/app/components/Sidebar';
-import { Ellipse, Search, Heart } from '@/app/components/svgs/page';
+import { Ellipse, Search, Heart } from '@/app/components/svgs';
 import { User } from '@/app/types/types';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';

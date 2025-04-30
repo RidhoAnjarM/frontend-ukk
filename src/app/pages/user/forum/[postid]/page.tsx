@@ -4,7 +4,7 @@ import DetailForum from '@/app/components/DetailForum'
 import Sidebar from '@/app/components/Sidebar'
 import React from 'react'
 import { useRouter } from 'next/navigation';
-import { Back } from '@/app/components/svgs/page';
+import { Back } from '@/app/components/svgs';
 import PopulerTag from '@/app/components/PopulerTag';
 import Navbar from '@/app/components/Navbar';
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Ellipse, Search, Heart } from '@/app/components/svgs/page';
+import { Ellipse, Search, Heart } from '@/app/components/svgs';
 import { useRouter } from 'next/navigation';
 import PopulerTag from '@/app/components/PopulerTag';
 import ModalLogin from '@/app/components/ModalLogin';

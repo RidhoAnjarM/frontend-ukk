@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Beranda, Lainnya, Notifikasi, Pengguna, Tambah } from './svgs/page';
+import { Beranda, Lainnya, Notifikasi, Pengguna, Tambah } from './svgs';
 import { User } from '../types/types';
 import Modal from './Modal';
 import PostingModal from './PostingModal';

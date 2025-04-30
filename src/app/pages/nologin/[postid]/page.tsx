@@ -3,7 +3,7 @@
 import DetailNoLogin from '@/app/components/DetailNoLogin'
 import React from 'react'
 import { useRouter } from 'next/navigation';
-import { Back } from '@/app/components/svgs/page';
+import { Back } from '@/app/components/svgs';
 import PopulerTag from '@/app/components/PopulerTag';
 
 const ForumDetailNoLogin = () => {

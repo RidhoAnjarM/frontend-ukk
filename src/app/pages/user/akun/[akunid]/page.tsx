@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { UserProfile, Forum } from "@/app/types/types";
 import Sidebar from "@/app/components/Sidebar";
-import { Back, Ellipse, Heart } from "@/app/components/svgs/page";
+import { Back, Ellipse, Heart } from "@/app/components/svgs";
 import Navbar from "@/app/components/Navbar";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;

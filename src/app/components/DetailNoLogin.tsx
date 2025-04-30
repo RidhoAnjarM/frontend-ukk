@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useParams } from 'next/navigation';
 import { ForumPost, Reply } from '@/app/types/types';
 import { useRouter } from 'next/navigation';
-import { Ellipse, Heart } from './svgs/page';
+import { Ellipse, Heart } from './svgs';
 import ModalLogin from './ModalLogin';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Alert from '../components/Alert';
-import { Back } from '../components/svgs/page';
+import { Back } from '../components/svgs';
 
 const Login = () => {
     const [username, setUsername] = useState('');

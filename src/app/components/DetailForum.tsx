@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import { ForumPost, User, DecodedToken, Reply } from '@/app/types/types';
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
-import { Ellipse, Emote, Heart, Vertikal } from './svgs/page';
+import { Ellipse, Emote, Heart, Vertikal } from './svgs';
 import Dropdown from './Dropdown';
 import ReportModal from './ReportModal';
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';

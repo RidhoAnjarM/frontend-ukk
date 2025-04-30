@@ -6,7 +6,7 @@ import ModalWhite from '@/app/components/ModalWhite';
 import { Reports, UserProfile } from '@/app/types/types';
 import Alert from '@/app/components/Alert';
 import axios from 'axios';
-import { Ellipse} from '@/app/components/svgs/page';
+import { Ellipse} from '@/app/components/svgs';
 
 export default function UserReport() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
