@@ -347,13 +347,6 @@ export default function User() {
                       >
                         Edit
                       </button>
-                      <Ellipse className="w-1 h-1" />
-                      <button
-                        onClick={() => handleDeleteUser(user.id)}
-                        className="text-red-600 hover:underline"
-                      >
-                        Hapus
-                      </button>
                     </td>
                   </tr>
                 ))

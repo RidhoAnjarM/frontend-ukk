@@ -329,7 +329,7 @@ const PostingModal: React.FC<PostingModalProps> = ({ isOpen, onClose }) => {
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Tambahin #hastag disini biar lebih menarik"
+                  placeholder="Tambahin hastag disini(tidak perlu pake #)"
                   className="w-[510px] h-[40px] border border-gray-300 dark:border-hitam4 rounded-[6px] text-[14px] font-ruda ps-[10px] outline-none bg-putih1 dark:bg-hitam3 dark:text-abu text-black"
                 />
                 <button

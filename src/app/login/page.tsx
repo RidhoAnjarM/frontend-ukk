@@ -107,7 +107,7 @@ const Login = () => {
         <div className="min-h-screen bg-gradient-to-br from-putih1 to-gray-100 flex items-center justify-center p-4">
             {showAlert && <Alert type={alertType} message={alertMessage} onClose={() => setShowAlert(false)} />}
             <button
-                onClick={() => router.push("/pages/Landing")}
+                onClick={() => router.push("/")}
                 className='absolute top-0 left-0 text-ungu flex items-center text-[20px] font-ruda font-semibold gap-2 mt-4 ml-4 rounded-[10px] px-4 py-2 bg-white shadow-md hover:bg-gray-200 transition-all duration-300'
             >
                 <Back className=""/>
