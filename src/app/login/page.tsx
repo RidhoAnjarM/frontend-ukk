@@ -108,42 +108,42 @@ const Login = () => {
             {showAlert && <Alert type={alertType} message={alertMessage} onClose={() => setShowAlert(false)} />}
             <button
                 onClick={() => router.push("/")}
-                className='absolute top-0 left-0 text-ungu flex items-center text-[20px] font-ruda font-semibold gap-2 mt-4 ml-4 rounded-[10px] px-4 py-2 bg-white shadow-md hover:bg-gray-200 transition-all duration-300'
+                className="absolute top-0 left-0 text-ungu flex items-center text-[16px] lg:text-[20px] font-ruda font-semibold gap-2 mt-4 ml-4 rounded-[10px] px-3 lg:px-4 py-1 lg:py-2 bg-white shadow-md hover:bg-gray-200 transition-all duration-300"
             >
-                <Back className=""/>
+                <Back className="" />
             </button>
-            <div className="flex w-full max-w-[800px] min-h-[500px] bg-white rounded-[20px] shadow-xl overflow-hidden">
+            <div className="flex flex-col lg:flex-row w-full max-w-[400px] lg:max-w-[800px] bg-white rounded-[20px] shadow-xl overflow-hidden">
                 {/* Bagian Kiri: Form Login */}
-                <div className="w-1/2 p-8 flex flex-col items-center">
-                    <h1 className="text-[24px] mt-4 font-ruda font-bold text-hitam2 mb-6 animate-fade-in">
+                <div className="w-full lg:w-1/2 p-6 lg:p-8 flex flex-col items-center">
+                    <h1 className="text-[20px] lg:text-[24px] mt-4 font-ruda font-bold text-hitam2 mb-6 animate-fade-in">
                         Masuk ke ForuMedia
                     </h1>
-                    <form onSubmit={handleSubmit} className="mt-16">
+                    <form onSubmit={handleSubmit} className="mt-8 lg:mt-16 w-full">
                         <div>
                             <input
                                 id="username"
                                 onChange={(e) => setUsername(e.target.value)}
                                 type="text"
                                 autoComplete="off"
-                                placeholder='username'
-                                className="w-[300px] h-[40px] bg-putih2 rounded-[10px] placeholder-gray-600 outline-none px-[20px] text-hitam1 focus:ring-2 focus:ring-ungu transition-all duration-200"
+                                placeholder="username"
+                                className="w-full lg:w-[300px] h-[36px] lg:h-[40px] bg-putih2 rounded-[10px] placeholder-gray-600 outline-none px-[16px] lg:px-[20px] text-hitam1 focus:ring-2 focus:ring-ungu transition-all duration-200"
                                 required
                             />
                         </div>
-                        <div className='mt-4'>
+                        <div className="mt-4">
                             <input
                                 id="password"
                                 onChange={(e) => setPassword(e.target.value)}
                                 type="password"
-                                placeholder='password'
-                                className="w-[300px] h-[40px] bg-putih2 rounded-[10px] placeholder-gray-600 outline-none px-[20px] text-hitam1 focus:ring-2 focus:ring-ungu transition-all duration-200"
+                                placeholder="password"
+                                className="w-full lg:w-[300px] h-[36px] lg:h-[40px] bg-putih2 rounded-[10px] placeholder-gray-600 outline-none px-[16px] lg:px-[20px] text-hitam1 focus:ring-2 focus:ring-ungu transition-all duration-200"
                                 required
                             />
                         </div>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-[300px] h-[40px] bg-ungu text-white rounded-[10px] font-ruda text-[20px] font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center mt-8"
+                            className="w-full lg:w-[300px] h-[36px] lg:h-[40px] bg-ungu text-white rounded-[10px] font-ruda text-[16px] lg:text-[20px] font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center mt-8"
                         >
                             {loading ? (
                                 <div className="flex flex-row gap-2">
@@ -156,7 +156,7 @@ const Login = () => {
                             )}
                         </button>
                     </form>
-                    <p className="text-center mt-20 text-[14px] font-ruda text-hitam2">
+                    <p className="text-center mt-12 lg:mt-20 text-[12px] lg:text-[14px] font-ruda text-hitam2">
                         Belum punya akun?{' '}
                         <a href="/register" className="text-ungu hover:underline font-semibold">
                             Daftar Sekarang
@@ -164,8 +164,8 @@ const Login = () => {
                     </p>
                 </div>
 
-                {/* Bagian Kanan: Ilustrasi */}
-                <div className="w-1/2 h-[500px] flex items-center justify-center overflow-hidden">
+                {/* Bagian Kanan: Ilustrasi (Hanya Desktop) */}
+                <div className="hidden lg:flex lg:w-1/2 lg:h-[500px] items-center justify-center overflow-hidden">
                     <img
                         src="../images/Poster.svg"
                         alt="Ilustrasi Login"
