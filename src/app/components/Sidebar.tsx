@@ -211,7 +211,7 @@ export default function Sidebar() {
               onClick={handleLogout}
               disabled={loading}
               className="px-6 py-2 bg-red-500 text-white font-semibold rounded-full hover:bg-red-600 hover:shadow-lg transition-all duration-200 flex items-center justify-center"
-            >
+            > 
               {loading ? (
                 <div className="flex flex-row gap-2">
                   <div className="w-2 h-2 rounded-full bg-white animate-bounce [animation-delay:.7s]"></div>
